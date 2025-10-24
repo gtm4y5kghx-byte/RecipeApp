@@ -21,7 +21,7 @@ extension SourceType {
         case .photo_cookbook: return "book.fill"
         case .photo_process: return "photo"
         case .web_imported: return "cloud.fill"
-        case .manual: return "pencil.fill"
+        case .manual: return "pencil"
         }
     }
 }

@@ -13,6 +13,7 @@ struct RecipeFormView: View {
     @State private var notes = ""
     @State private var ingredientFields: [String] = [""]
     @State private var instructionFields: [String] = [""]
+    @State private var editMode: EditMode = .active
     
     let recipe: Recipe?
     
@@ -89,6 +90,9 @@ struct RecipeFormView: View {
                             .disabled(ingredientFields.count == 1)
                         }
                     }
+                    .onMove {source, destination in
+                        ingredientFields.move(fromOffsets: source, toOffset: destination)
+                    }
                     
                     Button(action: {
                         ingredientFields.append("")
@@ -114,6 +118,9 @@ struct RecipeFormView: View {
                             .disabled(instructionFields.count == 1)
                         }
                     }
+                    .onMove {source, destination in
+                        instructionFields.move(fromOffsets: source, toOffset: destination)
+                    }
                     
                     Button(action: {
                         instructionFields.append("")
@@ -122,6 +129,7 @@ struct RecipeFormView: View {
                     }
                 }
             }
+            .environment(\.editMode, $editMode)
             .navigationTitle(recipe == nil ? "New Recipe" : "Edit Recipe")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -137,6 +145,7 @@ struct RecipeFormView: View {
                     }
                     .disabled(title.isEmpty)
                 }
+                
             }
         }
     }
