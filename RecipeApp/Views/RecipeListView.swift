@@ -3,8 +3,9 @@ import SwiftData
 
 struct RecipeListView: View {
     @Query private var recipes: [Recipe]
-    @State private var searchText = ""
     @Environment(\.modelContext) private var modelContext
+    @State private var searchText = ""
+    @State private var showingAddRecipe = false
     
     var filteredRecipes: [Recipe] {
         if searchText.isEmpty {
@@ -47,7 +48,7 @@ struct RecipeListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        // TODO: Navigate to add recipe
+                        showingAddRecipe = true
                     }) {
                         Image(systemName: "plus")
                     }
@@ -62,6 +63,9 @@ struct RecipeListView: View {
                 }
             }
             .navigationTitle(Text("Recipes"))
+            .sheet(isPresented: $showingAddRecipe) {
+                RecipeFormView()
+            }
         }
     }
     

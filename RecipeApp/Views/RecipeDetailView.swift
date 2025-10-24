@@ -6,6 +6,7 @@ struct RecipeDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showDeleteAlert = false
+    @State private var showingEditSheet = false
     
     var body: some View {
         ScrollView {
@@ -22,6 +23,9 @@ struct RecipeDetailView: View {
             .padding()
         }
         .navigationTitle("Recipe Details")
+        .sheet(isPresented: $showingEditSheet) {
+            RecipeFormView(recipe: recipe)
+        }
     }
     
     private var titleSection: some View {
@@ -127,7 +131,7 @@ struct RecipeDetailView: View {
     private var actionButtonSection: some View {
         HStack(spacing: 16) {
             Button(action: {
-                // TODO: Navigate to edit (Story 1.6)
+                showingEditSheet = true
             }){
                 Label("Edit", systemImage: "pencil")
                     .frame(maxWidth: .infinity)
