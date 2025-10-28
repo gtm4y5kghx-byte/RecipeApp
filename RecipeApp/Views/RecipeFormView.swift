@@ -14,6 +14,8 @@ struct RecipeFormView: View {
     @State private var ingredientFields: [String] = [""]
     @State private var instructionFields: [String] = [""]
     @State private var editMode: EditMode = .active
+    @State private var showCancelAlert = false
+    @State private var hasUnsavedChanges = false
     
     let recipe: Recipe?
     
@@ -36,6 +38,30 @@ struct RecipeFormView: View {
             let instructionTexts = sortedInstructions.map { $0.instruction }
             _instructionFields = State(initialValue: instructionTexts.isEmpty ? [""] : instructionTexts )
         }
+    }
+    
+    private var formHasChanges: Bool {
+        if recipe == nil {
+            return !title.isEmpty ||
+            ingredientFields.contains(where: { !$0.isEmpty }) ||
+            instructionFields.contains(where: { !$0.isEmpty }) ||
+            !servings.isEmpty || !prepTime.isEmpty || !cookTime.isEmpty || !cuisine.isEmpty || !notes.isEmpty
+        }
+        
+        guard let recipe = recipe else { return false }
+        
+        let ingredientsChanged = ingredientFields != recipe.ingredients.sorted(by: { $0.order < $1.order}).map { $0.item }
+        let instructionsChanged = instructionFields != recipe.instructions.sorted(by: { $0.order < $1.order}).map { $0.instruction }
+        
+        
+        return title != recipe.title ||
+        servings != (recipe.servings.map { String($0) } ?? "") ||
+        prepTime != (recipe.prepTime.map { String($0) } ?? "") ||
+        cookTime != (recipe.cookTime.map { String($0) } ?? "") ||
+        cuisine != (recipe.cuisine ?? "") ||
+        notes != (recipe.notes ?? "") ||
+        ingredientsChanged ||
+        instructionsChanged
     }
     
     var body: some View {
@@ -135,7 +161,11 @@ struct RecipeFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        dismiss()
+                        if formHasChanges {
+                            showCancelAlert = true
+                        } else {
+                            dismiss()
+                        }
                     }
                 }
                 
@@ -147,6 +177,14 @@ struct RecipeFormView: View {
                 }
                 
             }
+        }
+        .alert("Discard Changes?", isPresented: $showCancelAlert) {
+            Button("Keep Editing", role: .cancel) { }
+            Button("Discard", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("You have unsaved changes. Are you sure you want to discard them?")
         }
     }
     
