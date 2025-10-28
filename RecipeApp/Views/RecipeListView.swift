@@ -39,6 +39,7 @@ struct RecipeListView: View {
                             }
                         }
                     }
+                    .onDelete(perform: deleteRecipes)
                 }
             }
             .searchable(text: $searchText, prompt: "Search Recipes")
@@ -67,6 +68,14 @@ struct RecipeListView: View {
                 RecipeFormView()
             }
         }
+    }
+    
+    private func deleteRecipes(at offsets: IndexSet) {
+        for index in offsets {
+            let recipe = filteredRecipes[index]
+            modelContext.delete(recipe)
+        }
+        try? modelContext.save()
     }
     
     private func createTestRecipe() {
