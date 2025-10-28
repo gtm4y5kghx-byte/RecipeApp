@@ -56,10 +56,20 @@ struct RecipeListView: View {
                 }
                 
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
-                        createTestRecipe()
-                    }) {
-                        Label("Test", systemImage: "wrench.and.screwdriver")
+                    Menu {
+                        Button(action: {
+                            SampleData.loadSampleRecipes(into: modelContext)
+                        }) {
+                            Label("Load Sample Recipes", systemImage: "tray.full")
+                        }
+                        
+                        Button(role: .destructive, action: {
+                            SampleData.clearAllData(from: modelContext)
+                        }) {
+                            Label("Clear All Data", systemImage: "trash")
+                        }
+                    } label: {
+                        Label("Dev Tools", systemImage: "wrench.and.screwdriver")
                     }
                 }
             }
@@ -75,41 +85,6 @@ struct RecipeListView: View {
             let recipe = filteredRecipes[index]
             modelContext.delete(recipe)
         }
-        try? modelContext.save()
-    }
-    
-    private func createTestRecipe() {
-        let recipe = Recipe(title: "Grandma's Apple Pie", sourceType: .photo_card)
-        recipe.servings = 8
-        recipe.prepTime = 20
-        recipe.cookTime = 45
-        recipe.notes = "Use Granny Smith apples for best results. Mom's favorite!"
-        
-        // Add ingredients
-        let flour = Ingredient(quantity: "2", unit: "cups", item: "all-purpose flour", preparation: nil, section: nil)
-        flour.order = 0
-        
-        let sugar = Ingredient(quantity: "1", unit: "cup", item: "sugar", preparation: nil, section: nil)
-        sugar.order = 1
-        
-        let apples = Ingredient(quantity: "6", unit: nil, item: "apples", preparation: "sliced", section: nil)
-        apples.order = 2
-        
-        recipe.ingredients = [flour, sugar, apples]
-        
-        // Add instructions
-        let step1 = Step(instruction: "Preheat oven to 350°F")
-        step1.order = 0
-        
-        let step2 = Step(instruction: "Mix flour and sugar in a large bowl")
-        step2.order = 1
-        
-        let step3 = Step(instruction: "Arrange sliced apples in pie dish and cover with flour mixture")
-        step3.order = 2
-        
-        recipe.instructions = [step1, step2, step3]
-        
-        modelContext.insert(recipe)
         try? modelContext.save()
     }
 }
