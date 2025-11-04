@@ -6,6 +6,7 @@ struct RecipeListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
     @State private var showingAddRecipe = false
+    @State private var error: Error?
     
     var filteredRecipes: [Recipe] {
         if searchText.isEmpty {
@@ -77,6 +78,7 @@ struct RecipeListView: View {
             .sheet(isPresented: $showingAddRecipe) {
                 RecipeFormView()
             }
+            .errorAlert($error)
         }
     }
     
@@ -85,7 +87,12 @@ struct RecipeListView: View {
             let recipe = filteredRecipes[index]
             modelContext.delete(recipe)
         }
-        try? modelContext.save()
+       
+        do {
+            try modelContext.save()
+        } catch let saveError {
+            error = saveError
+        }
     }
 }
 

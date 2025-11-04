@@ -16,6 +16,7 @@ struct RecipeFormView: View {
     @State private var editMode: EditMode = .active
     @State private var showCancelAlert = false
     @State private var hasUnsavedChanges = false
+    @State private var error: Error?
     
     let recipe: Recipe?
     
@@ -186,6 +187,7 @@ struct RecipeFormView: View {
         } message: {
             Text("You have unsaved changes. Are you sure you want to discard them?")
         }
+        .errorAlert($error)
     }
     
     private func saveRecipe() {
@@ -225,8 +227,12 @@ struct RecipeFormView: View {
         
         recipeToSave.lastModified = Date()
         
-        try? modelContext.save()
-        
-        dismiss()
+        do {
+            try modelContext.save()
+            HapticFeedback.success.trigger()
+            dismiss()
+        } catch let saveError {
+            error = saveError
+        }
     }
 }

@@ -7,6 +7,8 @@ struct RecipeDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showDeleteAlert = false
     @State private var showingEditSheet = false
+    @State private var error: Error?
+    
     
     var body: some View {
         ScrollView {
@@ -26,6 +28,7 @@ struct RecipeDetailView: View {
         .sheet(isPresented: $showingEditSheet) {
             RecipeFormView(recipe: recipe)
         }
+        .errorAlert($error)
     }
     
     private var titleSection: some View {
@@ -105,7 +108,13 @@ struct RecipeDetailView: View {
         HStack(spacing: 24) {
             Button(action: {
                 recipe.isFavorite.toggle()
-                try? modelContext.save()
+                HapticFeedback.light.trigger()
+                do {
+                    try modelContext.save()
+                } catch let saveError {
+                    recipe.isFavorite.toggle()
+                    error = saveError
+                }
             }) {
                 Label(
                     recipe.isFavorite ? "Favorited" : "Favorite",
@@ -117,8 +126,15 @@ struct RecipeDetailView: View {
             HStack(spacing: 4) {
                 ForEach(1...5, id: \.self) { star in
                     Button(action: {
+                        let previousRating = recipe.rating
                         recipe.rating = star
-                        try? modelContext.save()
+                        HapticFeedback.selection.trigger()
+                        do {
+                            try modelContext.save()
+                        } catch let saveError {
+                            recipe.rating = previousRating
+                            error = saveError
+                        }
                     }) {
                         Image(systemName: star <= (recipe.rating ?? 0) ? "star.fill" : "star")
                             .foregroundStyle(.yellow)
@@ -158,8 +174,13 @@ struct RecipeDetailView: View {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 modelContext.delete(recipe)
-                try? modelContext.save()
-                dismiss()
+                do {
+                    try modelContext.save()
+                    HapticFeedback.warning.trigger()
+                    dismiss()
+                } catch let saveError {
+                    error = saveError
+                }
             }
         } message: {
             Text("Are you sure you want to delete '\(recipe.title)'? This action cannot be undone.")
@@ -183,9 +204,3 @@ struct RecipeDetailView: View {
         return parts.joined(separator: " ")
     }
 }
-
-// #Preview {
-//     RecipeDetailView(recipe: ...)  // Need sample data
-// }
-
-
