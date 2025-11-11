@@ -3,9 +3,12 @@ import AVFoundation
 
 struct VoiceRecordingView: View {
     @Environment(\.dismiss) var dismiss
+    @State private var audioRecorder = AudioRecorder()
     @State private var isRecording = false
     @State private var recordingDuration: TimeInterval = 0
     @State private var timer: Timer?
+    @State private var animationAmount: CGFloat = 1.0
+    @State private var error: Error?
     
     var body: some View {
         NavigationStack {
@@ -15,12 +18,15 @@ struct VoiceRecordingView: View {
                         Circle()
                             .fill(Color.red.opacity(0.3))
                             .frame(width: 120, height: 120)
-                            .scaleEffect(isRecording ? 1.2 : 1.0)
-                            .animation(
-                                .easeInOut(duration: 1.0)
-                                .repeatForever(autoreverses: true),
-                                value: isRecording
-                            )
+                            .scaleEffect(animationAmount)
+                            .onAppear {
+                                withAnimation(
+                                    .easeInOut(duration: 1.0)
+                                    .repeatForever(autoreverses: true)
+                                ) {
+                                    animationAmount = 1.2
+                                }
+                            }
                     }
                     
                     Circle()
@@ -62,6 +68,7 @@ struct VoiceRecordingView: View {
                 }
             }
         }
+        .errorAlert($error)
     }
     
     private var formattedDuration: String {
@@ -71,23 +78,31 @@ struct VoiceRecordingView: View {
     }
     
     private func toggleRecording() {
-        isRecording.toggle()
-        
         if isRecording {
-            startRecording()
+            audioRecorder.stopRecording()
+            stopTimer()
+            isRecording = false
         } else {
-            stopRecording()
+            Task {
+                do {
+                    try await audioRecorder.startRecording()
+                    startTimer()
+                    isRecording = true
+                } catch {
+                    self.error = error
+                }
+            }
         }
     }
     
-    private func startRecording() {
+    private func startTimer() {
         recordingDuration = 0
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             recordingDuration += 1
         }
     }
     
-    private func stopRecording() {
+    private func stopTimer() {
         timer?.invalidate()
         timer = nil
     }
