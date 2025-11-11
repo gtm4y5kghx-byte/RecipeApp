@@ -6,6 +6,7 @@ struct RecipeListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
     @State private var showingAddRecipe = false
+    @State private var showingVoiceRecording = false
     @State private var error: Error?
     
     var filteredRecipes: [Recipe] {
@@ -56,6 +57,14 @@ struct RecipeListView: View {
                     }
                 }
                 
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        showingVoiceRecording = true
+                    }) {
+                        Image(systemName: "mic.fill")
+                    }
+                }
+                
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
                         Button(action: {
@@ -73,10 +82,14 @@ struct RecipeListView: View {
                         Label("Dev Tools", systemImage: "wrench.and.screwdriver")
                     }
                 }
+                
             }
             .navigationTitle(Text("Recipes"))
             .sheet(isPresented: $showingAddRecipe) {
                 RecipeFormView()
+            }
+            .sheet(isPresented: $showingVoiceRecording) {
+                VoiceRecordingView()
             }
             .errorAlert($error)
         }
@@ -87,7 +100,7 @@ struct RecipeListView: View {
             let recipe = filteredRecipes[index]
             modelContext.delete(recipe)
         }
-       
+        
         do {
             try modelContext.save()
         } catch let saveError {
