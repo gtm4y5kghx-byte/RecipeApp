@@ -6,10 +6,7 @@ class Recipe {
     var id: UUID
     var title: String
     var sourceType: SourceType
-    var sourceURL: String?
-    var originalPhotos: [Data] = []
     var originalAudio: Data?
-    var ocrText: String?
     var servings: Int?
     var prepTime: Int?
     var cookTime: Int?
@@ -76,11 +73,6 @@ class Step {
 }
 
 enum SourceType: String, Codable {
-    case voice_created
-    case voice_oral_history
-    case photo_card
-    case photo_cookbook
-    case photo_process
-    case web_imported
     case manual
+    case voice_created
 }

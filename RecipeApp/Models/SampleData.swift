@@ -28,7 +28,7 @@ struct SampleData {
     }
 
     private static func createApplePie() -> Recipe {
-        let recipe = Recipe(title: "Grandma's Apple Pie", sourceType: .photo_card)
+        let recipe = Recipe(title: "Grandma's Apple Pie", sourceType: .manual)
         recipe.servings = 8
         recipe.prepTime = 30
         recipe.cookTime = 50
@@ -69,7 +69,7 @@ struct SampleData {
     }
 
     private static func createChocolateCake() -> Recipe {
-        let recipe = Recipe(title: "Simple Chocolate Cake", sourceType: .web_imported)
+        let recipe = Recipe(title: "Simple Chocolate Cake", sourceType: .manual)
         recipe.servings = 12
         recipe.prepTime = 20
         recipe.cookTime = 35
@@ -184,7 +184,7 @@ struct SampleData {
     }
 
     private static func createPasta() -> Recipe {
-        let recipe = Recipe(title: "Garlic Butter Pasta", sourceType: .photo_cookbook)
+        let recipe = Recipe(title: "Garlic Butter Pasta", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 5
         recipe.cookTime = 15
