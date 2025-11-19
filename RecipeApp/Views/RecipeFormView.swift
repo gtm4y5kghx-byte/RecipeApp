@@ -1,6 +1,32 @@
 import SwiftUI
 import SwiftData
 
+struct InstructionRowView: View {
+    @Binding var instruction: String
+    let index: Int
+    let canDelete: Bool
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            Text("\(index + 1).")
+                .foregroundStyle(.secondary)
+                .padding(.top, 8)
+            
+            TextEditor(text: $instruction)
+                .frame(minHeight: 60)
+                .scrollContentBackground(.hidden)
+            
+            Button(action: onDelete) {
+                Image(systemName: "minus.circle.fill")
+                    .foregroundStyle(.red)
+            }
+            .disabled(!canDelete)
+            .padding(.top, 8)
+        }
+    }
+}
+
 struct RecipeFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -130,20 +156,14 @@ struct RecipeFormView: View {
                 
                 Section("Instructions") {
                     ForEach(instructionFields.indices, id: \.self) { index in
-                        HStack(alignment: .top) {
-                            Text("\(index + 1).")
-                                .foregroundStyle(.secondary)
-                            
-                            TextField("e.g., Preheat oven to 350°F", text: $instructionFields[index])
-                            
-                            Button(action: {
+                        InstructionRowView(
+                            instruction: $instructionFields[index],
+                            index: index,
+                            canDelete: instructionFields.count > 1,
+                            onDelete: {
                                 instructionFields.remove(at: index)
-                            }) {
-                                Image(systemName: "minus.circle.fill")
-                                    .foregroundStyle(.red)
                             }
-                            .disabled(instructionFields.count == 1)
-                        }
+                        )
                     }
                     .onMove {source, destination in
                         instructionFields.move(fromOffsets: source, toOffset: destination)
@@ -193,8 +213,11 @@ struct RecipeFormView: View {
     private func saveRecipe() {
         let recipeToSave: Recipe
         
-        if let existingRecipe = recipe {
-            recipeToSave = existingRecipe
+        if let providedRecipe = recipe {
+            recipeToSave = providedRecipe
+            if providedRecipe.modelContext == nil {
+                modelContext.insert(recipeToSave)
+            }
         } else {
             recipeToSave = Recipe(title: title, sourceType: .manual)
             modelContext.insert(recipeToSave)

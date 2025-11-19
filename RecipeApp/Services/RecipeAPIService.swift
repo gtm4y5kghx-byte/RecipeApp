@@ -16,6 +16,10 @@ struct RecipeAPIService {
         request.httpBody = try JSONEncoder().encode(body)
         
         let (data, response) = try await URLSession.shared.data(for: request)
+        if let jsonString = String(data: data, encoding: .utf8) {
+            print("📥 Backend response:")
+            print(jsonString)
+        }
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -26,9 +30,13 @@ struct RecipeAPIService {
         }
         
         let decoder = JSONDecoder()
-        let recipeResponse = try decoder.decode(RecipeResponse.self, from: data)
-        return recipeResponse
+        let apiResponse = try decoder.decode(RecipeAPIResponse.self, from: data)
+        return apiResponse.recipe
     }
+}
+
+struct RecipeAPIResponse: Codable {
+    let recipe: RecipeResponse
 }
 
 struct RecipeResponse: Codable {

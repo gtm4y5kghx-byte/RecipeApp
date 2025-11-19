@@ -82,6 +82,9 @@ struct VoiceRecordingView: View {
                     }
                 }
             }
+            .navigationDestination(item: $structuredRecipe) { recipe in
+                RecipeFormView(recipe: recipe)
+            }
         }
         .errorAlert($error)
         .overlay {
@@ -104,9 +107,6 @@ struct VoiceRecordingView: View {
                     .cornerRadius(16)
                 }
             }
-        }
-        .navigationDestination(item: $structuredRecipe) { recipe in
-            RecipeFormView(recipe: recipe)
         }
     }
     
