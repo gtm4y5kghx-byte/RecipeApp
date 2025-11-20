@@ -63,18 +63,14 @@ class SpeechTranscriber {
     }
 
     func stopTranscribing() {
-        // Set stopped flag FIRST to ignore any late callbacks
         isStopped = true
 
-        // Cancel the recognition task
         recognitionTask?.cancel()
         recognitionTask = nil
 
-        // End the recognition request
         recognitionRequest?.endAudio()
         recognitionRequest = nil
 
-        // Stop audio engine
         if audioEngine.isRunning {
             audioEngine.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
