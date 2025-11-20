@@ -1,57 +1,48 @@
 import UIKit
-import Social
 import UniformTypeIdentifiers
 
-class ShareViewController: SLComposeServiceViewController {
-    private var sharedURL: URL?
+class ShareViewController: UIViewController {
     
-    override func presentationAnimationDidFinish() {
-        super.presentationAnimationDidFinish()
-        textView.text = "Loading Recipe..."
-        extractURL()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        setupUI()
+        setupNavigationBar()
     }
     
-    private func extractURL() {
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let attachments = extensionItem.attachments else {
-            textView.text = "No URL found."
-            return
-        }
+    private func setupUI() {
+        let label = UILabel()
+        label.text = "Hello from UIViewController"
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 24, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
         
-        for provider in attachments {
-            if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                provider.loadItem(forTypeIdentifier: UTType.url.identifier) { [weak self] item, error in
-                    DispatchQueue.main.async {
-                        if let url = item as? URL {
-                            self?.sharedURL = url
-                            self?.textView.text = "Found URL: \(url.host ?? "unknown")"
-                            self?.validateContent()
-                        } else if let error = error {
-                            self?.textView.text = "Error loading item: \(error.localizedDescription)"
-                        }
-                    }
-                }
-                return
-            }
-        }
-        
-        textView.text = "Error: No URL found."
+        view.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
-
-    override func isContentValid() -> Bool {
-        return sharedURL != nil
-    }
-
-    override func didSelectPost() {
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
     
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    private func setupNavigationBar() {
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .cancel,
+            target: self,
+            action: #selector(cancelTapped)
+        )
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(doneTapped)
+        )
     }
-
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return []
+    
+    @objc private func cancelTapped() {
+        extensionContext?.cancelRequest(withError: NSError(domain: "RecipeApp", code: 0))
     }
-
+    
+    @objc private func doneTapped() {
+        extensionContext?.completeRequest(returningItems: nil)
+    }
 }
