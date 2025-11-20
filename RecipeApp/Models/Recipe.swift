@@ -6,7 +6,6 @@ class Recipe {
     var id: UUID
     var title: String
     var sourceType: SourceType
-    var originalAudio: Data?
     var servings: Int?
     var prepTime: Int?
     var cookTime: Int?

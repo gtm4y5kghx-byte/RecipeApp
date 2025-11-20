@@ -30,6 +30,7 @@ struct InstructionRowView: View {
 struct RecipeFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+
     
     @State private var title = ""
     @State private var servings = ""
@@ -45,9 +46,11 @@ struct RecipeFormView: View {
     @State private var error: Error?
     
     let recipe: Recipe?
+    var onSaveFromVoiceRecording: (() -> Void)? = nil
     
-    init(recipe: Recipe? = nil) {
+    init(recipe: Recipe? = nil, onSaveFromVoiceRecording: (() -> Void)? = nil) {
         self.recipe = recipe
+        self.onSaveFromVoiceRecording = onSaveFromVoiceRecording
         
         if let recipe = recipe {
             _title = State(initialValue: recipe.title)
@@ -253,7 +256,12 @@ struct RecipeFormView: View {
         do {
             try modelContext.save()
             HapticFeedback.success.trigger()
-            dismiss()
+            
+            if let dismissAction = onSaveFromVoiceRecording {
+                dismissAction()
+            } else {
+                dismiss()
+            }
         } catch let saveError {
             error = saveError
         }

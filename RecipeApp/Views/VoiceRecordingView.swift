@@ -1,24 +1,32 @@
 import SwiftUI
 import AVFoundation
+import UIKit
 
 struct VoiceRecordingView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var audioRecorder = AudioRecorder()
-    @State private var isRecording = false
+    
+    enum RecordingState {
+        case idle
+        case recording
+        case stopped
+        case processing
+    }
+    
     @State private var recordingDuration: TimeInterval = 0
     @State private var timer: Timer?
     @State private var animationAmount: CGFloat = 1.0
-    @State private var speechRecognizer = SpeechRecognizer()
+    @State private var speechTranscriber = SpeechTranscriber()
     @State private var apiService = RecipeAPIService()
-    @State private var isProcessing = false
     @State private var structuredRecipe: Recipe?
+    @State private var showCancelConfirmation = false
+    @State private var recordingState: RecordingState = .idle
     @State private var error: Error?
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 40) {
                 ZStack {
-                    if isRecording {
+                    if recordingState == .recording {
                         Circle()
                             .fill(Color.red.opacity(0.3))
                             .frame(width: 120, height: 120)
@@ -34,18 +42,18 @@ struct VoiceRecordingView: View {
                     }
                     
                     Circle()
-                        .fill(isRecording ? Color.red : Color.gray.opacity(0.3))
+                        .fill(recordingState == .recording ? Color.red : Color.gray.opacity(0.3))
                         .frame(width: 100, height: 100)
                 }
                 
                 Text(formattedDuration)
                     .font(.system(size: 48, weight: .light, design: .monospaced))
-                    .foregroundStyle(isRecording ? .primary : .secondary)
+                    .foregroundStyle(recordingState == .recording ? .primary : .secondary)
                 
                 ScrollView {
-                    Text(speechRecognizer.transcript.isEmpty ? "Tap record and start speaking..." : speechRecognizer.transcript)
+                    Text(speechTranscriber.transcript.isEmpty ? "Tap record and start speaking..." : speechTranscriber.transcript)
                         .font(.body)
-                        .foregroundStyle(speechRecognizer.transcript.isEmpty ? .secondary : .primary)
+                        .foregroundStyle(speechTranscriber.transcript.isEmpty ? .secondary : .primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
                 }
@@ -53,24 +61,52 @@ struct VoiceRecordingView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
                 
-                Button(action: toggleRecording) {
-                    ZStack {
-                        Circle()
-                            .fill(isRecording ? Color.red : Color.blue)
-                            .frame(width: 80, height: 80)
-                        
-                        if isRecording {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.white)
-                                .frame(width: 30, height: 30)
-                        } else {
+                if recordingState == .idle || recordingState == .recording {
+                    Button(action: toggleRecording) {
+                        ZStack {
                             Circle()
-                                .fill(Color.white)
-                                .frame(width: 30, height: 30)
+                                .fill(recordingState == .recording ? Color.red : Color.blue)
+                                .frame(width: 80, height: 80)
+                            
+                            if recordingState == .recording {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.white)
+                                    .frame(width: 30, height: 30)
+                            } else {
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 30, height: 30)
+                            }
                         }
                     }
+                    .buttonStyle(.plain)
+                } else if recordingState == .stopped {
+                    VStack(spacing: 16) {
+                        Button(action: processRecipe) {
+                            Text("Process Recipe")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .cornerRadius(12)
+                        }
+                        
+                        Button(action: {
+                            if !speechTranscriber.transcript.isEmpty {
+                                showCancelConfirmation = true
+                            } else {
+                                resetToIdle()
+                                dismiss()
+                            }
+                        }) {
+                            Text("Discard")
+                                .font(.subheadline)
+                                .foregroundColor(.red)
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                .buttonStyle(.plain)
             }
             .padding()
             .navigationTitle("Record Recipe")
@@ -78,17 +114,39 @@ struct VoiceRecordingView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        dismiss()
+                        if recordingState == .recording || recordingState == .stopped {
+                            showCancelConfirmation = true
+                        } else {
+                            dismiss()
+                        }
                     }
                 }
             }
+            .confirmationDialog("Discard Recording?", isPresented: $showCancelConfirmation, titleVisibility: .visible) {
+                Button("Discard", role: .destructive) {
+                    if recordingState == .recording {
+                        speechTranscriber.stopTranscribing()
+                        stopTimer()
+                    }
+
+                    resetToIdle()
+                    speechTranscriber.reset()
+
+                    let haptic = UIImpactFeedbackGenerator(style: .medium)
+                    haptic.impactOccurred()
+
+                    dismiss()
+                }
+                
+                Button("Keep Recording", role: .cancel ) { }
+            }
             .navigationDestination(item: $structuredRecipe) { recipe in
-                RecipeFormView(recipe: recipe)
+              makeRecipeFormView(for: recipe)
             }
         }
         .errorAlert($error)
         .overlay {
-            if isProcessing {
+            if recordingState == .processing {
                 ZStack {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
@@ -103,7 +161,7 @@ struct VoiceRecordingView: View {
                             .foregroundStyle(.white)
                     }
                     .padding(32)
-                    .background(Color(.systemGray6))
+                    .background(Color(.systemGray6)) 
                     .cornerRadius(16)
                 }
             }
@@ -117,33 +175,96 @@ struct VoiceRecordingView: View {
     }
     
     private func toggleRecording() {
-        if isRecording {
-            audioRecorder.stopRecording()
-            speechRecognizer.stopTranscribing()
+        if recordingState == .recording {
+            speechTranscriber.stopTranscribing()
             stopTimer()
-            isRecording = false
-            processTranscript()
-        } else {
+            recordingState = .stopped
+
+            let haptic = UIImpactFeedbackGenerator(style: .medium)
+            haptic.impactOccurred()
+
+        } else if recordingState == .idle {
             Task {
                 do {
-                    let speechPermission = await speechRecognizer.requestPermission()
+                    let speechPermission = await speechTranscriber.requestPermission()
                     guard speechPermission else {
-                        throw SpeechRecognizerError.permissionDenied
+                        throw SpeechTranscriberError.permissionDenied
                     }
-                    
-                    speechRecognizer.reset()
-                    
-                    try await audioRecorder.startRecording()
-                    try speechRecognizer.startTranscribing()
-                    
+
+                    speechTranscriber.reset()
+                    try speechTranscriber.startTranscribing()
+
                     startTimer()
-                    isRecording = true
+                    recordingState = .recording
+
+                    let haptic = UIImpactFeedbackGenerator(style: .medium)
+                    haptic.impactOccurred()
+
                 } catch {
+                    let haptic = UIImpactFeedbackGenerator(style: .heavy)
+                    haptic.impactOccurred()
+
                     self.error = error
                 }
             }
         }
     }
+    
+    private func processRecipe() {
+        guard !speechTranscriber.transcript.isEmpty else {
+            error = NSError(
+                domain: "RecipeApp",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "No transcript available. Please record again."]
+            )
+            return
+        }
+        
+        recordingState = .processing
+        
+        Task {
+            do {
+                let response = try await apiService.structureRecipe(from: speechTranscriber.transcript)
+                
+                if (response.title.isEmpty || response.title.lowercased().contains("unknown"))
+                    && response.ingredients.isEmpty {
+                    throw NSError(
+                        domain: "RecipeApp",
+                        code: 2,
+                        userInfo: [NSLocalizedDescriptionKey: "Could not identify a recipe. Please try again with recipe details."]
+                    )
+                }
+                
+                let recipe = createRecipe(from: response)
+                
+                recordingState = .idle
+                
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            
+                structuredRecipe = recipe
+                
+            } catch {
+                recordingState = .stopped
+                
+                let haptic = UIImpactFeedbackGenerator(style: .heavy)
+                haptic.impactOccurred()
+                
+                self.error = error
+            }
+        }
+    }
+    
+    private func resetToIdle() {
+        recordingState = .idle
+        recordingDuration = 0
+    }
+    
+    private func makeRecipeFormView(for recipe: Recipe) -> RecipeFormView {
+         RecipeFormView(recipe: recipe, onSaveFromVoiceRecording: {
+             speechTranscriber.reset()
+             dismiss()
+         })
+     }
     
     private func startTimer() {
         recordingDuration = 0
@@ -155,34 +276,6 @@ struct VoiceRecordingView: View {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
-    }
-    
-    private func processTranscript() {
-        let transcript = speechRecognizer.transcript
-        
-        guard !transcript.isEmpty else {
-            error = NSError(
-                domain: "RecipeApp",
-                code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "No transcript available. Please try recording again."]
-            )
-            return
-        }
-        
-        isProcessing = true
-        
-        Task {
-            do {
-                let response = try await apiService.structureRecipe(from: transcript)
-                isProcessing = false
-                
-                let recipe = createRecipe(from: response)
-                structuredRecipe = recipe
-            } catch {
-                isProcessing = false
-                self.error = error
-            }
-        }
     }
     
     private func createRecipe(from response: RecipeResponse) -> Recipe {
@@ -214,12 +307,6 @@ struct VoiceRecordingView: View {
             let step = Step(instruction: instructionResponse.instruction)
             step.order = instructionResponse.order
             return step
-        }
-        
-        if let audioURL = audioRecorder.getRecordingURL() {
-            // TODO: Convert audio file to Data and store
-            // For now, just store the file path in notes
-            recipe.originalAudio = nil // Will implement audio storage in Story 2.5
         }
         
         return recipe
