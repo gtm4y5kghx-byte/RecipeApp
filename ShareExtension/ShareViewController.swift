@@ -147,26 +147,17 @@ class ShareViewController: UIViewController {
         }
         let jsonString = String(html[jsonRange])
         
-        guard let data = jsonString.data(using: .utf8) else {
+        guard let data = jsonString.data(using: .utf8),
+              let jsonObject = try? JSONSerialization.jsonObject(with: data) else {
             return nil
         }
         
-        if let array = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-            for item in array {
-                if let type = item["@type"] as? String, type == "Recipe" {
-                    return item
-                } else if let types = item["@type"] as? [String], types.contains("Recipe") {
-                    return item
-                }
-            }
+        if let array = jsonObject as? [[String: Any]] {
+            return array.first { isRecipeType($0) }
         }
         
-        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            if let type = json["@type"] as? String, type == "Recipe" {
-                return json
-            } else if let types = json["@type"] as? [String], types.contains("Recipe") {
-                return json
-            }
+        if let dictionary = jsonObject as? [String: Any], isRecipeType(dictionary) {
+            return dictionary
         }
         
         return nil
@@ -174,24 +165,8 @@ class ShareViewController: UIViewController {
     
     private func parseRecipeData(from jsonLD: [String: Any]) -> RecipeData {
         let title = jsonLD["name"] as? String ?? "Untitled Recipe"
-        
-        var ingredients: [String] = []
-        if let ingredientStrings = jsonLD["recipeIngredient"] as? [String] {
-            ingredients = ingredientStrings
-        } else if let ingredientObjects = jsonLD["recipeIngredient"] as? [[String: Any]] {
-            ingredients = ingredientObjects.compactMap { $0["text"] as? String }
-        } else if let singleString = jsonLD["recipeIngredient"] as? String {
-            ingredients = [singleString]
-        }
-        
-        var instructions: [String] = []
-        if let instructionStrings = jsonLD["recipeInstructions"] as? [String] {
-            instructions = instructionStrings
-        } else if let instructionObjects = jsonLD["recipeInstructions"] as? [[String: Any]] {
-            instructions = instructionObjects.compactMap { $0["text"] as? String }
-        } else if let singleString = jsonLD["recipeInstructions"] as? String {
-            instructions = [singleString]
-        }
+        let ingredients = parseStringArray(from: jsonLD["recipeIngredient"])
+        let instructions = parseStringArray(from: jsonLD["recipeInstructions"])
         
         return RecipeData(
             title: title,
@@ -225,6 +200,35 @@ class ShareViewController: UIViewController {
             target: self,
             action: #selector(addToAppTapped)
         )
+    }
+    
+    private func isRecipeType(_ object: [String: Any]) -> Bool {
+        if let type = object["@type"] as? String {
+            return type == "Recipe"
+        } else if let types = object["@type"] as? [String] {
+            return types.contains("Recipe")
+        }
+        return false
+    }
+    
+    private func parseStringArray(from value: Any?) -> [String] {
+        guard let value = value else { return [] }
+        
+        if let strings = value as? [String] {
+            return strings
+        }
+        
+        // Handle array of objects with "text" field (e.g., HowToStep instructions)
+        if let objects = value as? [[String: Any]] {
+            return objects.compactMap { $0["text"] as? String }
+        }
+        
+        // Handle single string (rare but valid per JSON-LD spec)
+        if let singleString = value as? String {
+            return [singleString]
+        }
+        
+        return []
     }
     
     private func showError(_ message: String) {
