@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 class ShareViewController: UIViewController {
     
     private var sharedURL: URL?
-    private var recipeData: RecipeData?
+    private var recipeData: RecipeImportData?
     
     private let loadingSpinner = UIActivityIndicatorView(style: .large)
     private let loadingLabel = UILabel()
@@ -163,35 +163,98 @@ class ShareViewController: UIViewController {
         return nil
     }
     
-    private func parseRecipeData(from jsonLD: [String: Any]) -> RecipeData {
+    private func parseRecipeData(from jsonLD: [String: Any]) -> RecipeImportData {
         let title = jsonLD["name"] as? String ?? "Untitled Recipe"
         let ingredients = parseStringArray(from: jsonLD["recipeIngredient"])
         let instructions = parseStringArray(from: jsonLD["recipeInstructions"])
         
-        return RecipeData(
+        let sourceURL = sharedURL?.absoluteString
+        let imageURL = parseImageURL(jsonLD["image"])
+        
+        let prepTime = parseISODuration(jsonLD["prepTime"] as? String)
+        let cookTime = parseISODuration(jsonLD["cookTime"] as? String)
+        let totalTime = parseISODuration(jsonLD["totalTime"] as? String)
+        
+        let servings = parseServings(jsonLD["recipeYield"])
+        let cuisine = parseCuisine(jsonLD["recipeCuisine"])
+        let category = parseCategory(jsonLD["recipeCategory"])
+        
+        let author = parseAuthor(jsonLD["author"])
+        let description = jsonLD["description"] as? String
+        
+        return RecipeImportData(
             title: title,
+            description: description,
+            sourceURL: sourceURL,
+            imageURL: imageURL,
+            prepTime: prepTime,
+            cookTime: cookTime,
+            totalTime: totalTime,
+            servings: servings,
+            cuisine: cuisine,
+            category: category,
             ingredients: ingredients,
-            instructions: instructions
+            instructions: instructions,
+            author: author
         )
     }
     
     private func showPreviewUI() {
         containerStackView.removeFromSuperview()
         
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let contentStack = UIStackView()
+        contentStack.axis = .vertical
+        contentStack.spacing = 12
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        
         let titleLabel = UILabel()
         titleLabel.text = recipeData?.title ?? "No Title"
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         titleLabel.numberOfLines = 0
         titleLabel.textAlignment = .center
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(titleLabel)
+        let dataLabel = UILabel()
+        dataLabel.numberOfLines = 0
+        dataLabel.font = .systemFont(ofSize: 12, weight: .regular)
+        dataLabel.textColor = .secondaryLabel
+        
+        if let data = recipeData {
+            var debugText = ""
+            debugText += "Source: \(data.sourceURL ?? "nil")\n"
+            debugText += "Description: \(data.description ?? "nil")\n"
+            debugText += "Author: \(data.author ?? "nil")\n"
+            debugText += "Servings: \(data.servings?.description ?? "nil")\n"
+            debugText += "Prep: \(data.prepTime?.description ?? "nil") mins\n"
+            debugText += "Cook: \(data.cookTime?.description ?? "nil") mins\n"
+            debugText += "Total: \(data.totalTime?.description ?? "nil") mins\n"
+            debugText += "Cuisine: \(data.cuisine ?? "nil")\n"
+            debugText += "Category: \(data.category ?? "nil")\n"
+            debugText += "Ingredients: \(data.ingredients.count)\n"
+            debugText += "Instructions: \(data.instructions.count)\n"
+            debugText += "Image URL: \(data.imageURL ?? "nil")\n"
+            dataLabel.text = debugText
+        }
+        
+        contentStack.addArrangedSubview(titleLabel)
+        contentStack.addArrangedSubview(dataLabel)
+        
+        scrollView.addSubview(contentStack)
+        view.addSubview(scrollView)
         
         NSLayoutConstraint.activate([
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            scrollView.topAnchor.constraint(equalTo: customNavigationBar.bottomAnchor, constant: 20),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
+            
+            contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
         
         navItem.rightBarButtonItem = UIBarButtonItem(
@@ -231,6 +294,96 @@ class ShareViewController: UIViewController {
         return []
     }
     
+    private func parseImageURL(_ value: Any?) -> String? {
+        if let imageString = value as? String {
+            return imageString
+        }
+        
+        if let imageObject = value as? [String: Any],
+           let url = imageObject["url"] as? String {
+            return url
+        }
+        
+        return nil
+    }
+    
+    private func parseCuisine(_ value: Any?) -> String? {
+        if let cuisineString = value as? String {
+            return cuisineString
+        }
+        
+        if let cuisineArray = value as? [String] {
+            return cuisineArray.first
+        }
+        
+        return nil
+    }
+    
+    private func parseCategory(_ value: Any?) -> String? {
+        if let categoryString = value as? String {
+            return categoryString
+        }
+        
+        if let categoryArray = value as? [String] {
+            return categoryArray.first
+        }
+        
+        return nil
+    }
+    
+    private func parseISODuration(_ duration: String?) -> Int? {
+        guard let duration = duration else { return nil }
+        
+        var totalMinutes = 0
+        
+        if let hoursRegex = try? NSRegularExpression(pattern: #"(\d+)H"#),
+           let match = hoursRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
+           let range = Range(match.range(at: 1), in: duration),
+           let hours = Int(duration[range]) {
+            totalMinutes += hours * 60
+        }
+        
+        if let minutesRegex = try? NSRegularExpression(pattern: #"(\d+)M"#),
+           let match = minutesRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
+           let range = Range(match.range(at: 1), in: duration),
+           let minutes = Int(duration[range]) {
+            totalMinutes += minutes
+        }
+        
+        return totalMinutes > 0 ? totalMinutes : nil
+    }
+    
+    private func parseServings(_ value: Any?) -> Int? {
+        if let intValue = value as? Int {
+            return intValue
+        }
+        
+        if let stringValue = value as? String {
+            let numbers = stringValue.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+            return Int(numbers)
+        }
+        
+        return nil
+    }
+    
+    private func parseAuthor(_ value: Any?) -> String? {
+        if let stringValue = value as? String {
+            return stringValue
+        }
+        
+        if let authorObject = value as? [String: Any],
+           let name = authorObject["name"] as? String {
+            return name
+        }
+        
+        if let authorArray = value as? [[String: Any]],
+           let name = authorArray.first?["name"] as? String {
+            return name
+        }
+        
+        return nil
+    }
+    
     private func showError(_ message: String) {
         let alert = UIAlertController(
             title: "Import Failed",
@@ -253,11 +406,5 @@ class ShareViewController: UIViewController {
     
     @objc private func addToAppTapped() {
         extensionContext?.completeRequest(returningItems: nil)
-    }
-    
-    struct RecipeData {
-        let title: String
-        let ingredients: [String]
-        let instructions: [String]
     }
 }
