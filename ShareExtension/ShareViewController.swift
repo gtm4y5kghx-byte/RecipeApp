@@ -170,7 +170,7 @@ class ShareViewController: UIViewController {
         
         let sourceURL = sharedURL?.absoluteString
         let imageURL = parseImageURL(jsonLD["image"])
-
+        
         let prepTime = parseISODuration(jsonLD["prepTime"] as? String)
         let cookTime = parseISODuration(jsonLD["cookTime"] as? String)
         let totalTime = parseISODuration(jsonLD["totalTime"] as? String)
@@ -339,9 +339,9 @@ class ShareViewController: UIViewController {
     
     private func parseISODuration(_ duration: String?) -> Int? {
         guard let duration = duration else { return nil }
-
+        
         var totalMinutes = 0
-
+        
         // Match hours after the 'T' separator
         if let hoursRegex = try? NSRegularExpression(pattern: #"T(\d+)H"#),
            let match = hoursRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
@@ -349,7 +349,7 @@ class ShareViewController: UIViewController {
            let hours = Int(duration[range]) {
             totalMinutes += hours * 60
         }
-
+        
         // Match minutes after the 'T' separator (and optionally after 'H')
         if let minutesRegex = try? NSRegularExpression(pattern: #"T\d*H?(\d+)M"#),
            let match = minutesRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
@@ -357,7 +357,7 @@ class ShareViewController: UIViewController {
            let minutes = Int(duration[range]) {
             totalMinutes += minutes
         }
-
+        
         return totalMinutes > 0 ? totalMinutes : nil
     }
     
@@ -413,6 +413,17 @@ class ShareViewController: UIViewController {
     }
     
     @objc private func addToAppTapped() {
-        extensionContext?.completeRequest(returningItems: nil)
+        guard let recipeData = recipeData else {
+            showError("No recipe data available")
+            return
+        }
+        
+        do {
+            try SharedDataManager.shared.savePendingImport(recipeData)
+            extensionContext?.completeRequest(returningItems: nil)
+        } catch {
+            showError("Failed to save recipe: \(error.localizedDescription)")
+        }
+        
     }
 }

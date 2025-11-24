@@ -67,6 +67,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Shared/RecipeImportData.swift,
+				Shared/SharedDataManager.swift,
 			);
 			target = 48A6C69D2ECF39F200C19EE6 /* ShareExtension */;
 		};
