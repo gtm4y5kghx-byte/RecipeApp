@@ -170,7 +170,7 @@ class ShareViewController: UIViewController {
         
         let sourceURL = sharedURL?.absoluteString
         let imageURL = parseImageURL(jsonLD["image"])
-        
+
         let prepTime = parseISODuration(jsonLD["prepTime"] as? String)
         let cookTime = parseISODuration(jsonLD["cookTime"] as? String)
         let totalTime = parseISODuration(jsonLD["totalTime"] as? String)
@@ -232,8 +232,8 @@ class ShareViewController: UIViewController {
             debugText += "Total: \(data.totalTime?.description ?? "nil") mins\n"
             debugText += "Cuisine: \(data.cuisine ?? "nil")\n"
             debugText += "Category: \(data.category ?? "nil")\n"
-            debugText += "Ingredients: \(data.ingredients.count)\n"
-            debugText += "Instructions: \(data.instructions.count)\n"
+            debugText += "Ingredients: \(data.ingredients.joined(separator: ", "))\n"
+            debugText += "Instructions: \(data.instructions.joined(separator: ", "))\n"
             debugText += "Image URL: \(data.imageURL ?? "nil")\n"
             dataLabel.text = debugText
         }
@@ -304,6 +304,12 @@ class ShareViewController: UIViewController {
             return url
         }
         
+        if let imageArray = value as? [[String: Any]],
+           let firstImage = imageArray.first,
+           let url = firstImage["url"] as? String {
+            return url
+        }
+        
         return nil
     }
     
@@ -333,23 +339,25 @@ class ShareViewController: UIViewController {
     
     private func parseISODuration(_ duration: String?) -> Int? {
         guard let duration = duration else { return nil }
-        
+
         var totalMinutes = 0
-        
-        if let hoursRegex = try? NSRegularExpression(pattern: #"(\d+)H"#),
+
+        // Match hours after the 'T' separator
+        if let hoursRegex = try? NSRegularExpression(pattern: #"T(\d+)H"#),
            let match = hoursRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
            let range = Range(match.range(at: 1), in: duration),
            let hours = Int(duration[range]) {
             totalMinutes += hours * 60
         }
-        
-        if let minutesRegex = try? NSRegularExpression(pattern: #"(\d+)M"#),
+
+        // Match minutes after the 'T' separator (and optionally after 'H')
+        if let minutesRegex = try? NSRegularExpression(pattern: #"T\d*H?(\d+)M"#),
            let match = minutesRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
            let range = Range(match.range(at: 1), in: duration),
            let minutes = Int(duration[range]) {
             totalMinutes += minutes
         }
-        
+
         return totalMinutes > 0 ? totalMinutes : nil
     }
     
