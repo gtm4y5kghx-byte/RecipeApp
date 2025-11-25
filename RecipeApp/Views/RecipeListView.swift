@@ -91,7 +91,60 @@ struct RecipeListView: View {
             .sheet(isPresented: $showingVoiceRecording) {
                 VoiceRecordingView()
             }
+            .onAppear {
+                checkForPendingImport()
+            }
+            .onReceive(NotificationCenter.default.publisher(
+                for: UIApplication.willEnterForegroundNotification)) { _ in
+                checkForPendingImport()
+            }
             .errorAlert($error)
+        }
+    }
+    
+    private func checkForPendingImport() {
+        guard SharedDataManager.shared.hasPendingImport() else {
+            return
+        }
+        
+        do {
+            if let importData = try SharedDataManager.shared.loadPendingImport() {
+                createRecipeFromImport(importData)
+                try SharedDataManager.shared.deletePendingImport()
+            }
+        } catch {
+            self.error = error
+        }
+    }
+    
+    private func createRecipeFromImport(_ importData: RecipeImportData) {
+        let recipe = Recipe(title: importData.title, sourceType: .web_imported)
+        recipe.sourceURL = importData.sourceURL
+        recipe.servings = importData.servings
+        recipe.prepTime = importData.prepTime
+        recipe.cookTime = importData.cookTime
+        recipe.cuisine = importData.cuisine
+        recipe.notes = importData.description
+        
+        for (index, ingredientText) in importData.ingredients.enumerated() {
+            let ingredient = Ingredient(quantity: "", unit: nil, item: ingredientText, preparation: nil, section: nil)
+            ingredient.order = index
+            recipe.ingredients.append(ingredient)
+        }
+        
+        for (index, instructionText) in importData.instructions.enumerated() {
+            let step = Step(instruction: instructionText)
+            step.order = index
+            recipe.instructions.append(step)
+        }
+        
+        modelContext.insert(recipe)
+        
+        do {
+            try modelContext.save()
+            HapticFeedback.success.trigger()
+        } catch let saveError {
+            error = saveError
         }
     }
     

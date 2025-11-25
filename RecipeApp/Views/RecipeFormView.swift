@@ -30,7 +30,7 @@ struct InstructionRowView: View {
 struct RecipeFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-
+    
     
     @State private var title = ""
     @State private var servings = ""
@@ -46,10 +46,12 @@ struct RecipeFormView: View {
     @State private var error: Error?
     
     let recipe: Recipe?
+    let importData: RecipeImportData?
     var onSaveFromVoiceRecording: (() -> Void)? = nil
     
-    init(recipe: Recipe? = nil, onSaveFromVoiceRecording: (() -> Void)? = nil) {
+    init(recipe: Recipe? = nil, importData: RecipeImportData? = nil, onSaveFromVoiceRecording: (() -> Void)? = nil) {
         self.recipe = recipe
+        self.importData = importData
         self.onSaveFromVoiceRecording = onSaveFromVoiceRecording
         
         if let recipe = recipe {
@@ -67,6 +69,16 @@ struct RecipeFormView: View {
             let sortedInstructions = recipe.instructions.sorted(by: { $0.order < $1.order })
             let instructionTexts = sortedInstructions.map { $0.instruction }
             _instructionFields = State(initialValue: instructionTexts.isEmpty ? [""] : instructionTexts )
+        } else if let importData = importData {
+            _title = State(initialValue: importData.title)
+            _servings = State(initialValue: importData.servings.map { String($0) } ?? "")
+            _prepTime = State(initialValue: importData.prepTime.map { String($0) } ?? "")
+            _cookTime = State(initialValue: importData.cookTime.map { String($0) } ?? "")
+            _cuisine = State(initialValue: importData.cuisine ?? "")
+            _notes = State(initialValue: importData.description ?? "")
+            
+            _ingredientFields = State(initialValue: importData.ingredients.isEmpty ? [""] : importData.ingredients)
+            _instructionFields = State(initialValue: importData.instructions.isEmpty ? [""] : importData.instructions)
         }
     }
     
@@ -222,7 +234,15 @@ struct RecipeFormView: View {
                 modelContext.insert(recipeToSave)
             }
         } else {
-            recipeToSave = Recipe(title: title, sourceType: .manual)
+            recipeToSave = Recipe(
+                title: title,
+                sourceType: importData != nil ? .web_imported : .manual,
+            )
+            
+            if let sourceURL = importData?.sourceURL {
+                recipeToSave.sourceURL = sourceURL
+            }
+            
             modelContext.insert(recipeToSave)
         }
         
@@ -255,6 +275,11 @@ struct RecipeFormView: View {
         
         do {
             try modelContext.save()
+            
+            if importData != nil {
+                try? SharedDataManager.shared.deletePendingImport()
+            }
+            
             HapticFeedback.success.trigger()
             
             if let dismissAction = onSaveFromVoiceRecording {

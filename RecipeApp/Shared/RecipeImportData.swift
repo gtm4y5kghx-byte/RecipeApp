@@ -1,6 +1,7 @@
 import Foundation
 
-struct RecipeImportData: Codable {
+struct RecipeImportData: Codable, Identifiable {
+    var id = UUID()
     let title: String
     let description: String?
     let sourceURL: String?

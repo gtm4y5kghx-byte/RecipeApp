@@ -14,6 +14,7 @@ class Recipe {
     var timesCooked: Int = 0
     var userTags: [String] = []
     var notes: String?
+    var sourceURL: String?
     var dateAdded: Date
     var lastModified: Date
     var lastMade: Date?
@@ -73,5 +74,6 @@ class Step {
 
 enum SourceType: String, Codable {
     case manual
+    case web_imported
     case voice_created
 }
