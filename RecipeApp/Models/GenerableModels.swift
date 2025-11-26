@@ -1,0 +1,39 @@
+import Foundation
+import FoundationModels
+
+@Generable()
+struct VoiceRecipe {
+    @Guide(description: "The recipe title")
+    let title: String
+    
+    @Guide(description: "Recipe description or notes about the dish")
+    let notes: String?
+    
+    @Guide(description: "Prep time in minutes", .range(0...180))
+    let prepTime: Int?
+    
+    @Guide(description: "Cook time in minutes", .range(0...300))
+    let cookTime: Int?
+    
+    @Guide(description: "Number of servings", .range(1...20))
+    let servings: Int?
+    
+    @Guide(description: "Cuisine type (e.g., Italian, Mexican, Thai)")
+    let cuisine: String?
+    
+    let ingredients: [VoiceIngredient]
+    let instructions: [VoiceInstruction]
+}
+
+
+@Generable()
+struct VoiceIngredient {
+    @Guide(description: "Complete ingredient text including quantity, unit, and item (e.g., '2 cups all-purpose flour')")
+    let text: String
+}
+
+@Generable()
+struct VoiceInstruction {
+    @Guide(description: "Instruction step text describing what to do")
+    let text: String
+}
