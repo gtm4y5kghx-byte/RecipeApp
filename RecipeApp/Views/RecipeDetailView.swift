@@ -36,8 +36,23 @@ struct RecipeDetailView: View {
     }
     
     private var sourceSection: some View {
-        Label(recipe.sourceType.displayName, systemImage: recipe.sourceType.icon)
+        VStack(alignment: .leading, spacing: 4) {
+            Label(recipe.sourceType.displayName, systemImage: recipe.sourceType.icon)
+            
+            if let sourceURL = recipe.sourceURL,
+               !sourceURL.isEmpty,
+               let url = URL(string: sourceURL),
+               let host = url.host {
+                let displayHost = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+                Link(destination: url) {
+                    Text(displayHost)
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                }
+            }
+        }
     }
+    
     
     private var metadataSection: some View {
         HStack(spacing: 16) {
