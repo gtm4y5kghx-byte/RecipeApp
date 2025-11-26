@@ -22,6 +22,7 @@ struct RecipeDetailView: View {
                 titleSection
                 sourceSection
                 metadataSection
+                cookingHistorySection
                 ingredientsSection
                 instructionsSection
                 notesSection
@@ -80,6 +81,23 @@ struct RecipeDetailView: View {
         }
         .font(.subheadline)
         .foregroundStyle(.secondary)
+    }
+    
+    private var cookingHistorySection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Cooking History")
+                .font(.headline)
+            
+            HStack(spacing: 16) {
+                Label("\(recipe.timesCooked) times", systemImage: "repeat")
+                
+                if let lastMade = recipe.lastMade {
+                    Label(formatDate(lastMade), systemImage: "calendar")
+                }
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
     }
     
     private var ingredientsSection: some View {
@@ -222,6 +240,14 @@ struct RecipeDetailView: View {
             }
             .buttonStyle(.bordered)
             
+            Button(action: {
+                markAsCooked()
+            }){
+                Label("I made this", systemImage: "checkmark.circle")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            
             Button(role: .destructive, action: {
                 showDeleteAlert = true
             }){
@@ -270,5 +296,23 @@ struct RecipeDetailView: View {
         }
         
         return parts.joined(separator: " ")
+    }
+    
+    private func markAsCooked() {
+        recipe.lastMade = Date()
+        recipe.timesCooked += 1
+        
+        do {
+            try modelContext.save()
+            HapticFeedback.success.trigger()
+        } catch let saveError {
+            error = saveError
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
