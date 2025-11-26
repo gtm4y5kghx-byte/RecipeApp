@@ -36,6 +36,8 @@ struct SampleData {
         recipe.notes = "Best served warm with vanilla ice cream!"
         recipe.isFavorite = true
         recipe.rating = 5
+        recipe.timesCooked = 8
+        recipe.lastMade = Calendar.current.date(byAdding: .day, value: -120, to: Date()) // 4 months ago
 
         let ingredients = [
             Ingredient(quantity: "2", unit: "cups", item: "all-purpose flour", preparation: nil, section: "Crust"),
@@ -75,6 +77,8 @@ struct SampleData {
         recipe.cookTime = 35
         recipe.cuisine = "Dessert"
         recipe.rating = 4
+        recipe.timesCooked = 3
+        recipe.lastMade = Calendar.current.date(byAdding: .day, value: -10, to: Date()) // 10 days ago
 
         let ingredients = [
             Ingredient(quantity: "2", unit: "cups", item: "all-purpose flour", preparation: nil, section: nil),
@@ -115,6 +119,8 @@ struct SampleData {
         recipe.cuisine = "American"
         recipe.rating = 5
         recipe.isFavorite = true
+        recipe.timesCooked = 15
+        recipe.lastMade = Calendar.current.date(byAdding: .day, value: -5, to: Date()) // 5 days ago
 
         let ingredients = [
             Ingredient(quantity: "2", unit: "slices", item: "bread", preparation: nil, section: nil),
@@ -151,6 +157,8 @@ struct SampleData {
         recipe.cuisine = "Mexican"
         recipe.notes = "Great for taco Tuesday!"
         recipe.rating = 4
+        recipe.timesCooked = 0
+        // No lastMade - never cooked
 
         let ingredients = [
             Ingredient(quantity: "1", unit: "lb", item: "ground beef", preparation: nil, section: nil),
@@ -190,6 +198,8 @@ struct SampleData {
         recipe.cookTime = 15
         recipe.cuisine = "Italian"
         recipe.rating = 3
+        recipe.timesCooked = 0
+        // No lastMade - never cooked
 
         let ingredients = [
             Ingredient(quantity: "1", unit: "lb", item: "spaghetti", preparation: nil, section: nil),

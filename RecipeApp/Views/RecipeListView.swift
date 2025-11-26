@@ -9,17 +9,16 @@ struct RecipeListView: View {
     @State private var showingVoiceRecording = false
     @State private var error: Error?
     
-    @State private var testingFoundationModels = false
-    @State private var testResult: VoiceRecipe?
-    @State private var testError: Error?
-    
+    @State private var showingAISearch = false
+    @State private var searchQuery = ""
+    @State private var aiSearchResults: [Recipe] = []
+    @State private var isSearching = false
+
     var filteredRecipes: [Recipe] {
-        if searchText.isEmpty {
-            return recipes
-        } else {
-            return recipes.filter { recipe in
-                recipe.title.localizedCaseInsensitiveContains(searchText)
-            }
+        guard !searchText.isEmpty else { return recipes }
+
+        return recipes.filter { recipe in
+            recipe.title.localizedCaseInsensitiveContains(searchText)
         }
     }
     
@@ -69,6 +68,14 @@ struct RecipeListView: View {
                     }
                 }
                 
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        showingAISearch = true
+                    }) {
+                        Image(systemName: "sparkles")
+                    }
+                }
+                
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
                         Button(action: {
@@ -86,14 +93,6 @@ struct RecipeListView: View {
                         Label("Dev Tools", systemImage: "wrench.and.screwdriver")
                     }
                 }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
-                        testFoundationModels()
-                    }) {
-                        Label("Test AI", systemImage: "wand.and.stars")
-                    }
-                }
-                
             }
             .navigationTitle(Text("Recipes"))
             .sheet(isPresented: $showingAddRecipe) {
@@ -101,6 +100,9 @@ struct RecipeListView: View {
             }
             .sheet(isPresented: $showingVoiceRecording) {
                 VoiceRecordingView()
+            }
+            .sheet(isPresented: $showingAISearch) {
+                AISearchTestView(recipes: recipes)
             }
             .onAppear {
                 checkForPendingImport()
@@ -110,69 +112,6 @@ struct RecipeListView: View {
                     checkForPendingImport()
                 }
                 .errorAlert($error)
-                .overlay {
-                    if testingFoundationModels {
-                        ZStack {
-                            Color.black.opacity(0.3)
-                                .ignoresSafeArea()
-                            
-                            VStack(spacing: 16) {
-                                ProgressView()
-                                    .scaleEffect(1.5)
-                                Text("Testing Foundation Models...")
-                                    .font(.headline)
-                            }
-                            .padding(32)
-                            .background(.regularMaterial)
-                            .cornerRadius(16)
-                        }
-                    }
-                }
-        }
-    }
-    
-    private func testFoundationModels() {
-        let sampleTranscript = """
-          I want to make spaghetti carbonara. You'll need 400 grams of spaghetti,
-          200 grams of guanciale or pancetta, 4 egg yolks, 100 grams of pecorino romano,
-          and black pepper. First, cook the pasta in salted boiling water.
-          While that's cooking, cut the guanciale into small pieces and fry until crispy.
-          Beat the egg yolks with grated cheese. When pasta is done, drain it and mix
-          with the guanciale. Remove from heat and stir in the egg mixture quickly.
-          Season with black pepper and serve immediately. Takes about 20 minutes total,
-          serves 4 people. It's an Italian classic.
-          """
-        
-        testingFoundationModels = true
-        testError = nil
-        testResult = nil
-        
-        Task {
-            do {
-                let service = FoundationModelsService()
-                let result = try await service.structureRecipe(from: sampleTranscript)
-                
-                await MainActor.run {
-                    testResult = result
-                    testingFoundationModels = false
-                    
-                    // Print to console for verification
-                    print("✅ Foundation Models Test Success!")
-                    print("Title: \(result.title)")
-                    print("Prep Time: \(result.prepTime ?? 0) mins")
-                    print("Cook Time: \(result.cookTime ?? 0) mins")
-                    print("Servings: \(result.servings ?? 0)")
-                    print("Cuisine: \(result.cuisine ?? "nil")")
-                    print("Ingredients: \(result.ingredients.count)")
-                    print("Instructions: \(result.instructions.count)")
-                }
-            } catch {
-                await MainActor.run {
-                    testError = error
-                    testingFoundationModels = false
-                    print("❌ Foundation Models Test Failed: \(error)")
-                }
-            }
         }
     }
     

@@ -26,6 +26,27 @@ struct VoiceRecipe {
 }
 
 @Generable()
+struct RecipeSearchCriteria {
+    @Guide(description: "Cuisine type if mentioned (e.g., 'Italian', 'Thai', 'Mexican'). Leave nil if not specified.")
+    let cuisine: String?
+    
+    @Guide(description: "Maximum total time in minutes if mentioned (e.g., 'quick' = 30, '20 minutes' = 20). Leave nil if not specified.", .range(0...300))
+    let maxTotalTime: Int?
+    
+    @Guide(description: "Keywords or dish types mentioned (e.g., ['pasta', 'dinner', 'vegetarian']). Extract relevant search terms.")
+    let keywords: [String]
+    
+    @Guide(description: "True if user wants only favorites (e.g., 'my favorites', 'recipes I love'). False otherwise.")
+    let favoritesOnly: Bool
+    
+    @Guide(description: "True if user wants recipes they haven't cooked recently (e.g., 'haven't made in a while', 'haven't tried recently'). False otherwise.")
+    let excludeRecentlyCooked: Bool
+    
+    @Guide(description: "True if user wants only recipes never cooked (e.g., 'haven't tried', 'never made', 'new recipes'). False otherwise.")
+    let neverCooked: Bool
+}
+
+@Generable()
 struct VoiceIngredient {
     @Guide(description: "Complete ingredient text including quantity, unit, and item (e.g., '2 cups all-purpose flour')")
     let text: String
