@@ -16,7 +16,7 @@ struct VoiceRecordingView: View {
     @State private var timer: Timer?
     @State private var animationAmount: CGFloat = 1.0
     @State private var speechTranscriber = SpeechTranscriber()
-    @State private var apiService = RecipeAPIService()
+    @State private var foundationModelsService = FoundationModelsService()
     @State private var structuredRecipe: Recipe?
     @State private var showCancelConfirmation = false
     @State private var recordingState: RecordingState = .idle
@@ -224,18 +224,17 @@ struct VoiceRecordingView: View {
         
         Task {
             do {
-                let response = try await apiService.structureRecipe(from: speechTranscriber.transcript)
+                let voiceRecipe = try await foundationModelsService.structureRecipe(from: speechTranscriber.transcript)
                 
-                if (response.title.isEmpty || response.title.lowercased().contains("unknown"))
-                    && response.ingredients.isEmpty {
-                    throw NSError(
-                        domain: "RecipeApp",
-                        code: 2,
-                        userInfo: [NSLocalizedDescriptionKey: "Could not identify a recipe. Please try again with recipe details."]
-                    )
-                }
+                if voiceRecipe.title.isEmpty || voiceRecipe.title.lowercased().contains("unknown") {
+                     throw NSError(
+                         domain: "RecipeApp",
+                         code: 2,
+                         userInfo: [NSLocalizedDescriptionKey: "Could not identify a recipe. Please try again with recipe details."]
+                     )
+                 }
                 
-                let recipe = createRecipe(from: response)
+                let recipe = createRecipe(from: voiceRecipe)
                 
                 recordingState = .idle
                 
@@ -278,34 +277,34 @@ struct VoiceRecordingView: View {
         timer = nil
     }
     
-    private func createRecipe(from response: RecipeResponse) -> Recipe {
-        let recipe = Recipe(title: response.title, sourceType: .voice_created)
+    private func createRecipe(from voiceRecipe: VoiceRecipe) -> Recipe {
+        let recipe = Recipe(title: voiceRecipe.title, sourceType: .voice_created)
         
-        recipe.servings = response.servings
-        recipe.prepTime = response.prepTime
-        recipe.cookTime = response.cookTime
-        recipe.cuisine = response.cuisine
-        recipe.notes = response.notes
+        recipe.servings = voiceRecipe.servings
+        recipe.prepTime = voiceRecipe.prepTime
+        recipe.cookTime = voiceRecipe.cookTime
+        recipe.cuisine = voiceRecipe.cuisine
+        recipe.notes = voiceRecipe.notes
         
-        if let prep = response.prepTime, let cook = response.cookTime {
+        if let prep = voiceRecipe.prepTime, let cook = voiceRecipe.cookTime {
             recipe.totalTime = prep + cook
         }
         
-        recipe.ingredients = response.ingredients.enumerated().map { index, ingredientResponse in
+        recipe.ingredients = voiceRecipe.ingredients.enumerated().map { index, voiceIngredient in
             let ingredient = Ingredient(
-                quantity: ingredientResponse.quantity ?? "",
-                unit: ingredientResponse.unit,
-                item: ingredientResponse.item,
-                preparation: ingredientResponse.preparation,
-                section: ingredientResponse.section
+                quantity: "",
+                unit: nil,
+                item: voiceIngredient.text,
+                preparation: nil,
+                section: nil
             )
             ingredient.order = index
             return ingredient
         }
         
-        recipe.instructions = response.instructions.map { instructionResponse in
-            let step = Step(instruction: instructionResponse.instruction)
-            step.order = instructionResponse.order
+        recipe.instructions = voiceRecipe.instructions.enumerated().map { index, voiceInstruction in
+            let step = Step(instruction: voiceInstruction.text)
+            step.order = index
             return step
         }
         

@@ -29,13 +29,30 @@ class FoundationModelsService {
     func structureRecipe(from transcript: String) async throws -> VoiceRecipe {
         let session = LanguageModelSession {
               """
-              You are a recipe structuring assistant. Convert voice transcripts
-              into well-structured recipes. Extract ingredients as complete phrases
-              (e.g., "2 cups all-purpose flour"). Number instructions sequentially.
-              If prep time, cook time, servings, or cuisine are mentioned, extract them.
-              If not mentioned, leave them nil/empty.
+              You are a recipe structuring assistant. Convert voice transcripts into well-structured recipes.
+
+              Extract ALL ingredients mentioned, including:
+              - Main ingredients with measurements (e.g., "3 eggs", "2 tablespoons butter")
+              - Seasonings and condiments (e.g., "salt", "pepper", "a pinch of salt")
+              - Even vague amounts (e.g., "some flour", "a bit of oil")
+
+              Format each ingredient as a complete phrase with quantity when mentioned.
+              If no quantity is given, just include the ingredient name.
+
+              Extract instructions as sequential steps in the order they're mentioned.
+
+              Extract structured metadata when mentioned:
+              - Servings: "serves X", "makes X servings", "feeds X people"
+              - Prep time: "prep time", "preparation time"
+              - Cook time: "cook time", "cooking time", "takes X minutes"
+              - Cuisine: "Italian", "Mexican", "Thai", etc.
+
+              Notes are ONLY for tips, variations, or comments EXPLICITLY mentioned in the transcript.
+              Do NOT add your own commentary or infer information not stated.
+              Do NOT duplicate structured data (servings, times, cuisine) in notes.
+              Leave notes empty if no additional comments were mentioned.
               """
-        }
+          }
         
         let response = try await session.respond(to: transcript, generating: VoiceRecipe.self)
         return response.content
