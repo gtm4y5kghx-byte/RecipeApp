@@ -5,10 +5,16 @@ struct RecipeDetailView: View {
     let recipe: Recipe
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @State private var showingTransformSheet = false
+    @State private var transformationPrompt = ""
     @State private var showDeleteAlert = false
     @State private var showingEditSheet = false
     @State private var error: Error?
+    @Query private var allRecipes: [Recipe]
     
+    private var recipeVariations: [Recipe] {
+        allRecipes.filter { $0.parentRecipeID == recipe.id }
+    }
     
     var body: some View {
         ScrollView {
@@ -19,6 +25,7 @@ struct RecipeDetailView: View {
                 ingredientsSection
                 instructionsSection
                 notesSection
+                variationsSection
                 favoriteAndRatingSection
                 actionButtonSection
             }
@@ -27,6 +34,9 @@ struct RecipeDetailView: View {
         .navigationTitle("Recipe Details")
         .sheet(isPresented: $showingEditSheet) {
             RecipeFormView(recipe: recipe)
+        }
+        .sheet(isPresented: $showingTransformSheet) {
+            RecipeTransformationView(recipe: recipe)
         }
         .errorAlert($error)
     }
@@ -119,6 +129,41 @@ struct RecipeDetailView: View {
         }
     }
     
+    private var variationsSection: some View {
+        Group {
+            if !recipeVariations.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Variations")
+                        .font(.headline)
+                    
+                    ForEach(recipeVariations) { variation in
+                        NavigationLink(value: variation) {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(variation.title)
+                                        .font(.subheadline)
+                                    
+                                    if let note = variation.variationNote {
+                                        Text(note)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     private var favoriteAndRatingSection: some View {
         HStack(spacing: 24) {
             Button(action: {
@@ -165,6 +210,14 @@ struct RecipeDetailView: View {
                 showingEditSheet = true
             }){
                 Label("Edit", systemImage: "pencil")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            
+            Button(action: {
+                showingTransformSheet = true
+            }){
+                Label("Transform", systemImage: "wand.and.stars")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)

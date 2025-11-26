@@ -20,9 +20,15 @@ class Recipe {
     var lastMade: Date?
     var rating: Int?
     var isFavorite: Bool = false
+    var parentRecipeID: UUID?
+    var variationNote: String?
     
     @Relationship(deleteRule: .cascade)
     var ingredients: [Ingredient]
+    
+    var variations: [Recipe] {
+        return []
+    }
     
     @Relationship(deleteRule: .cascade)
     var instructions: [Step]
