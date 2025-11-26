@@ -66,6 +66,7 @@
 		48A6C6B82ED08E8200C19EE6 /* Exceptions for "RecipeApp" folder in "ShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Models/Recipe.swift,
 				Shared/RecipeImportData.swift,
 				Shared/SharedDataManager.swift,
 			);

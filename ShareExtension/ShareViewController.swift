@@ -1,5 +1,6 @@
 import UIKit
 import UniformTypeIdentifiers
+import SwiftData
 
 class ShareViewController: UIViewController {
     
@@ -13,9 +14,13 @@ class ShareViewController: UIViewController {
     private let customNavigationBar = UINavigationBar()
     private let navItem = UINavigationItem()
     
+    private var modelContainer: ModelContainer?
+    private var recipeAlreadyImported = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        setupModelContainer()
         setupLoadingUI()
         setupCustomNavigationBar()
         extractAndFetchRecipe()
@@ -125,6 +130,7 @@ class ShareViewController: UIViewController {
             
             await MainActor.run {
                 self.recipeData = parsedRecipe
+                self.recipeAlreadyImported = self.checkIfRecipeExists(url: url)
                 self.showPreviewUI()
             }
         } catch {
@@ -257,12 +263,22 @@ class ShareViewController: UIViewController {
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
         
-        navItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Add",
-            style: .done,
-            target: self,
-            action: #selector(addToAppTapped)
-        )
+        if recipeAlreadyImported {
+              navItem.rightBarButtonItem = UIBarButtonItem(
+                  title: "Already Imported ✓",
+                  style: .plain,
+                  target: nil,
+                  action: nil
+              )
+              navItem.rightBarButtonItem?.isEnabled = false
+          } else {
+              navItem.rightBarButtonItem = UIBarButtonItem(
+                  title: "Add",
+                  style: .done,
+                  target: self,
+                  action: #selector(addToAppTapped)
+              )
+          }
     }
     
     private func isRecipeType(_ object: [String: Any]) -> Bool {
@@ -405,6 +421,40 @@ class ShareViewController: UIViewController {
         })
         
         present(alert, animated: true)
+    }
+    
+    private func setupModelContainer() {
+        let schema = Schema([
+            Recipe.self,
+            Ingredient.self,
+            Step.self,
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        
+        modelContainer = try? ModelContainer(for: schema, configurations: [modelConfiguration])
+    }
+    
+    private func checkIfRecipeExists(url: URL) -> Bool {
+        guard let container = modelContainer else {
+            return false
+        }
+        
+        let context = container.mainContext
+        let urlString = url.absoluteString
+        
+        let descriptor = FetchDescriptor<Recipe>(
+            predicate: #Predicate { recipe in
+                recipe.sourceURL == urlString
+            }
+        )
+        
+        do {
+            let existingRecipes = try context.fetch(descriptor)
+            return !existingRecipes.isEmpty
+        } catch {
+            print("Failed to check for existing recipe: \(error)")
+            return false
+        }
     }
     
     @objc private func cancelTapped() {
