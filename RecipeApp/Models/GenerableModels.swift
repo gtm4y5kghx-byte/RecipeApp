@@ -27,10 +27,10 @@ struct VoiceRecipe {
 
 @Generable()
 struct RecipeSearchCriteria {
-    @Guide(description: "Cuisine type if mentioned (e.g., 'Italian', 'Thai', 'Mexican'). Leave nil if not specified.")
+    @Guide(description: "Cuisine type ONLY if explicitly mentioned (Italian, Thai, Mexican, etc.). OMIT this field entirely if no cuisine is mentioned in the query.")
     let cuisine: String?
-    
-    @Guide(description: "Maximum total time in minutes if mentioned (e.g., 'quick' = 30, '20 minutes' = 20). Leave nil if not specified.", .range(0...300))
+
+    @Guide(description: "Maximum total time in minutes ONLY if time is explicitly mentioned. Use 30 for 'quick'/'fast', exact number for '20 minutes', etc. OMIT this field entirely if no time constraint is mentioned.", .range(0...300))
     let maxTotalTime: Int?
     
     @Guide(description: "Keywords or dish types mentioned (e.g., ['pasta', 'dinner', 'vegetarian']). Extract relevant search terms.")
