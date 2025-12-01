@@ -3,6 +3,11 @@ import SwiftData
 
 @main
 struct RecipeAppApp: App {
+    init() {
+        // Configure Claude API key on first launch
+        SetupAPIKey.configure()
+    }
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Recipe.self,

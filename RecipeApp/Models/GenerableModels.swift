@@ -25,25 +25,23 @@ struct VoiceRecipe {
     let instructions: [VoiceInstruction]
 }
 
-@Generable()
-struct RecipeSearchCriteria {
-    @Guide(description: "Cuisine type ONLY if explicitly mentioned (Italian, Thai, Mexican, etc.). OMIT this field entirely if no cuisine is mentioned in the query.")
+// RecipeSearchCriteria now uses Claude API instead of @Generable
+struct RecipeSearchCriteria: Codable {
+    // MARK: - Structured Filters (Path A)
     let cuisine: String?
-
-    @Guide(description: "Maximum total time in minutes ONLY if time is explicitly mentioned. Use 30 for 'quick'/'fast', exact number for '20 minutes', etc. OMIT this field entirely if no time constraint is mentioned.", .range(0...300))
     let maxTotalTime: Int?
-    
-    @Guide(description: "Keywords or dish types mentioned (e.g., ['pasta', 'dinner', 'vegetarian']). Extract relevant search terms.")
-    let keywords: [String]
-    
-    @Guide(description: "True if user wants only favorites (e.g., 'my favorites', 'recipes I love'). False otherwise.")
     let favoritesOnly: Bool
-    
-    @Guide(description: "True if user wants recipes they haven't cooked recently (e.g., 'haven't made in a while', 'haven't tried recently'). False otherwise.")
-    let excludeRecentlyCooked: Bool
-    
-    @Guide(description: "True if user wants only recipes never cooked (e.g., 'haven't tried', 'never made', 'new recipes'). False otherwise.")
-    let neverCooked: Bool
+    let onlyNeverCooked: Bool
+    let onlyCookedLongAgo: Bool
+    let onlyCookedRecently: Bool
+
+    // MARK: - Text Search Keywords (Path B)
+    let titleKeywords: [String]
+    let ingredientKeywords: [String]
+    let notesKeywords: [String]
+
+    // MARK: - Combine Mode
+    let combineMode: String  // "and" or "or"
 }
 
 @Generable()

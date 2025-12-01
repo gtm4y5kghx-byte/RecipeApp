@@ -79,20 +79,14 @@ struct AISearchTestView: View {
     private func performSearch() {
         Task {
             isSearching = true
-            print("🔍 Starting search for: \(searchQuery)")
             errorMessage = nil
             
             do {
-                // Step 1: AI parses the query
-                let criteria = try await aiSearchService.parseSearchIntent(from: searchQuery)
-                print("🔍 AI returned criteria: \(criteria)")
-                
-                // Step 2: Filter recipes using criteria
-                searchResults = RecipeFilterService.filterRecipes(recipes, using: criteria)
-                
+                print("🔍 Starting search for: \(searchQuery)")
+                searchResults = try await aiSearchService.search(query: searchQuery, recipes: recipes)
+                print("🔍 Found \(searchResults.count) results")
             } catch {
                 errorMessage = "Search failed: \(error.localizedDescription)"
-                print("🔍 AI Search Error: \(error)")
                 searchResults = []
             }
             
