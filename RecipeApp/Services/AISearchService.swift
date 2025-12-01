@@ -169,7 +169,7 @@ class AISearchService {
         let combined = combineResults(
             structured: structuredMatches,
             text: textMatches,
-            mode: criteria.combineMode
+            criteria: criteria
         )
 
         print("🔍 [search] Final result count: \(combined.count)")
@@ -209,18 +209,31 @@ class AISearchService {
     private func combineResults(
         structured: [Recipe],
         text: [Recipe],
-        mode: String  // Changed from CombineMode
+        criteria: RecipeSearchCriteria
     ) -> [Recipe] {
-        switch mode.lowercased() {
+        // Check if any keywords were requested
+        let hasKeywords = !criteria.titleKeywords.isEmpty ||
+                         !criteria.ingredientKeywords.isEmpty ||
+                         !criteria.notesKeywords.isEmpty
+
+        switch criteria.combineMode.lowercased() {
         case "and":
             // Intersection: Recipe must match BOTH structured AND text search
-            
-            // Special case: If no text search keywords, structured is the result
-            if text.isEmpty {
+
+            // Special case: If no keywords were requested, use only structured results
+            if !hasKeywords {
+                print("🔍 [combineResults] No keywords requested, returning structured results only")
                 return structured
             }
-            
+
+            // Keywords were requested but no matches found → intersection is empty
+            if text.isEmpty {
+                print("🔍 [combineResults] Keywords requested but no text matches found, returning empty")
+                return []
+            }
+
             // Intersection: Find recipes in BOTH arrays
+            print("🔍 [combineResults] Finding intersection of structured and text matches")
             let textIDs = Set(text.map(\.id))
             return structured.filter { textIDs.contains($0.id) }
             
@@ -237,10 +250,16 @@ class AISearchService {
             
         default:
             // Default to "and" behavior if AI returns unexpected value
-            print("⚠️ Unexpected combineMode: '\(mode)', defaulting to 'and'")
-            if text.isEmpty {
+            print("⚠️ [combineResults] Unexpected combineMode: '\(criteria.combineMode)', defaulting to 'and'")
+
+            if !hasKeywords {
                 return structured
             }
+
+            if text.isEmpty {
+                return []
+            }
+
             let textIDs = Set(text.map(\.id))
             return structured.filter { textIDs.contains($0.id) }
         }
