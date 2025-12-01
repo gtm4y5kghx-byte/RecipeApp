@@ -98,10 +98,6 @@ struct RecipeTransformationView: View {
         variation.cuisine = transformation.cuisine
         variation.notes = transformation.notes
         
-        if let prep = transformation.prepTime, let cook = transformation.cookTime {
-            variation.totalTime = prep + cook
-        }
-        
         variation.ingredients = transformation.ingredients.enumerated().map { index, transformedIngredient in
             let ingredient = Ingredient(
                 quantity: "",

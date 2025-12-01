@@ -22,7 +22,7 @@ struct RecipeFilterService {
     private static func matchesTime(_ recipe: Recipe, _ criteria: RecipeSearchCriteria) -> Bool {
         guard let maxTime = criteria.maxTotalTime, maxTime > 0 else { return true }
 
-        let totalTime = (recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)
+        let totalTime = recipe.totalTime ?? 0
 
         // Only filter out if recipe has time data AND exceeds max
         // If no time data, include it (better to show than hide)

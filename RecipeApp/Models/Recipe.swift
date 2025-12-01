@@ -9,7 +9,6 @@ class Recipe {
     var servings: Int?
     var prepTime: Int?
     var cookTime: Int?
-    var totalTime: Int?
     var cuisine: String?
     var timesCooked: Int = 0
     var userTags: [String] = []
@@ -41,6 +40,11 @@ class Recipe {
         self.lastModified = Date()
         self.ingredients = []
         self.instructions = []
+    }
+    
+    var totalTime: Int? {
+        guard let prep = prepTime, let cook = cookTime else { return nil }
+        return prep + cook
     }
 }
 

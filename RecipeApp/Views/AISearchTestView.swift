@@ -49,8 +49,8 @@ struct AISearchTestView: View {
                                 Text(cuisine)
                                     .font(.caption)
                             }
-                            if let prep = recipe.prepTime, let cook = recipe.cookTime {
-                                Text("\(prep + cook) min total")
+                            if let total = recipe.totalTime {
+                                Text("\(total) min total")
                                     .font(.caption)
                             }
                             if recipe.isFavorite {

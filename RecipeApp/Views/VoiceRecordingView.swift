@@ -286,10 +286,6 @@ struct VoiceRecordingView: View {
         recipe.cuisine = voiceRecipe.cuisine
         recipe.notes = voiceRecipe.notes
         
-        if let prep = voiceRecipe.prepTime, let cook = voiceRecipe.cookTime {
-            recipe.totalTime = prep + cook
-        }
-        
         recipe.ingredients = voiceRecipe.ingredients.enumerated().map { index, voiceIngredient in
             let ingredient = Ingredient(
                 quantity: "",
