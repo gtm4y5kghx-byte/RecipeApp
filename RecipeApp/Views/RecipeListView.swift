@@ -11,15 +11,12 @@ struct RecipeListView: View {
     
     @State private var showingAISearch = false
     @State private var searchQuery = ""
-    @State private var aiSearchResults: [Recipe] = []
+    @State private var filteredResults: [Recipe] = []
+    @State private var searchTask: Task<Void, Never>?
     @State private var isSearching = false
-
+    
     var filteredRecipes: [Recipe] {
-        guard !searchText.isEmpty else { return recipes }
-
-        return recipes.filter { recipe in
-            recipe.title.localizedCaseInsensitiveContains(searchText)
-        }
+        searchText.isEmpty ? recipes : filteredResults
     }
     
     var body: some View {
@@ -48,6 +45,9 @@ struct RecipeListView: View {
                 }
             }
             .searchable(text: $searchText, prompt: "Search Recipes")
+            .onChange(of: searchText) { oldValue, newValue in
+                performFuzzySearch(query: newValue)
+            }
             .navigationDestination(for: Recipe.self) { recipe in
                 RecipeDetailView(recipe: recipe)
             }
@@ -115,6 +115,41 @@ struct RecipeListView: View {
         }
     }
     
+    private func performFuzzySearch(query: String) {
+        searchTask?.cancel()
+        
+        searchTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            
+            guard !Task.isCancelled else { return }
+            
+            filteredResults = fuzzyFilter(query: query)
+        }
+    }
+    
+    private func fuzzyFilter(query: String) -> [Recipe] {
+        guard !query.isEmpty else { return recipes }
+        
+        return recipes.filter { recipe in
+            if FuzzySearchService.fuzzyMatch(query: query, in: recipe.title) {
+                return true
+            }
+            
+            for ingredient in recipe.ingredients {
+                if FuzzySearchService.fuzzyMatch(query: query, in: ingredient.item) {
+                    return true
+                }
+            }
+            
+            if let notes = recipe.notes,
+               FuzzySearchService.fuzzyMatch(query: query, in: notes) {
+                return true
+            }
+            
+            return false
+        }
+    }
+    
     private func checkForPendingImport() {
         guard SharedDataManager.shared.hasPendingImport() else {
             return
@@ -173,8 +208,4 @@ struct RecipeListView: View {
             error = saveError
         }
     }
-}
-
-#Preview {
-    RecipeListView()
 }
