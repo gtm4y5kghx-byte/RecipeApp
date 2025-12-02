@@ -14,6 +14,16 @@ struct RecipeListView: View {
     @State private var filteredResults: [Recipe] = []
     @State private var searchTask: Task<Void, Never>?
     @State private var isSearching = false
+    @State private var searchScope: SearchScope = .all
+    
+    enum SearchScope: String, CaseIterable {
+        case all = "All"
+        case title = "Title"
+        case ingredients = "Ingredients"
+        case instructions = "Instructions"
+        case notes = "Notes"
+    }
+    
     
     var filteredRecipes: [Recipe] {
         searchText.isEmpty ? recipes : filteredResults
@@ -45,8 +55,16 @@ struct RecipeListView: View {
                 }
             }
             .searchable(text: $searchText, prompt: "Search Recipes")
+            .searchScopes($searchScope) {
+                ForEach(SearchScope.allCases, id: \.self) { scope in
+                    Text(scope.rawValue)
+                }
+            }
             .onChange(of: searchText) { oldValue, newValue in
                 performFuzzySearch(query: newValue)
+            }
+            .onChange(of: searchScope) { oldValue, newValue in
+                performFuzzySearch(query: searchText)
             }
             .navigationDestination(for: Recipe.self) { recipe in
                 RecipeDetailView(recipe: recipe)
@@ -131,23 +149,64 @@ struct RecipeListView: View {
         guard !query.isEmpty else { return recipes }
         
         return recipes.filter { recipe in
-            if FuzzySearchService.fuzzyMatch(query: query, in: recipe.title) {
-                return true
+            switch searchScope {
+            case .all:
+                return matchesAnyField(recipe: recipe, query: query)
+            case .title:
+                return FuzzySearchService.fuzzyMatch(query: query, in: recipe.title)
+            case .ingredients:
+                return matchesIngredients(recipe: recipe, query: query)
+            case .instructions:
+                return matchesInstructions(recipe: recipe, query: query)
+            case .notes:
+                return matchesNotes(recipe: recipe, query: query)
             }
-            
-            for ingredient in recipe.ingredients {
-                if FuzzySearchService.fuzzyMatch(query: query, in: ingredient.item) {
-                    return true
-                }
-            }
-            
-            if let notes = recipe.notes,
-               FuzzySearchService.fuzzyMatch(query: query, in: notes) {
-                return true
-            }
-            
-            return false
         }
+    }
+    
+    private func matchesAnyField(recipe: Recipe, query: String) -> Bool {
+        if FuzzySearchService.fuzzyMatch(query: query, in: recipe.title) {
+            return true
+        }
+        
+        if matchesIngredients(recipe: recipe, query: query) {
+            return true
+        }
+        
+        if matchesInstructions(recipe: recipe, query: query) {
+            return true
+        }
+        
+        if matchesNotes(recipe: recipe, query: query) {
+            return true
+        }
+        
+        return false
+    }
+    
+    private func matchesIngredients(recipe: Recipe, query: String) -> Bool {
+        for ingredient in recipe.ingredients {
+            if FuzzySearchService.fuzzyMatch(query: query, in: ingredient.item) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    private func matchesInstructions(recipe: Recipe, query: String) -> Bool {
+        for step in recipe.instructions {
+            if FuzzySearchService.fuzzyMatch(query: query, in: step.instruction) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    private func matchesNotes(recipe: Recipe, query: String) -> Bool {
+        if let notes = recipe.notes {
+            return FuzzySearchService.fuzzyMatch(query: query, in: notes)
+        }
+        return false
     }
     
     private func checkForPendingImport() {
