@@ -7,7 +7,7 @@ class UserSubscriptionService {
         case premium
     }
     
-    static var mockIsPremium: Bool = false
+    static var mockIsPremium: Bool = true
     
     var currentTier: SubscriptionTier {
         Self.mockIsPremium ? .premium : .free

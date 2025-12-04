@@ -148,11 +148,17 @@ class AISearchService {
      */
     
     func search(query: String, recipes: [Recipe]) async throws -> [Recipe] {
+        
         print("\n" + String(repeating: "=", count: 60))
         print("🔍 [search] Starting search for: \"\(query)\"")
         print("🔍 [search] Total recipes to search: \(recipes.count)")
         print(String(repeating: "=", count: 60))
         
+        print("🔍 [search] Starting search for query: \"\(query)\"")
+
+        // TEMPORARY: Force API failure to test fallback
+        throw NSError(domain: "TestError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Simulated API failure"])
+
         // Step 1: Claude API parses query into dual criteria
         let criteria = try await parseSearchIntent(from: query)
         
