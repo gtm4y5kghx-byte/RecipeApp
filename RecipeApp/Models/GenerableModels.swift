@@ -25,7 +25,6 @@ struct VoiceRecipe {
     let instructions: [VoiceInstruction]
 }
 
-// RecipeSearchCriteria now uses Claude API instead of @Generable
 struct RecipeSearchCriteria: Codable {
     // MARK: - Structured Filters (Path A)
     let cuisine: String?
@@ -78,25 +77,25 @@ struct TransformedInstruction {
 struct RecipeTransformation {
     @Guide(description: "The transformed recipe title")
     let title: String
-    
+
     @Guide(description: "Brief description of what was changed (e.g., 'Made vegan by replacing eggs and dairy')")
     let variationNote: String
-    
+
     @Guide(description: "Recipe description or notes about the dish")
     let notes: String?
-    
+
     @Guide(description: "Prep time in minutes", .range(0...180))
     let prepTime: Int?
-    
+
     @Guide(description: "Cook time in minutes", .range(0...300))
     let cookTime: Int?
-    
+
     @Guide(description: "Number of servings", .range(1...20))
     let servings: Int?
-    
+
     @Guide(description: "Cuisine type (e.g., Italian, Mexican, Thai)")
     let cuisine: String?
-    
+
     let ingredients: [TransformedIngredient]
     let instructions: [TransformedInstruction]
 }

@@ -91,10 +91,10 @@ class FoundationModelsService {
         let response = try await session.respond(to: prompt, generating: RecipeTransformation.self)
         return response.content
     }
-    
+
     private func buildRecipeContext(_ recipe: Recipe) -> String {
         var context = "Title: \(recipe.title)\n"
-        
+
         if let servings = recipe.servings {
             context += "Servings: \(servings)\n"
         }
@@ -107,7 +107,7 @@ class FoundationModelsService {
         if let cuisine = recipe.cuisine {
             context += "Cuisine: \(cuisine)\n"
         }
-        
+
         context += "\nIngredients:\n"
         for ingredient in recipe.ingredients.sorted(by: { $0.order < $1.order }) {
             var parts: [String] = []
@@ -117,16 +117,16 @@ class FoundationModelsService {
             if let prep = ingredient.preparation { parts.append(prep) }
             context += "- \(parts.joined(separator: " "))\n"
         }
-        
+
         context += "\nInstructions:\n"
         for (index, step) in recipe.instructions.sorted(by: { $0.order < $1.order }).enumerated() {
             context += "\(index + 1). \(step.instruction)\n"
         }
-        
+
         if let notes = recipe.notes, !notes.isEmpty {
             context += "Notes: \(notes)\n"
         }
-        
+
         return context
     }
 }
