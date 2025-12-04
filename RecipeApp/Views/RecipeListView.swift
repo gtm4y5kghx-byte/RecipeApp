@@ -16,6 +16,9 @@ struct RecipeListView: View {
     @State private var isSearching = false
     @State private var searchScope: SearchScope = .all
     
+    @State private var subscriptionService = UserSubscriptionService()
+    @State private var showingPaywall = false
+    
     enum SearchScope: String, CaseIterable {
         case all = "All"
         case title = "Title"
@@ -23,7 +26,6 @@ struct RecipeListView: View {
         case instructions = "Instructions"
         case notes = "Notes"
     }
-    
     
     var filteredRecipes: [Recipe] {
         searchText.isEmpty ? recipes : filteredResults
@@ -88,7 +90,10 @@ struct RecipeListView: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        showingAISearch = true
+                        subscriptionService.requiresPremium(
+                            action: { showingAISearch = true },
+                            showPaywall: { showingPaywall = true }
+                        )
                     }) {
                         Image(systemName: "sparkles")
                     }
@@ -120,7 +125,10 @@ struct RecipeListView: View {
                 VoiceRecordingView()
             }
             .sheet(isPresented: $showingAISearch) {
-                AISearchTestView(recipes: recipes)
+                AISearchView(recipes: recipes)
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
             }
             .onAppear {
                 checkForPendingImport()
