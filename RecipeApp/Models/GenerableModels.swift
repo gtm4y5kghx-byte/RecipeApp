@@ -25,24 +25,6 @@ struct VoiceRecipe {
     let instructions: [VoiceInstruction]
 }
 
-struct RecipeSearchCriteria: Codable {
-    // MARK: - Structured Filters (Path A)
-    let cuisine: String?
-    let maxTotalTime: Int?
-    let favoritesOnly: Bool
-    let onlyNeverCooked: Bool
-    let onlyCookedLongAgo: Bool
-    let onlyCookedRecently: Bool
-
-    // MARK: - Text Search Keywords (Path B)
-    let titleKeywords: [String]
-    let ingredientKeywords: [String]
-    let notesKeywords: [String]
-
-    // MARK: - Combine Mode
-    let combineMode: String  // "and" or "or"
-}
-
 @Generable()
 struct VoiceIngredient {
     @Guide(description: "Complete ingredient text including quantity, unit, and item (e.g., '2 cups all-purpose flour')")
