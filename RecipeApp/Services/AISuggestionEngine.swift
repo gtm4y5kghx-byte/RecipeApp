@@ -4,6 +4,8 @@ import Foundation
 class AISuggestionEngine {
     
     private let claudeClient: ClaudeAPIClient
+    private let cacheKey = "suggestion_cache"
+    private let minimumRecipeCount = 20
     
     init() {
         self.claudeClient = ClaudeAPIClient(apiKey: Config.claudeAPIKey)
@@ -119,4 +121,47 @@ class AISuggestionEngine {
         }
     }
     
+    private func loadCache() -> SuggestionCache? {
+        guard let data = UserDefaults.standard.data(forKey: cacheKey) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(SuggestionCache.self, from: data)
+    }
+    
+    private func saveCache(_ cache: SuggestionCache) {
+        if let data = try? JSONEncoder().encode(cache) {
+            UserDefaults.standard.set(data, forKey: cacheKey)
+        }
+    }
+    
+    func getSuggestions(recipes: [Recipe]) async -> [RecipeSuggestion] {
+        // Check minimum recipe threshold
+        guard recipes.count >= minimumRecipeCount else {
+            return []
+        }
+        
+        // Check if we have valid cache
+        if let cache = loadCache(), !cache.isStale {
+            return cache.suggestions
+        }
+        
+        // Try to generate new suggestions
+        do {
+            let suggestions = try await generateSuggestions(recipes: recipes)
+            
+            // Save to cache
+            let cache = SuggestionCache(suggestions: suggestions, generatedAt: Date())
+            saveCache(cache)
+            
+            return suggestions
+        } catch {
+            // If generation fails, return cached suggestions (even if stale)
+            if let cache = loadCache() {
+                return cache.suggestions
+            }
+            
+            // No cache available, return empty
+            return []
+        }
+    }
 }
