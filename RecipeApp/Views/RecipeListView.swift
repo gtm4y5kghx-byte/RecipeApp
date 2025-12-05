@@ -15,6 +15,8 @@ struct RecipeListView: View {
     @State private var searchTask: Task<Void, Never>?
     @State private var isSearching = false
     @State private var searchScope: SearchScope = .all
+    @State private var suggestions: [RecipeSuggestion] = []
+    @State private var suggestionEngine = AISuggestionEngine()
     
     @State private var subscriptionService = UserSubscriptionService()
     @State private var showingPaywall = false
@@ -34,26 +36,53 @@ struct RecipeListView: View {
     var body: some View {
         NavigationStack {
             List {
-                if filteredRecipes.isEmpty {
-                    ContentUnavailableView(
-                        "No Recipes",
-                        systemImage: "book.closed",
-                        description: Text("Add your first recipe to get started")
-                    )
-                } else {
-                    ForEach(filteredRecipes) { recipe in
-                        NavigationLink(value: recipe) {
-                            VStack(alignment: .leading) {
-                                Text(recipe.title)
-                                    .font(.headline)
-                                
-                                Text("\(recipe.sourceType.rawValue)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                // For You section
+                if !suggestions.isEmpty {
+                    Section {
+                        ForEach(suggestions) { suggestion in
+                            if let recipe = recipes.first(where: { $0.id == suggestion.recipeID }) {
+                                NavigationLink(value: recipe) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(recipe.title)
+                                            .font(.headline)
+                                        
+                                        Text(suggestion.aiGeneratedReason)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(2)
+                                    }
+                                }
                             }
                         }
+                    } header: {
+                        Text("For You")
                     }
-                    .onDelete(perform: deleteRecipes)
+                }
+                
+                Section {
+                    if filteredRecipes.isEmpty {
+                        ContentUnavailableView(
+                            "No Recipes",
+                            systemImage: "book.closed",
+                            description: Text("Add your first recipe to get started")
+                        )
+                    } else {
+                        ForEach(filteredRecipes) { recipe in
+                            NavigationLink(value: recipe) {
+                                VStack(alignment: .leading) {
+                                    Text(recipe.title)
+                                        .font(.headline)
+                                    
+                                    Text("\(recipe.sourceType.rawValue)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        .onDelete(perform: deleteRecipes)
+                    }
+                } header: {
+                    Text("All Recipes")
                 }
             }
             .searchable(text: $searchText, prompt: "Search Recipes")
@@ -132,6 +161,7 @@ struct RecipeListView: View {
             }
             .onAppear {
                 checkForPendingImport()
+                loadSuggestions()
             }
             .onReceive(NotificationCenter.default.publisher(
                 for: UIApplication.willEnterForegroundNotification)) { _ in
@@ -273,6 +303,12 @@ struct RecipeListView: View {
             try modelContext.save()
         } catch let saveError {
             error = saveError
+        }
+    }
+    
+    private func loadSuggestions() {
+        Task {
+            suggestions = await suggestionEngine.getSuggestions(recipes: recipes)
         }
     }
 }
