@@ -43,6 +43,17 @@ struct RecipeFilterMenuView: View {
                     )
 
                     FilterButton(
+                        title: "RECENTLY ADDED",
+                        icon: "clock.arrow.circlepath",
+                        count: recipeCount(.recentlyAdded),
+                        isSelected: selectedSection == .recentlyAdded,
+                        action: {
+                            selectedSection = .recentlyAdded
+                            onDismiss()
+                        }
+                    )
+
+                    FilterButton(
                         title: "RECENTLY COOKED",
                         icon: "clock",
                         count: recipeCount(.recentlyCooked),

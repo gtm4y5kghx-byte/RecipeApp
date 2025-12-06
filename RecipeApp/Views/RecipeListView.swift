@@ -33,6 +33,7 @@ struct RecipeListView: View {
 
     enum MenuSection: Hashable, Identifiable {
         case all
+        case recentlyAdded
         case recentlyCooked
         case favorites
         case uncategorized
@@ -41,6 +42,7 @@ struct RecipeListView: View {
         var id: String {
             switch self {
             case .all: return "all"
+            case .recentlyAdded: return "recently-added"
             case .recentlyCooked: return "recently-cooked"
             case .favorites: return "favorites"
             case .uncategorized: return "uncategorized"
@@ -51,6 +53,7 @@ struct RecipeListView: View {
         var title: String {
             switch self {
             case .all: return "All"
+            case .recentlyAdded: return "Recently Added"
             case .recentlyCooked: return "Recently Cooked"
             case .favorites: return "Favorites"
             case .uncategorized: return "Uncategorized"
@@ -61,6 +64,7 @@ struct RecipeListView: View {
         var icon: String {
             switch self {
             case .all: return "book"
+            case .recentlyAdded: return "clock.arrow.circlepath"
             case .recentlyCooked: return "clock"
             case .favorites: return "heart.fill"
             case .uncategorized: return "tray"
@@ -79,6 +83,8 @@ struct RecipeListView: View {
         switch selectedSection {
         case .all:
             return filtered
+        case .recentlyAdded:
+            return filtered.sorted { ($0.dateAdded ?? .distantPast) > ($1.dateAdded ?? .distantPast) }
         case .recentlyCooked:
             let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
             return filtered
@@ -107,6 +113,8 @@ struct RecipeListView: View {
     func recipeCount(for section: MenuSection) -> Int {
         switch section {
         case .all:
+            return recipes.count
+        case .recentlyAdded:
             return recipes.count
         case .recentlyCooked:
             let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
