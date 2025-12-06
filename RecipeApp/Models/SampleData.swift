@@ -53,7 +53,6 @@ struct SampleData {
         recipe.cuisine = "American"
         recipe.notes = "Best served warm with vanilla ice cream!"
         recipe.isFavorite = true
-        recipe.rating = 5
         recipe.timesCooked = 8
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -120, to: Date()) // 4 months ago
 
@@ -94,7 +93,6 @@ struct SampleData {
         recipe.prepTime = 20
         recipe.cookTime = 35
         recipe.cuisine = "Dessert"
-        recipe.rating = 4
         recipe.timesCooked = 3
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -10, to: Date()) // 10 days ago
 
@@ -135,7 +133,6 @@ struct SampleData {
         recipe.prepTime = 5
         recipe.cookTime = 10
         recipe.cuisine = "American"
-        recipe.rating = 5
         recipe.isFavorite = true
         recipe.timesCooked = 15
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -5, to: Date()) // 5 days ago
@@ -174,7 +171,6 @@ struct SampleData {
         recipe.cookTime = 15
         recipe.cuisine = "Mexican"
         recipe.notes = "Great for taco Tuesday!"
-        recipe.rating = 4
         recipe.timesCooked = 0
         // No lastMade - never cooked
 
@@ -215,7 +211,6 @@ struct SampleData {
         recipe.prepTime = 5
         recipe.cookTime = 15
         recipe.cuisine = "Italian"
-        recipe.rating = 3
         recipe.timesCooked = 0
         // No lastMade - never cooked
 
@@ -259,7 +254,6 @@ struct SampleData {
         recipe.cuisine = "Chinese"
         recipe.notes = "Perfect weeknight dinner!"
         recipe.isFavorite = true
-        recipe.rating = 5
         recipe.timesCooked = 12
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -20, to: Date())
 
@@ -299,7 +293,6 @@ struct SampleData {
         recipe.cookTime = 30
         recipe.cuisine = "American"
         recipe.notes = "Perfect with grilled cheese!"
-        recipe.rating = 4
         recipe.timesCooked = 5
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -45, to: Date())
 
@@ -376,7 +369,6 @@ struct SampleData {
         recipe.cookTime = 15
         recipe.cuisine = "American"
         recipe.isFavorite = false
-        recipe.rating = 4
         recipe.timesCooked = 8
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -15, to: Date())
 
@@ -414,7 +406,6 @@ struct SampleData {
         recipe.cookTime = 45
         recipe.cuisine = "Mexican"
         recipe.notes = "Freezes well, vegan-friendly"
-        recipe.rating = 5
         recipe.isFavorite = true
         recipe.timesCooked = 6
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -60, to: Date())
@@ -454,7 +445,6 @@ struct SampleData {
         recipe.cookTime = 15
         recipe.cuisine = "Thai"
         recipe.notes = "Authentic Thai street food"
-        recipe.rating = 5
         recipe.timesCooked = 0
 
         let ingredients = [
@@ -493,7 +483,6 @@ struct SampleData {
         recipe.cookTime = 60
         recipe.cuisine = "French"
         recipe.notes = "Classic French bistro dish"
-        recipe.rating = 5
         recipe.isFavorite = true
         recipe.timesCooked = 3
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -150, to: Date())
@@ -534,7 +523,6 @@ struct SampleData {
         recipe.cookTime = 20
         recipe.cuisine = "American"
         recipe.notes = "Healthy and quick"
-        recipe.rating = 4
         recipe.timesCooked = 10
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -8, to: Date())
 
@@ -575,7 +563,6 @@ struct SampleData {
         recipe.cuisine = "Italian"
         recipe.notes = "Classic Italian-American comfort food"
         recipe.isFavorite = false
-        recipe.rating = 5
         recipe.timesCooked = 4
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -35, to: Date())
 
@@ -614,7 +601,6 @@ struct SampleData {
         recipe.cookTime = 30
         recipe.cuisine = "Thai"
         recipe.notes = "Vegan, gluten-free, can be made mild or spicy"
-        recipe.rating = 4
         recipe.timesCooked = 0
 
         let ingredients = [
@@ -653,7 +639,6 @@ struct SampleData {
         recipe.cookTime = 5
         recipe.cuisine = "French"
         recipe.notes = "Perfect breakfast!"
-        recipe.rating = 4
         recipe.timesCooked = 25
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -2, to: Date())
 
@@ -693,7 +678,6 @@ struct SampleData {
         recipe.cuisine = "American"
         recipe.notes = "Perfect for Sunday dinner, low maintenance"
         recipe.isFavorite = true
-        recipe.rating = 5
         recipe.timesCooked = 5
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -90, to: Date())
 
@@ -733,7 +717,6 @@ struct SampleData {
         recipe.cookTime = 0
         recipe.cuisine = "Italian"
         recipe.notes = "Fresh summer salad, no cooking required"
-        recipe.rating = 5
         recipe.timesCooked = 0
 
         let ingredients = [
@@ -772,7 +755,6 @@ struct SampleData {
         recipe.cookTime = 20
         recipe.cuisine = "Japanese"
         recipe.notes = "Customize spice level to taste"
-        recipe.rating = 4
         recipe.timesCooked = 7
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -12, to: Date())
 
@@ -813,7 +795,6 @@ struct SampleData {
         recipe.cuisine = "French"
         recipe.notes = "Elegant dessert, best served chilled"
         recipe.isFavorite = true
-        recipe.rating = 5
         recipe.timesCooked = 2
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -180, to: Date())
 

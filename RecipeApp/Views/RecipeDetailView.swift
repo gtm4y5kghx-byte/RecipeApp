@@ -27,7 +27,7 @@ struct RecipeDetailView: View {
                 instructionsSection
                 notesSection
                 variationsSection
-                favoriteAndRatingSection
+                favoriteSection
                 actionButtonSection
             }
             .padding()
@@ -182,43 +182,22 @@ struct RecipeDetailView: View {
         }
     }
     
-    private var favoriteAndRatingSection: some View {
-        HStack(spacing: 24) {
-            Button(action: {
+    private var favoriteSection: some View {
+        Button(action: {
+            recipe.isFavorite.toggle()
+            HapticFeedback.light.trigger()
+            do {
+                try modelContext.save()
+            } catch let saveError {
                 recipe.isFavorite.toggle()
-                HapticFeedback.light.trigger()
-                do {
-                    try modelContext.save()
-                } catch let saveError {
-                    recipe.isFavorite.toggle()
-                    error = saveError
-                }
-            }) {
-                Label(
-                    recipe.isFavorite ? "Favorited" : "Favorite",
-                    systemImage: recipe.isFavorite ? "heart.fill" : "heart"
-                )
-                .foregroundStyle(recipe.isFavorite ? .red : .gray)
+                error = saveError
             }
-            
-            HStack(spacing: 4) {
-                ForEach(1...5, id: \.self) { star in
-                    Button(action: {
-                        let previousRating = recipe.rating
-                        recipe.rating = star
-                        HapticFeedback.selection.trigger()
-                        do {
-                            try modelContext.save()
-                        } catch let saveError {
-                            recipe.rating = previousRating
-                            error = saveError
-                        }
-                    }) {
-                        Image(systemName: star <= (recipe.rating ?? 0) ? "star.fill" : "star")
-                            .foregroundStyle(.yellow)
-                    }
-                }
-            }
+        }) {
+            Label(
+                recipe.isFavorite ? "Favorited" : "Favorite",
+                systemImage: recipe.isFavorite ? "heart.fill" : "heart"
+            )
+            .foregroundStyle(recipe.isFavorite ? .red : .gray)
         }
     }
     

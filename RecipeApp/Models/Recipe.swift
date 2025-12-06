@@ -17,7 +17,6 @@ class Recipe {
     var dateAdded: Date
     var lastModified: Date
     var lastMade: Date?
-    var rating: Int?
     var isFavorite: Bool = false
     var parentRecipeID: UUID?
     var variationNote: String?
