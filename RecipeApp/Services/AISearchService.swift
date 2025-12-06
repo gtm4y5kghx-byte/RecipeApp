@@ -1,5 +1,16 @@
 import Foundation
 
+enum SearchError: LocalizedError {
+    case outOfScope(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .outOfScope(let message):
+            return message
+        }
+    }
+}
+
 @MainActor
 class AISearchService {
     
@@ -10,6 +21,11 @@ class AISearchService {
     }
     
     func parseSearchIntent(from query: String) async throws -> RecipeSearchCriteria {
+        let isAllowed = try await claudeClient.screenUserInput(query)
+        guard isAllowed else {
+            throw SearchError.outOfScope("This service only handles recipe and cooking questions.")
+        }
+        
         print("🔍 [parseSearchIntent] Input query: \"\(query)\"")
         
         let systemPrompt = """

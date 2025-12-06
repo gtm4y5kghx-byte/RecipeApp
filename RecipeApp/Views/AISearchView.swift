@@ -96,8 +96,10 @@ struct AISearchView: View {
 
         do {
             searchResults = try await aiSearchService.search(query: query, recipes: recipes)
+        } catch let error as SearchError {
+            errorMessage = error.localizedDescription
         } catch {
-            errorMessage = "AI search is temporarily unavailable. Please try again later or use the standard search."
+            errorMessage = "AI search is temporarily unavailable. Please try again later."
         }
 
         hasSearched = true
