@@ -23,6 +23,7 @@ struct RecipeDetailView: View {
                 titleSection
                 sourceSection
                 metadataSection
+                tagsSection
                 cookingHistorySection
                 ingredientsSection
                 instructionsSection
@@ -94,6 +95,25 @@ struct RecipeDetailView: View {
         }
         .font(.subheadline)
         .foregroundStyle(.secondary)
+    }
+    
+    private var tagsSection: some View {
+        Group {
+            let _ = print("DEBUG: Recipe tags in detail view: \(recipe.userTags)")
+            if !recipe.userTags.isEmpty {
+                FlowLayout(spacing: 8) {
+                    ForEach(recipe.userTags.sorted(), id: \.self) { tag in
+                        Text(tag)
+                            .font(.subheadline)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.blue.opacity(0.1))
+                            .foregroundStyle(.blue)
+                            .cornerRadius(16)
+                    }
+                }
+            }
+        }
     }
     
     private var cookingHistorySection: some View {

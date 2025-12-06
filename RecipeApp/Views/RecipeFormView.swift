@@ -30,7 +30,7 @@ struct InstructionRowView: View {
 struct RecipeFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+    @Query private var allRecipes: [Recipe]
     
     @State private var title = ""
     @State private var servings = ""
@@ -45,9 +45,36 @@ struct RecipeFormView: View {
     @State private var hasUnsavedChanges = false
     @State private var error: Error?
     
+    @State private var tagInput = ""
+    
+    var tagSuggestions: [(String, Int)] {
+        // Get the current tag being typed (after last comma)
+        let currentTag = tagInput
+            .split(separator: ",")
+            .last?
+            .trimmingCharacters(in: .whitespaces)
+            .lowercased() ?? ""
+
+        // Only show suggestions if actively typing (current tag is not empty but incomplete)
+        guard !currentTag.isEmpty else { return [] }
+
+        let allTags = allRecipes.flatMap { $0.userTags }
+        let tagCounts = Dictionary(grouping: allTags, by: { $0.lowercased() })
+            .mapValues { $0.count }
+
+        let filtered = tagCounts.filter { tag, _ in
+            tag.contains(currentTag) && tag != currentTag
+        }
+
+        return filtered
+            .map { ($0.key, $0.value) }
+            .sorted { $0.1 > $1.1 }
+    }
+    
+    
     let recipe: Recipe?
     let importData: RecipeImportData?
-
+    
     init(recipe: Recipe? = nil, importData: RecipeImportData? = nil) {
         self.recipe = recipe
         self.importData = importData
@@ -67,6 +94,8 @@ struct RecipeFormView: View {
             let sortedInstructions = recipe.instructions.sorted(by: { $0.order < $1.order })
             let instructionTexts = sortedInstructions.map { $0.instruction }
             _instructionFields = State(initialValue: instructionTexts.isEmpty ? [""] : instructionTexts )
+            
+            _tagInput = State(initialValue: recipe.userTags.joined(separator: ", "))
         } else if let importData = importData {
             _title = State(initialValue: importData.title)
             _servings = State(initialValue: importData.servings.map { String($0) } ?? "")
@@ -140,6 +169,46 @@ struct RecipeFormView: View {
                 Section("Notes") {
                     TextEditor(text: $notes)
                         .frame(minHeight: 100)
+                }
+                
+                Section("Tags") {
+                    TextField("Add tags (comma-separated)...", text: $tagInput)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    
+                    // Autocomplete suggestions
+                    if !tagInput.isEmpty && !tagSuggestions.isEmpty {
+                        ForEach(tagSuggestions.prefix(5), id: \.0) { tag, count in
+                            Button(action: {
+                                // Get existing tags (excluding the one being typed)
+                                var tags = tagInput.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+
+                                // Check if tag already exists (excluding the last incomplete one)
+                                let existingTags = tags.dropLast()
+                                if existingTags.contains(tag.lowercased()) {
+                                    // Tag already exists - just remove the incomplete input
+                                    tags = Array(tags.dropLast())
+                                } else {
+                                    // Tag doesn't exist - replace incomplete tag with selected suggestion
+                                    if !tags.isEmpty {
+                                        tags[tags.count - 1] = tag.lowercased()
+                                    } else {
+                                        tags.append(tag.lowercased())
+                                    }
+                                }
+
+                                tagInput = tags.joined(separator: ", ")
+                            }) {
+                                HStack {
+                                    Text(tag)
+                                    Spacer()
+                                    Text("\(count)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 Section("Ingredients") {
@@ -251,6 +320,11 @@ struct RecipeFormView: View {
         recipeToSave.servings = Int(servings)
         recipeToSave.prepTime = Int(prepTime)
         recipeToSave.cookTime = Int(cookTime)
+        let parsedTags = tagInput
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+            .filter { !$0.isEmpty }
+        recipeToSave.userTags = parsedTags
         
         recipeToSave.ingredients.removeAll()
         recipeToSave.instructions.removeAll()
