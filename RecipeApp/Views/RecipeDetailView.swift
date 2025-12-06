@@ -9,8 +9,9 @@ struct RecipeDetailView: View {
     @State private var transformationPrompt = ""
     @State private var showDeleteAlert = false
     @State private var showingEditSheet = false
-    @State private var error: Error?
     @Query private var allRecipes: [Recipe]
+    @State private var showingCookingMode = false
+    @State private var error: Error?
     
     private var recipeVariations: [Recipe] {
         allRecipes.filter { $0.parentRecipeID == recipe.id }
@@ -45,6 +46,11 @@ struct RecipeDetailView: View {
         }
         .sheet(isPresented: $showingTransformSheet) {
             RecipeTransformationView(recipe: recipe)
+        }
+        .sheet(isPresented: $showingCookingMode) {
+            NavigationStack {
+                CookingModeView(recipe: recipe)
+            }
         }
         .errorAlert($error)
     }
@@ -218,6 +224,13 @@ struct RecipeDetailView: View {
     
     private var actionButtonSection: some View {
         HStack(spacing: 16) {
+            Button(action: {
+                showingCookingMode = true
+            })  {
+                Label("Start Cooking", systemImage: "flame")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
             Button(action: {
                 showingEditSheet = true
             }){

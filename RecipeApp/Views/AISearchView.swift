@@ -9,7 +9,7 @@ struct AISearchView: View {
     @State private var isSearching = false
     @State private var hasSearched = false
     @State private var errorMessage: String?
-
+    
     private let aiSearchService = AISearchService()
     
     var body: some View {
@@ -54,7 +54,7 @@ struct AISearchView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(recipe.title)
                                 .font(.headline)
-
+                            
                             HStack {
                                 if let cuisine = recipe.cuisine {
                                     Text(cuisine)
@@ -93,7 +93,7 @@ struct AISearchView: View {
         isSearching = true
         errorMessage = nil
         searchResults = []
-
+        
         do {
             searchResults = try await aiSearchService.search(query: query, recipes: recipes)
         } catch let error as SearchError {
@@ -101,7 +101,7 @@ struct AISearchView: View {
         } catch {
             errorMessage = "AI search is temporarily unavailable. Please try again later."
         }
-
+        
         hasSearched = true
         isSearching = false
     }
