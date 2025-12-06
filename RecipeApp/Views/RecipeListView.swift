@@ -56,7 +56,15 @@ struct RecipeListView: View {
                                 }
                             }
                         } header: {
-                            Text("For You")
+                            HStack {
+                                Text("For You")
+                                Spacer()
+                                Button("Refresh") {
+                                    loadSuggestions(forceRefresh: true)
+                                }
+                                .font(.caption)
+                                .textCase(.none)
+                            }
                         }
                     }
                 } else {
@@ -321,9 +329,9 @@ struct RecipeListView: View {
         }
     }
     
-    private func loadSuggestions() {
+    private func loadSuggestions(forceRefresh: Bool = false) {
         Task {
-            suggestions = await suggestionEngine.getSuggestions(recipes: recipes)
+            suggestions = await suggestionEngine.getSuggestions(recipes: recipes, forceRefresh: forceRefresh)
         }
     }
 }

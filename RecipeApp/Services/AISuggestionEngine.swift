@@ -134,32 +134,32 @@ class AISuggestionEngine {
         }
     }
     
-    func getSuggestions(recipes: [Recipe]) async -> [RecipeSuggestion] {
+    func getSuggestions(recipes: [Recipe], forceRefresh: Bool = false) async -> [RecipeSuggestion] {
         // Check minimum recipe threshold
         guard recipes.count >= minimumRecipeCount else {
             return []
         }
-        
-        // Check if we have valid cache
-        if let cache = loadCache(), !cache.isStale {
+
+        // Check if we have valid cache (skip if force refresh)
+        if !forceRefresh, let cache = loadCache(), !cache.isStale {
             return cache.suggestions
         }
-        
+
         // Try to generate new suggestions
         do {
             let suggestions = try await generateSuggestions(recipes: recipes)
-            
+
             // Save to cache
             let cache = SuggestionCache(suggestions: suggestions, generatedAt: Date())
             saveCache(cache)
-            
+
             return suggestions
         } catch {
             // If generation fails, return cached suggestions (even if stale)
             if let cache = loadCache() {
                 return cache.suggestions
             }
-            
+
             // No cache available, return empty
             return []
         }
