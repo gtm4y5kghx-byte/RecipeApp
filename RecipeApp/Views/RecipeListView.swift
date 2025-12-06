@@ -19,7 +19,10 @@ struct RecipeListView: View {
     
     @State private var subscriptionService = UserSubscriptionService()
     @State private var showingPaywall = false
-    
+
+    @State private var showingFilterMenu = false
+    @State private var selectedSection: MenuSection = .all
+
     enum SearchScope: String, CaseIterable {
         case all = "All"
         case title = "Title"
@@ -27,9 +30,78 @@ struct RecipeListView: View {
         case instructions = "Instructions"
         case notes = "Notes"
     }
-    
+
+    enum MenuSection: Hashable, Identifiable {
+        case all
+        case recentlyCooked
+        case favorites
+        case uncategorized
+        case tag(String)
+
+        var id: String {
+            switch self {
+            case .all: return "all"
+            case .recentlyCooked: return "recently-cooked"
+            case .favorites: return "favorites"
+            case .uncategorized: return "uncategorized"
+            case .tag(let name): return "tag-\(name)"
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .all: return "All"
+            case .recentlyCooked: return "Recently Cooked"
+            case .favorites: return "Favorites"
+            case .uncategorized: return "Uncategorized"
+            case .tag(let name): return name
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .all: return "book"
+            case .recentlyCooked: return "clock"
+            case .favorites: return "heart.fill"
+            case .uncategorized: return "tray"
+            case .tag: return "tag"
+            }
+        }
+    }
+
     var filteredRecipes: [Recipe] {
         searchText.isEmpty ? recipes : filteredResults
+    }
+
+    var displayedRecipes: [Recipe] {
+        let filtered = searchText.isEmpty ? recipes : filteredResults
+
+        switch selectedSection {
+        case .all:
+            return filtered
+        case .recentlyCooked:
+            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+            return filtered
+                .filter { recipe in
+                    guard let lastMade = recipe.lastMade else { return false }
+                    return lastMade >= thirtyDaysAgo
+                }
+                .sorted { ($0.lastMade ?? .distantPast) > ($1.lastMade ?? .distantPast) }
+        case .favorites:
+            return filtered.filter { $0.isFavorite }
+        case .uncategorized:
+            return filtered.filter { $0.userTags.isEmpty }
+        case .tag(let tagName):
+            return filtered.filter { $0.userTags.contains(tagName) }
+        }
+    }
+
+    var sortedTags: [(String, Int)] {
+        let allTags = recipes.flatMap { $0.userTags }
+        let tagCounts = Dictionary(grouping: allTags, by: { $0 })
+            .mapValues { $0.count }
+            .sorted { $0.value > $1.value }
+        return tagCounts
     }
     
     var body: some View {
@@ -94,19 +166,19 @@ struct RecipeListView: View {
                 }
                 
                 Section {
-                    if filteredRecipes.isEmpty {
+                    if displayedRecipes.isEmpty {
                         ContentUnavailableView(
                             "No Recipes",
                             systemImage: "book.closed",
                             description: Text("Add your first recipe to get started")
                         )
                     } else {
-                        ForEach(filteredRecipes) { recipe in
+                        ForEach(displayedRecipes) { recipe in
                             NavigationLink(value: recipe) {
                                 VStack(alignment: .leading) {
                                     Text(recipe.title)
                                         .font(.headline)
-                                    
+
                                     Text("\(recipe.sourceType.rawValue)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
@@ -116,7 +188,7 @@ struct RecipeListView: View {
                         .onDelete(perform: deleteRecipes)
                     }
                 } header: {
-                    Text("All Recipes")
+                    Text(selectedSection.title)
                 }
             }
             .searchable(text: $searchText, prompt: "Search Recipes")
@@ -135,6 +207,14 @@ struct RecipeListView: View {
                 RecipeDetailView(recipe: recipe)
             }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: {
+                        showingFilterMenu = true
+                    }) {
+                        Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         showingAddRecipe = true
@@ -142,7 +222,7 @@ struct RecipeListView: View {
                         Image(systemName: "plus")
                     }
                 }
-                
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         subscriptionService.requiresPremium(
@@ -153,15 +233,15 @@ struct RecipeListView: View {
                         Image(systemName: "sparkles")
                     }
                 }
-                
-                ToolbarItem(placement: .topBarLeading) {
+
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button(action: {
                             SampleData.loadSampleRecipes(into: modelContext)
                         }) {
                             Label("Load Sample Recipes", systemImage: "tray.full")
                         }
-                        
+
                         Button(role: .destructive, action: {
                             SampleData.clearAllData(from: modelContext)
                         }) {
@@ -181,6 +261,16 @@ struct RecipeListView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
+            }
+            .sheet(isPresented: $showingFilterMenu) {
+                RecipeFilterMenuView(
+                    selectedSection: $selectedSection,
+                    tags: sortedTags,
+                    onDismiss: { showingFilterMenu = false },
+                    onNewRecipe: { showingAddRecipe = true }
+                )
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
             }
             .onAppear {
                 checkForPendingImport()
@@ -331,10 +421,10 @@ struct RecipeListView: View {
     
     private func deleteRecipes(at offsets: IndexSet) {
         for index in offsets {
-            let recipe = filteredRecipes[index]
+            let recipe = displayedRecipes[index]
             modelContext.delete(recipe)
         }
-        
+
         do {
             try modelContext.save()
         } catch let saveError {
