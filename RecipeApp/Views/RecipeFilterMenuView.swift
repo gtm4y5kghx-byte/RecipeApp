@@ -5,6 +5,7 @@ struct RecipeFilterMenuView: View {
     let tags: [(String, Int)]
     let onDismiss: () -> Void
     let onNewRecipe: () -> Void
+    let recipeCount: (RecipeListView.MenuSection) -> Int
 
     var body: some View {
         NavigationStack {
@@ -18,12 +19,22 @@ struct RecipeFilterMenuView: View {
                             .font(.subheadline)
                             .fontWeight(.medium)
                     }
+
+                    Button(action: {
+                        // TODO: Implement Settings
+                        onDismiss()
+                    }) {
+                        Label("SETTINGS", systemImage: "gear")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
                 }
 
                 Section {
                     FilterButton(
                         title: "ALL",
                         icon: "book",
+                        count: recipeCount(.all),
                         isSelected: selectedSection == .all,
                         action: {
                             selectedSection = .all
@@ -34,6 +45,7 @@ struct RecipeFilterMenuView: View {
                     FilterButton(
                         title: "RECENTLY COOKED",
                         icon: "clock",
+                        count: recipeCount(.recentlyCooked),
                         isSelected: selectedSection == .recentlyCooked,
                         action: {
                             selectedSection = .recentlyCooked
@@ -44,6 +56,7 @@ struct RecipeFilterMenuView: View {
                     FilterButton(
                         title: "FAVORITES",
                         icon: "heart.fill",
+                        count: recipeCount(.favorites),
                         isSelected: selectedSection == .favorites,
                         action: {
                             selectedSection = .favorites
@@ -54,6 +67,7 @@ struct RecipeFilterMenuView: View {
                     FilterButton(
                         title: "UNCATEGORIZED",
                         icon: "tray",
+                        count: recipeCount(.uncategorized),
                         isSelected: selectedSection == .uncategorized,
                         action: {
                             selectedSection = .uncategorized
@@ -68,6 +82,7 @@ struct RecipeFilterMenuView: View {
                             FilterButton(
                                 title: tag.uppercased(),
                                 icon: "tag",
+                                count: count,
                                 isSelected: selectedSection == .tag(tag),
                                 action: {
                                     selectedSection = .tag(tag)
@@ -94,6 +109,7 @@ struct RecipeFilterMenuView: View {
 struct FilterButton: View {
     let title: String
     let icon: String
+    let count: Int
     let isSelected: Bool
     let action: () -> Void
 
@@ -104,6 +120,9 @@ struct FilterButton: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
                 Spacer()
+                Text("\(count)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 if isSelected {
                     Image(systemName: "checkmark")
                         .foregroundStyle(.blue)

@@ -103,6 +103,25 @@ struct RecipeListView: View {
             .sorted { $0.value > $1.value }
         return tagCounts
     }
+
+    func recipeCount(for section: MenuSection) -> Int {
+        switch section {
+        case .all:
+            return recipes.count
+        case .recentlyCooked:
+            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+            return recipes.filter { recipe in
+                guard let lastMade = recipe.lastMade else { return false }
+                return lastMade >= thirtyDaysAgo
+            }.count
+        case .favorites:
+            return recipes.filter { $0.isFavorite }.count
+        case .uncategorized:
+            return recipes.filter { $0.userTags.isEmpty }.count
+        case .tag(let tagName):
+            return recipes.filter { $0.userTags.contains(tagName) }.count
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -267,7 +286,8 @@ struct RecipeListView: View {
                     selectedSection: $selectedSection,
                     tags: sortedTags,
                     onDismiss: { showingFilterMenu = false },
-                    onNewRecipe: { showingAddRecipe = true }
+                    onNewRecipe: { showingAddRecipe = true },
+                    recipeCount: recipeCount
                 )
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
