@@ -46,7 +46,7 @@ struct RecipeListView: View {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(recipe.title)
                                                 .font(.headline)
-
+                                            
                                             Text(suggestion.aiGeneratedReason)
                                                 .font(.subheadline)
                                                 .foregroundStyle(.secondary)
@@ -81,7 +81,7 @@ struct RecipeListView: View {
                                         .font(.headline)
                                         .foregroundStyle(.primary)
                                 }
-
+                                
                                 Text("Unlock AI-powered recipe recommendations tailored to your cooking history")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
@@ -142,7 +142,7 @@ struct RecipeListView: View {
                         Image(systemName: "plus")
                     }
                 }
-
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         subscriptionService.requiresPremium(
@@ -304,6 +304,19 @@ struct RecipeListView: View {
             let step = Step(instruction: instructionText)
             step.order = index
             recipe.instructions.append(step)
+        }
+        
+        if let nutritionData = importData.nutrition {
+            let nutritionInfo = NutritionInfo(
+                calories: nutritionData.calories,
+                carbohydrates: nutritionData.carbohydrates,
+                protein: nutritionData.protein,
+                fat: nutritionData.fat,
+                fiber: nutritionData.fiber,
+                sodium: nutritionData.sodium,
+                sugar: nutritionData.sugar
+            )
+            recipe.nutrition = nutritionInfo
         }
         
         modelContext.insert(recipe)
