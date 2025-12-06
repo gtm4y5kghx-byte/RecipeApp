@@ -33,6 +33,13 @@ struct RecipeDetailView: View {
             .padding()
         }
         .navigationTitle("Recipe Details")
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: cookedThisRecipe) {
+                    Label("I Cooked This", systemImage: "checkmark.circle")
+                }
+            }
+        }
         .sheet(isPresented: $showingEditSheet) {
             RecipeFormView(recipe: recipe)
         }
@@ -88,15 +95,23 @@ struct RecipeDetailView: View {
             Text("Cooking History")
                 .font(.headline)
             
-            HStack(spacing: 16) {
-                Label("\(recipe.timesCooked) times", systemImage: "repeat")
-                
-                if let lastMade = recipe.lastMade {
-                    Label(formatDate(lastMade), systemImage: "calendar")
+            if recipe.timesCooked == 0 {
+                Text("Never cooked")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                HStack(spacing: 8) {
+                    Text("Cooked \(recipe.timesCooked) \(recipe.timesCooked == 1 ? "time" : "times")")
+                    
+                    if let lastMade = recipe.lastMade {
+                        Text("·")
+                        Text("Last made \(formatRelativeDate(lastMade))")
+                    }
                 }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+            
         }
     }
     
@@ -260,6 +275,20 @@ struct RecipeDetailView: View {
         }
     }
     
+    private func cookedThisRecipe() {
+        recipe.timesCooked += 1
+        recipe.lastMade = Date()
+        
+        do {
+            try modelContext.save()
+            HapticFeedback.success.trigger()
+        } catch let saveError {
+            recipe.timesCooked -= 1
+            recipe.lastMade = nil
+            error = saveError
+        }
+    }
+    
     private func ingredientText(for ingredient: Ingredient) -> String {
         var parts: [String] = []
         
@@ -289,9 +318,31 @@ struct RecipeDetailView: View {
         }
     }
     
-    private func formatDate(_ date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: date, relativeTo: Date())
+    private func formatRelativeDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        let components = calendar.dateComponents([.day], from: date, to: now)
+        
+        guard let days = components.day else {
+            return "recently"
+        }
+        
+        if days == 0 {
+            return "today"
+        } else if days == 1 {
+            return "yesterday"
+        } else if days < 7 {
+            return "\(days) days ago"
+        } else if days < 30 {
+            let weeks = days / 7
+            return "\(weeks) \(weeks == 1 ? "week" : "weeks") ago"
+        } else if days < 365 {
+            let months = days / 30
+            return "\(months) \(months == 1 ? "month" : "months") ago"
+        } else {
+            let years = days / 365
+            return "\(years) \(years == 1 ? "year" : "years") ago"
+        }
     }
 }

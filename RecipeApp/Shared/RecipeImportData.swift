@@ -18,5 +18,16 @@ struct RecipeImportData: Codable, Identifiable {
     let ingredients: [String]
     let instructions: [String]
     
+    let nutrition: NutritionImportData?
     let author: String?
+}
+
+struct NutritionImportData: Codable {
+    let calories: Int?
+    let carbohydrates: Double?
+    let protein: Double?
+    let fat: Double?
+    let fiber: Double?
+    let sodium: Double?
+    let sugar: Double?
 }

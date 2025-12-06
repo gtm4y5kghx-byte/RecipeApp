@@ -24,6 +24,9 @@ class Recipe {
     @Relationship(deleteRule: .cascade)
     var ingredients: [Ingredient]
     
+    @Relationship(deleteRule: .cascade)
+    var nutrition: NutritionInfo?
+    
     var variations: [Recipe] {
         return []
     }
@@ -78,6 +81,32 @@ class Step {
         self.id = UUID()
         self.instruction = instruction
         self.timerDuration = timerDuration
+    }
+}
+
+@Model
+class NutritionInfo {
+    var id: UUID
+    var calories: Int?           // per serving
+    var carbohydrates: Double?   // grams
+    var protein: Double?         // grams
+    var fat: Double?             // grams
+    var fiber: Double?           // grams
+    var sodium: Double?          // milligrams
+    var sugar: Double?           // grams
+    
+    init(calories: Int? = nil, carbohydrates: Double? = nil,
+         protein: Double? = nil, fat: Double? = nil,
+         fiber: Double? = nil, sodium: Double? = nil,
+         sugar: Double? = nil) {
+        self.id = UUID()
+        self.calories = calories
+        self.carbohydrates = carbohydrates
+        self.protein = protein
+        self.fat = fat
+        self.fiber = fiber
+        self.sodium = sodium
+        self.sugar = sugar
     }
 }
 

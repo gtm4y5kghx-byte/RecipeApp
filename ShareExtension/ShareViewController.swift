@@ -185,6 +185,7 @@ class ShareViewController: UIViewController {
         let cuisine = parseCuisine(jsonLD["recipeCuisine"])
         let category = parseCategory(jsonLD["recipeCategory"])
         
+        let nutrition = parseNutrition(jsonLD["nutrition"])
         let author = parseAuthor(jsonLD["author"])
         let description = jsonLD["description"] as? String
         
@@ -201,6 +202,7 @@ class ShareViewController: UIViewController {
             category: category,
             ingredients: ingredients,
             instructions: instructions,
+            nutrition: nutrition,
             author: author
         )
     }
@@ -241,6 +243,20 @@ class ShareViewController: UIViewController {
             debugText += "Ingredients: \(data.ingredients.joined(separator: ", "))\n"
             debugText += "Instructions: \(data.instructions.joined(separator: ", "))\n"
             debugText += "Image URL: \(data.imageURL ?? "nil")\n"
+            
+            if let nutrition = data.nutrition {
+                debugText += "Nutrition:\n"
+                if let cal = nutrition.calories { debugText += "  Calories: \(cal)\n" }
+                if let carbs = nutrition.carbohydrates { debugText += "  Carbs: \(carbs)g\n" }
+                if let protein = nutrition.protein { debugText += "  Protein: \(protein)g\n" }
+                if let fat = nutrition.fat { debugText += "  Fat: \(fat)g\n" }
+                if let fiber = nutrition.fiber { debugText += "  Fiber: \(fiber)g\n" }
+                if let sodium = nutrition.sodium { debugText += "  Sodium: \(sodium)mg\n" }
+                if let sugar = nutrition.sugar { debugText += "  Sugar: \(sugar)g\n" }
+            } else {
+                debugText += "Nutrition: nil\n"
+            }
+            
             dataLabel.text = debugText
         }
         
@@ -264,21 +280,21 @@ class ShareViewController: UIViewController {
         ])
         
         if recipeAlreadyImported {
-              navItem.rightBarButtonItem = UIBarButtonItem(
-                  title: "Already Imported ✓",
-                  style: .plain,
-                  target: nil,
-                  action: nil
-              )
-              navItem.rightBarButtonItem?.isEnabled = false
-          } else {
-              navItem.rightBarButtonItem = UIBarButtonItem(
-                  title: "Add",
-                  style: .done,
-                  target: self,
-                  action: #selector(addToAppTapped)
-              )
-          }
+            navItem.rightBarButtonItem = UIBarButtonItem(
+                title: "Already Imported ✓",
+                style: .plain,
+                target: nil,
+                action: nil
+            )
+            navItem.rightBarButtonItem?.isEnabled = false
+        } else {
+            navItem.rightBarButtonItem = UIBarButtonItem(
+                title: "Add",
+                style: .done,
+                target: self,
+                action: #selector(addToAppTapped)
+            )
+        }
     }
     
     private func isRecipeType(_ object: [String: Any]) -> Bool {
@@ -308,6 +324,51 @@ class ShareViewController: UIViewController {
         }
         
         return []
+    }
+    
+    private func parseNutrition(_ value: Any?) -> NutritionImportData? {
+        guard let nutritionObject = value as? [String: Any] else {
+            return nil
+        }
+        
+        // Helper to extract numeric value from strings like "270 calories" or "51 g"
+        func extractNumber(_ value: Any?) -> Double? {
+            if let doubleValue = value as? Double {
+                return doubleValue
+            }
+            if let intValue = value as? Int {
+                return Double(intValue)
+            }
+            if let stringValue = value as? String {
+                // Extract first number from string (handles "270 calories", "51 g", etc.)
+                let numbers = stringValue.components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted).joined()
+                return Double(numbers)
+            }
+            return nil
+        }
+        
+        let calories = extractNumber(nutritionObject["calories"]).map { Int($0) }
+        let carbs = extractNumber(nutritionObject["carbohydrateContent"])
+        let protein = extractNumber(nutritionObject["proteinContent"])
+        let fat = extractNumber(nutritionObject["fatContent"])
+        let fiber = extractNumber(nutritionObject["fiberContent"])
+        let sodium = extractNumber(nutritionObject["sodiumContent"])
+        let sugar = extractNumber(nutritionObject["sugarContent"])
+        
+        // Only return nutrition data if at least one field is present
+        if calories != nil || carbs != nil || protein != nil || fat != nil {
+            return NutritionImportData(
+                calories: calories,
+                carbohydrates: carbs,
+                protein: protein,
+                fat: fat,
+                fiber: fiber,
+                sodium: sodium,
+                sugar: sugar
+            )
+        }
+        
+        return nil
     }
     
     private func parseImageURL(_ value: Any?) -> String? {
