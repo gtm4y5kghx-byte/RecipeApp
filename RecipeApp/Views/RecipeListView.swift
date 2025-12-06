@@ -6,7 +6,6 @@ struct RecipeListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
     @State private var showingAddRecipe = false
-    @State private var showingVoiceRecording = false
     @State private var error: Error?
     
     @State private var showingAISearch = false
@@ -135,15 +134,7 @@ struct RecipeListView: View {
                         Image(systemName: "plus")
                     }
                 }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        showingVoiceRecording = true
-                    }) {
-                        Image(systemName: "mic.fill")
-                    }
-                }
-                
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         subscriptionService.requiresPremium(
@@ -176,9 +167,6 @@ struct RecipeListView: View {
             .navigationTitle(Text("Recipes"))
             .sheet(isPresented: $showingAddRecipe) {
                 RecipeFormView()
-            }
-            .sheet(isPresented: $showingVoiceRecording) {
-                VoiceRecordingView()
             }
             .sheet(isPresented: $showingAISearch) {
                 AISearchView(recipes: recipes)

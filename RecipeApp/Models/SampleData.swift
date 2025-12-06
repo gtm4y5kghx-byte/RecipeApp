@@ -168,7 +168,7 @@ struct SampleData {
     }
 
     private static func createTacos() -> Recipe {
-        let recipe = Recipe(title: "Easy Beef Tacos", sourceType: .voice_created)
+        let recipe = Recipe(title: "Easy Beef Tacos", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 10
         recipe.cookTime = 15
@@ -408,7 +408,7 @@ struct SampleData {
     }
 
     private static func createVegetarianChili() -> Recipe {
-        let recipe = Recipe(title: "Hearty Vegetarian Chili", sourceType: .voice_created)
+        let recipe = Recipe(title: "Hearty Vegetarian Chili", sourceType: .manual)
         recipe.servings = 8
         recipe.prepTime = 15
         recipe.cookTime = 45
@@ -608,7 +608,7 @@ struct SampleData {
     }
 
     private static func createVeganCurry() -> Recipe {
-        let recipe = Recipe(title: "Coconut Vegetable Curry", sourceType: .voice_created)
+        let recipe = Recipe(title: "Coconut Vegetable Curry", sourceType: .manual)
         recipe.servings = 6
         recipe.prepTime = 15
         recipe.cookTime = 30
@@ -766,7 +766,7 @@ struct SampleData {
     }
 
     private static func createSpicyRamen() -> Recipe {
-        let recipe = Recipe(title: "Spicy Miso Ramen", sourceType: .voice_created)
+        let recipe = Recipe(title: "Spicy Miso Ramen", sourceType: .manual)
         recipe.servings = 2
         recipe.prepTime = 10
         recipe.cookTime = 20

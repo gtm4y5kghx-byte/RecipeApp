@@ -47,12 +47,10 @@ struct RecipeFormView: View {
     
     let recipe: Recipe?
     let importData: RecipeImportData?
-    var onSaveFromVoiceRecording: (() -> Void)? = nil
-    
-    init(recipe: Recipe? = nil, importData: RecipeImportData? = nil, onSaveFromVoiceRecording: (() -> Void)? = nil) {
+
+    init(recipe: Recipe? = nil, importData: RecipeImportData? = nil) {
         self.recipe = recipe
         self.importData = importData
-        self.onSaveFromVoiceRecording = onSaveFromVoiceRecording
         
         if let recipe = recipe {
             _title = State(initialValue: recipe.title)
@@ -281,12 +279,7 @@ struct RecipeFormView: View {
             }
             
             HapticFeedback.success.trigger()
-            
-            if let dismissAction = onSaveFromVoiceRecording {
-                dismissAction()
-            } else {
-                dismiss()
-            }
+            dismiss()
         } catch let saveError {
             error = saveError
         }
