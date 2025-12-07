@@ -34,88 +34,21 @@ struct RecipeListView: View {
 
     @ViewBuilder
     private var forYouSection: some View {
-        if subscriptionService.isPremium {
-            if !suggestions.isEmpty {
-                Section {
-                    ForEach(suggestions) { suggestion in
-                        if let recipe = recipes.first(where: { $0.id == suggestion.recipeID }) {
-                            NavigationLink(value: recipe) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(recipe.title)
-                                        .font(.headline)
-
-                                    Text(suggestion.aiGeneratedReason)
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
-                                }
-                            }
-                        }
-                    }
-                } header: {
-                    HStack {
-                        Text("For You")
-                        Spacer()
-                        Button("Refresh") {
-                            loadSuggestions(forceRefresh: true)
-                        }
-                        .font(.caption)
-                        .textCase(.none)
-                    }
-                }
-            }
-        } else {
-            Section {
-                Button(action: {
-                    showingPaywall = true
-                }) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Image(systemName: "sparkles")
-                                .foregroundStyle(.blue)
-                            Text("Get Personalized Suggestions")
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                        }
-
-                        Text("Unlock AI-powered recipe recommendations tailored to your cooking history")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-            } header: {
-                Text("For You")
-            }
-        }
+        ForYouSection(
+            isPremium: subscriptionService.isPremium,
+            suggestions: suggestions,
+            recipes: recipes,
+            onRefresh: { loadSuggestions(forceRefresh: true) },
+            onShowPaywall: { showingPaywall = true }
+        )
     }
 
     private var recipesSection: some View {
-        Section {
-            if viewModel.displayedRecipes.isEmpty {
-                ContentUnavailableView(
-                    "No Recipes",
-                    systemImage: "book.closed",
-                    description: Text("Add your first recipe to get started")
-                )
-            } else {
-                ForEach(viewModel.displayedRecipes) { recipe in
-                    NavigationLink(value: recipe) {
-                        VStack(alignment: .leading) {
-                            Text(recipe.title)
-                                .font(.headline)
-
-                            Text("\(recipe.sourceType.rawValue)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .onDelete(perform: deleteRecipes)
-            }
-        } header: {
-            Text(viewModel.selectedSection.title)
-        }
+        RecipesSection(
+            displayedRecipes: viewModel.displayedRecipes,
+            sectionTitle: viewModel.selectedSection.title,
+            onDelete: deleteRecipes
+        )
     }
 
     var body: some View {

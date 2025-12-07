@@ -1,37 +1,11 @@
 import SwiftUI
 import SwiftData
 
-struct InstructionRowView: View {
-    @Binding var instruction: String
-    let index: Int
-    let canDelete: Bool
-    let onDelete: () -> Void
-    
-    var body: some View {
-        HStack(alignment: .top) {
-            Text("\(index + 1).")
-                .foregroundStyle(.secondary)
-                .padding(.top, 8)
-            
-            TextEditor(text: $instruction)
-                .frame(minHeight: 60)
-                .scrollContentBackground(.hidden)
-            
-            Button(action: onDelete) {
-                Image(systemName: "minus.circle.fill")
-                    .foregroundStyle(.red)
-            }
-            .disabled(!canDelete)
-            .padding(.top, 8)
-        }
-    }
-}
-
 struct RecipeFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query private var allRecipes: [Recipe]
-    
+
     @State private var title = ""
     @State private var servings = ""
     @State private var prepTime = ""
@@ -44,31 +18,25 @@ struct RecipeFormView: View {
     @State private var showCancelAlert = false
     @State private var hasUnsavedChanges = false
     @State private var error: Error?
-    
+
     @State private var tagInput = ""
-    
+
+    private var viewModel: RecipeFormViewModel {
+        RecipeFormViewModel(
+            recipe: recipe,
+            title: title,
+            ingredientFields: ingredientFields,
+            instructionFields: instructionFields,
+            servings: servings,
+            prepTime: prepTime,
+            cookTime: cookTime,
+            cuisine: cuisine,
+            notes: notes
+        )
+    }
+
     var tagSuggestions: [(String, Int)] {
-        // Get the current tag being typed (after last comma)
-        let currentTag = tagInput
-            .split(separator: ",")
-            .last?
-            .trimmingCharacters(in: .whitespaces)
-            .lowercased() ?? ""
-
-        // Only show suggestions if actively typing (current tag is not empty but incomplete)
-        guard !currentTag.isEmpty else { return [] }
-
-        let allTags = allRecipes.flatMap { $0.userTags }
-        let tagCounts = Dictionary(grouping: allTags, by: { $0.lowercased() })
-            .mapValues { $0.count }
-
-        let filtered = tagCounts.filter { tag, _ in
-            tag.contains(currentTag) && tag != currentTag
-        }
-
-        return filtered
-            .map { ($0.key, $0.value) }
-            .sorted { $0.1 > $1.1 }
+        viewModel.getTagSuggestions(tagInput: tagInput, allRecipes: allRecipes)
     }
     
     
@@ -110,27 +78,7 @@ struct RecipeFormView: View {
     }
     
     private var formHasChanges: Bool {
-        if recipe == nil {
-            return !title.isEmpty ||
-            ingredientFields.contains(where: { !$0.isEmpty }) ||
-            instructionFields.contains(where: { !$0.isEmpty }) ||
-            !servings.isEmpty || !prepTime.isEmpty || !cookTime.isEmpty || !cuisine.isEmpty || !notes.isEmpty
-        }
-        
-        guard let recipe = recipe else { return false }
-        
-        let ingredientsChanged = ingredientFields != recipe.ingredients.sorted(by: { $0.order < $1.order}).map { $0.item }
-        let instructionsChanged = instructionFields != recipe.instructions.sorted(by: { $0.order < $1.order}).map { $0.instruction }
-        
-        
-        return title != recipe.title ||
-        servings != (recipe.servings.map { String($0) } ?? "") ||
-        prepTime != (recipe.prepTime.map { String($0) } ?? "") ||
-        cookTime != (recipe.cookTime.map { String($0) } ?? "") ||
-        cuisine != (recipe.cuisine ?? "") ||
-        notes != (recipe.notes ?? "") ||
-        ingredientsChanged ||
-        instructionsChanged
+        viewModel.formHasChanges
     }
     
     var body: some View {
@@ -171,92 +119,14 @@ struct RecipeFormView: View {
                         .frame(minHeight: 100)
                 }
                 
-                Section("Tags") {
-                    TextField("Add tags (comma-separated)...", text: $tagInput)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    
-                    // Autocomplete suggestions
-                    if !tagInput.isEmpty && !tagSuggestions.isEmpty {
-                        ForEach(tagSuggestions.prefix(5), id: \.0) { tag, count in
-                            Button(action: {
-                                // Get existing tags (excluding the one being typed)
-                                var tags = tagInput.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+                RecipeFormTagSection(
+                    tagInput: $tagInput,
+                    tagSuggestions: tagSuggestions
+                )
 
-                                // Check if tag already exists (excluding the last incomplete one)
-                                let existingTags = tags.dropLast()
-                                if existingTags.contains(tag.lowercased()) {
-                                    // Tag already exists - just remove the incomplete input
-                                    tags = Array(tags.dropLast())
-                                } else {
-                                    // Tag doesn't exist - replace incomplete tag with selected suggestion
-                                    if !tags.isEmpty {
-                                        tags[tags.count - 1] = tag.lowercased()
-                                    } else {
-                                        tags.append(tag.lowercased())
-                                    }
-                                }
+                RecipeFormIngredientsSection(ingredientFields: $ingredientFields)
 
-                                tagInput = tags.joined(separator: ", ")
-                            }) {
-                                HStack {
-                                    Text(tag)
-                                    Spacer()
-                                    Text("\(count)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                Section("Ingredients") {
-                    ForEach(ingredientFields.indices, id: \.self) { index in
-                        HStack {
-                            TextField("e.g., 2 cups flour", text: $ingredientFields[index])
-                            
-                            Button(action: {
-                                ingredientFields.remove(at: index)
-                            }) {
-                                Image(systemName: "minus.circle.fill")
-                                    .foregroundStyle(.red)
-                            }
-                            .disabled(ingredientFields.count == 1)
-                        }
-                    }
-                    .onMove {source, destination in
-                        ingredientFields.move(fromOffsets: source, toOffset: destination)
-                    }
-                    
-                    Button(action: {
-                        ingredientFields.append("")
-                    }) {
-                        Label("Add Ingredient", systemImage: "plus.circle.fill")
-                    }
-                }
-                
-                Section("Instructions") {
-                    ForEach(instructionFields.indices, id: \.self) { index in
-                        InstructionRowView(
-                            instruction: $instructionFields[index],
-                            index: index,
-                            canDelete: instructionFields.count > 1,
-                            onDelete: {
-                                instructionFields.remove(at: index)
-                            }
-                        )
-                    }
-                    .onMove {source, destination in
-                        instructionFields.move(fromOffsets: source, toOffset: destination)
-                    }
-                    
-                    Button(action: {
-                        instructionFields.append("")
-                    }) {
-                        Label("Add Step", systemImage: "plus.circle.fill")
-                    }
-                }
+                RecipeFormInstructionsSection(instructionFields: $instructionFields)
             }
             .environment(\.editMode, $editMode)
             .navigationTitle(recipe == nil ? "New Recipe" : "Edit Recipe")

@@ -15,7 +15,8 @@ struct RecipeTestFixtures {
         cookTime: Int? = nil,
         servings: Int? = nil,
         ingredients: [(quantity: String, unit: String?, item: String)] = [],
-        instructions: [String] = []
+        instructions: [String] = [],
+        notes: String? = nil,
     ) -> Recipe {
         let recipe = Recipe(title: title, sourceType: .manual)
         recipe.cuisine = cuisine
@@ -26,6 +27,7 @@ struct RecipeTestFixtures {
         recipe.prepTime = prepTime
         recipe.cookTime = cookTime
         recipe.servings = servings
+        recipe.notes = notes
         
         for (index, ing) in ingredients.enumerated() {
             let ingredient = Ingredient(
