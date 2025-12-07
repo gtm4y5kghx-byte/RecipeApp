@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct RecipeFilterMenuView: View {
-    @Binding var selectedSection: RecipeListView.MenuSection
+    @Binding var selectedSection: MenuSection
     let tags: [(String, Int)]
     let onDismiss: () -> Void
     let onNewRecipe: () -> Void
-    let recipeCount: (RecipeListView.MenuSection) -> Int
+    let recipeCount: (MenuSection) -> Int
 
     var body: some View {
         NavigationStack {
