@@ -60,7 +60,7 @@ class FoundationModelsService {
     }
     
     func transformRecipe(recipe: Recipe, transformation: String) async throws -> RecipeTransformation {
-        let recipeContext = buildRecipeContext(recipe)
+        let recipeContext = RecipeContextFormatter.format(recipe)
         
         let session = LanguageModelSession {
               """
@@ -90,38 +90,5 @@ class FoundationModelsService {
         
         let response = try await session.respond(to: prompt, generating: RecipeTransformation.self)
         return response.content
-    }
-    
-    private func buildRecipeContext(_ recipe: Recipe) -> String {
-        var context = "Title: \(recipe.title)\n"
-        
-        if let servings = recipe.servings {
-            context += "Servings: \(servings)\n"
-        }
-        if let prepTime = recipe.prepTime {
-            context += "Prep Time: \(prepTime) minutes\n"
-        }
-        if let cookTime = recipe.cookTime {
-            context += "Cook Time: \(cookTime) minutes\n"
-        }
-        if let cuisine = recipe.cuisine {
-            context += "Cuisine: \(cuisine)\n"
-        }
-        
-        context += "\nIngredients:\n"
-        for ingredient in recipe.sortedIngredients {
-            context += "- \(IngredientFormatter.format(ingredient))\n"
-        }
-        
-        context += "\nInstructions:\n"
-        for (index, step) in recipe.sortedInstructions.enumerated() {
-            context += "\(index + 1). \(step.instruction)\n"
-        }
-        
-        if let notes = recipe.notes, !notes.isEmpty {
-            context += "Notes: \(notes)\n"
-        }
-        
-        return context
     }
 }

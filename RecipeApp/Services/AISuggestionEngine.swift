@@ -15,7 +15,7 @@ class AISuggestionEngine {
         recipes: [Recipe]
     ) async throws -> [RecipeSuggestion] {
         
-        let recipeContext = buildRecipeContext(recipes)
+        let recipeContext = RecipeContextFormatter.formatCatalog(recipes)
         
         let systemPrompt = """
           You are a personalized recipe recommendation assistant. Generate 3-5 recipe suggestions
@@ -61,28 +61,6 @@ class AISuggestionEngine {
         return try parseSuggestions(from: jsonResponse, recipes: recipes)
     }
     
-    private func buildRecipeContext(_ recipes: [Recipe]) -> String {
-        var context = ""
-        
-        for (index, recipe) in recipes.enumerated() {
-            context += "\n[\(index + 1)] \(recipe.title) (ID: \(recipe.id))\n"
-            context += "   Cuisine: \(recipe.cuisine ?? "Unknown")\n"
-            context += "   Total Time: \(recipe.totalTime ?? 0) min\n"
-            context += "   Times Cooked: \(recipe.timesCooked)\n"
-            
-            if let lastMade = recipe.lastMade {
-                let daysAgo = Date().daysSince(lastMade)
-                context += "   Last Made: \(daysAgo) days ago\n"
-            } else {
-                context += "   Last Made: Never\n"
-            }
-            
-            context += "   Favorite: \(recipe.isFavorite ? "Yes" : "No")\n"
-        }
-        
-        return context
-    }
-    
     private func formatCurrentTime() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMMM d 'at' h:mm a"
@@ -90,15 +68,8 @@ class AISuggestionEngine {
     }
     
     private func parseSuggestions(from jsonResponse: String, recipes: [Recipe]) throws -> [RecipeSuggestion] {
-        // TODO: Consolidate markdown stripping logic with AISearchService during polish phase
         // Strip markdown if present
-        var cleanedJSON = jsonResponse.trimmingCharacters(in: .whitespacesAndNewlines)
-        if cleanedJSON.hasPrefix("```json") {
-            cleanedJSON = cleanedJSON
-                .replacingOccurrences(of: "```json", with: "")
-                .replacingOccurrences(of: "```", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-        }
+        let cleanedJSON = jsonResponse.strippingMarkdownCodeFences()
         
         guard let jsonData = cleanedJSON.data(using: .utf8) else {
             throw NSError(domain: "AISuggestionEngine", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON"])

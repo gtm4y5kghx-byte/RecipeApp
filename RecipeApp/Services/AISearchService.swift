@@ -116,19 +116,13 @@ class AISearchService {
         print("🔍 [parseSearchIntent] Claude raw response: \(jsonResponse)")
         
         // Strip markdown code blocks if present (```json ... ```)
-        var cleanedJSON = jsonResponse.trimmingCharacters(in: .whitespacesAndNewlines)
-        if cleanedJSON.hasPrefix("```json") {
-            cleanedJSON = cleanedJSON
-                .replacingOccurrences(of: "```json", with: "")
-                .replacingOccurrences(of: "```", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanedJSON = jsonResponse.strippingMarkdownCodeFences()
+        
+        if cleanedJSON != jsonResponse {
             print("🔍 [parseSearchIntent] Stripped markdown code blocks")
-        } else if cleanedJSON.hasPrefix("```") {
-            cleanedJSON = cleanedJSON
-                .replacingOccurrences(of: "```", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            print("🔍 [parseSearchIntent] Stripped generic markdown code blocks")
         }
+        
+        print("🔍 [parseSearchIntent] Cleaned JSON: \(cleanedJSON)")
         
         print("🔍 [parseSearchIntent] Cleaned JSON: \(cleanedJSON)")
         
