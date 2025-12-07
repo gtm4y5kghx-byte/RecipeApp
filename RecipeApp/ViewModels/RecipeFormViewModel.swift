@@ -26,33 +26,39 @@ class RecipeFormViewModel {
         self.modelContext = modelContext
 
         if let recipe = recipe {
-            self.title = recipe.title
-            self.servings = recipe.servings.map { String($0) } ?? ""
-            self.prepTime = recipe.prepTime.map { String($0) } ?? ""
-            self.cookTime = recipe.cookTime.map { String($0) } ?? ""
-            self.cuisine = recipe.cuisine ?? ""
-            self.notes = recipe.notes ?? ""
-
-            let sortedIngredients = recipe.sortedIngredients
-            let ingredientTexts = sortedIngredients.map { $0.item }
-            self.ingredientFields = ingredientTexts.isEmpty ? [""] : ingredientTexts
-
-            let sortedInstructions = recipe.sortedInstructions
-            let instructionTexts = sortedInstructions.map { $0.instruction }
-            self.instructionFields = instructionTexts.isEmpty ? [""] : instructionTexts
-
-            self.tagInput = recipe.userTags.joined(separator: ", ")
+            populateFromRecipe(recipe)
         } else if let importData = importData {
-            self.title = importData.title
-            self.servings = importData.servings.map { String($0) } ?? ""
-            self.prepTime = importData.prepTime.map { String($0) } ?? ""
-            self.cookTime = importData.cookTime.map { String($0) } ?? ""
-            self.cuisine = importData.cuisine ?? ""
-            self.notes = importData.description ?? ""
-
-            self.ingredientFields = importData.ingredients.isEmpty ? [""] : importData.ingredients
-            self.instructionFields = importData.instructions.isEmpty ? [""] : importData.instructions
+            populateFromImportData(importData)
         }
+    }
+
+    private func populateFromRecipe(_ recipe: Recipe) {
+        self.title = recipe.title
+        self.servings = recipe.servings.map { String($0) } ?? ""
+        self.prepTime = recipe.prepTime.map { String($0) } ?? ""
+        self.cookTime = recipe.cookTime.map { String($0) } ?? ""
+        self.cuisine = recipe.cuisine ?? ""
+        self.notes = recipe.notes ?? ""
+
+        let ingredientTexts = recipe.sortedIngredients.map { $0.item }
+        self.ingredientFields = ingredientTexts.isEmpty ? [""] : ingredientTexts
+
+        let instructionTexts = recipe.sortedInstructions.map { $0.instruction }
+        self.instructionFields = instructionTexts.isEmpty ? [""] : instructionTexts
+
+        self.tagInput = recipe.userTags.joined(separator: ", ")
+    }
+
+    private func populateFromImportData(_ importData: RecipeImportData) {
+        self.title = importData.title
+        self.servings = importData.servings.map { String($0) } ?? ""
+        self.prepTime = importData.prepTime.map { String($0) } ?? ""
+        self.cookTime = importData.cookTime.map { String($0) } ?? ""
+        self.cuisine = importData.cuisine ?? ""
+        self.notes = importData.description ?? ""
+
+        self.ingredientFields = importData.ingredients.isEmpty ? [""] : importData.ingredients
+        self.instructionFields = importData.instructions.isEmpty ? [""] : importData.instructions
     }
 
     var formHasChanges: Bool {
