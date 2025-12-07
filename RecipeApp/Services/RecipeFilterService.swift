@@ -51,16 +51,16 @@ struct RecipeFilterService {
             guard recipe.timesCooked > 0 else { return false }
             guard let lastMade = recipe.lastMade else { return false }
 
-            let daysSinceCooked = Calendar.current.dateComponents([.day], from: lastMade, to: Date()).day ?? 0
-            return daysSinceCooked > 30
+            let daysSinceCooked = Date().daysSince(lastMade)
+            return daysSinceCooked > TimeConstants.cookedLongAgoThreshold
         }
 
         // If user wants recipes cooked recently (within 30 days)
         if criteria.onlyCookedRecently {
             guard let lastMade = recipe.lastMade else { return false }
 
-            let daysSinceCooked = Calendar.current.dateComponents([.day], from: lastMade, to: Date()).day ?? 0
-            return daysSinceCooked <= 30
+            let daysSinceCooked = Date().daysSince(lastMade)
+            return daysSinceCooked <= TimeConstants.recentlyCookedThreshold
         }
 
         // No cooking history filter - include all recipes

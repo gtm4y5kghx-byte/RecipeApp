@@ -355,8 +355,7 @@ class AISearchService {
         
         // Recently cooked (deprioritize to encourage variety)
         if let lastMade = recipe.lastMade {
-            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
-            if lastMade > thirtyDaysAgo {
+            if lastMade.isWithinDays(TimeConstants.recentlyCookedThreshold) {
                 score -= 2
             }
         }

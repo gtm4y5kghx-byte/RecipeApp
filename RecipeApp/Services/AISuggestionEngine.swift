@@ -71,7 +71,7 @@ class AISuggestionEngine {
             context += "   Times Cooked: \(recipe.timesCooked)\n"
             
             if let lastMade = recipe.lastMade {
-                let daysAgo = Calendar.current.dateComponents([.day], from: lastMade, to: Date()).day ?? 0
+                let daysAgo = Date().daysSince(lastMade)
                 context += "   Last Made: \(daysAgo) days ago\n"
             } else {
                 context += "   Last Made: Never\n"

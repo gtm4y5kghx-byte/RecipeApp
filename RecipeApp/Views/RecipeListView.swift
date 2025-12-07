@@ -84,13 +84,12 @@ struct RecipeListView: View {
         case .all:
             return filtered
         case .recentlyAdded:
-            return filtered.sorted { ($0.dateAdded ?? .distantPast) > ($1.dateAdded ?? .distantPast) }
+            return filtered.sorted { $0.dateAdded > $1.dateAdded }
         case .recentlyCooked:
-            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
             return filtered
                 .filter { recipe in
                     guard let lastMade = recipe.lastMade else { return false }
-                    return lastMade >= thirtyDaysAgo
+                    return lastMade.isWithinDays(TimeConstants.recentlyCookedThreshold)
                 }
                 .sorted { ($0.lastMade ?? .distantPast) > ($1.lastMade ?? .distantPast) }
         case .favorites:
@@ -117,10 +116,9 @@ struct RecipeListView: View {
         case .recentlyAdded:
             return recipes.count
         case .recentlyCooked:
-            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
             return recipes.filter { recipe in
                 guard let lastMade = recipe.lastMade else { return false }
-                return lastMade >= thirtyDaysAgo
+                return lastMade.isWithinDays(TimeConstants.recentlyCookedThreshold)
             }.count
         case .favorites:
             return recipes.filter { $0.isFavorite }.count

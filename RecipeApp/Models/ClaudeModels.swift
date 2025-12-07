@@ -35,7 +35,7 @@ struct SuggestionCache: Codable {
     
     // Check if cache is stale (> 7 days old)
     var isStale: Bool {
-        let daysSinceGeneration = Calendar.current.dateComponents([.day], from: generatedAt, to: Date()).day ?? 0
+        let daysSinceGeneration = Date().daysSince(generatedAt)
         return daysSinceGeneration >= 7
     }
 }
