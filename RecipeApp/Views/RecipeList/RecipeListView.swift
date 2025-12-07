@@ -67,7 +67,6 @@ struct RecipeListView: View {
                 performFuzzySearch(query: searchText)
             }
             .onChange(of: recipes) { oldValue, newValue in
-                // Update ViewModel when recipes change
                 viewModel = RecipeListViewModel(recipes: newValue)
             }
             .navigationDestination(for: Recipe.self) { recipe in
