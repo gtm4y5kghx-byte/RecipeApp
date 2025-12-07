@@ -6,12 +6,9 @@ struct RecipeListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var searchText = ""
     @State private var showingAddRecipe = false
-    @State private var error: Error?
 
     @State private var showingAISearch = false
     @State private var searchScope = SearchScope.all
-    @State private var suggestions: [RecipeSuggestion] = []
-    @State private var suggestionEngine = AISuggestionEngine()
 
     @State private var subscriptionService = UserSubscriptionService()
     @State private var showingPaywall = false
@@ -21,8 +18,10 @@ struct RecipeListView: View {
     @State private var searchTask: Task<Void, Never>?
 
     init() {
-        // Initialize ViewModel with empty array - will be updated in onAppear
-        _viewModel = State(initialValue: RecipeListViewModel(recipes: []))
+        _viewModel = State(initialValue: RecipeListViewModel(
+            recipes: [],
+            modelContext: ModelContext(try! ModelContainer(for: Recipe.self))
+        ))
     }
 
     private var recipeList: some View {
@@ -36,9 +35,8 @@ struct RecipeListView: View {
     private var forYouSection: some View {
         ForYouSection(
             isPremium: subscriptionService.isPremium,
-            suggestions: suggestions,
+            suggestions: viewModel.suggestions,
             recipes: recipes,
-            onRefresh: { loadSuggestions(forceRefresh: true) },
             onShowPaywall: { showingPaywall = true }
         )
     }
@@ -47,7 +45,13 @@ struct RecipeListView: View {
         RecipesSection(
             displayedRecipes: viewModel.displayedRecipes,
             sectionTitle: viewModel.selectedSection.title,
-            onDelete: deleteRecipes
+            onDelete: { offsets in
+                do {
+                    try viewModel.deleteRecipes(at: offsets)
+                } catch {
+                    viewModel.error = error
+                }
+            }
         )
     }
 
@@ -67,7 +71,7 @@ struct RecipeListView: View {
                 performFuzzySearch(query: searchText)
             }
             .onChange(of: recipes) { oldValue, newValue in
-                viewModel = RecipeListViewModel(recipes: newValue)
+                viewModel.updateRecipes(newValue)
             }
             .navigationDestination(for: Recipe.self) { recipe in
                 RecipeDetailView(recipe: recipe)
@@ -117,6 +121,16 @@ struct RecipeListView: View {
                         Label("Dev Tools", systemImage: "wrench.and.screwdriver")
                     }
                 }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        Task {
+                            await viewModel.loadSuggestionsDev()
+                        }
+                    }) {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                }
             }
             .navigationTitle(Text("Recipes"))
             .sheet(isPresented: $showingAddRecipe) {
@@ -140,15 +154,18 @@ struct RecipeListView: View {
                 .presentationDragIndicator(.visible)
             }
             .onAppear {
-                viewModel = RecipeListViewModel(recipes: recipes)
-                checkForPendingImport()
-                loadSuggestions()
+                viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+                viewModel.handlePendingImport()
+
+                Task {
+                    await viewModel.loadSuggestions()
+                }
             }
             .onReceive(NotificationCenter.default.publisher(
                 for: UIApplication.willEnterForegroundNotification)) { _ in
-                    checkForPendingImport()
+                    viewModel.handlePendingImport()
                 }
-                .errorAlert($error)
+                .errorAlert($viewModel.error)
         }
     }
 
@@ -161,84 +178,6 @@ struct RecipeListView: View {
             guard !Task.isCancelled else { return }
 
             viewModel.performFuzzySearch(query: query, scope: searchScope)
-        }
-    }
-
-    private func checkForPendingImport() {
-        guard SharedDataManager.shared.hasPendingImport() else {
-            return
-        }
-
-        do {
-            if let importData = try SharedDataManager.shared.loadPendingImport() {
-                createRecipeFromImport(importData)
-                try SharedDataManager.shared.deletePendingImport()
-            }
-        } catch {
-            self.error = error
-        }
-    }
-
-    private func createRecipeFromImport(_ importData: RecipeImportData) {
-        let recipe = Recipe(title: importData.title, sourceType: .web_imported)
-        recipe.sourceURL = importData.sourceURL
-        recipe.servings = importData.servings
-        recipe.prepTime = importData.prepTime
-        recipe.cookTime = importData.cookTime
-        recipe.cuisine = importData.cuisine
-        recipe.notes = importData.description
-
-        for (index, ingredientText) in importData.ingredients.enumerated() {
-            let ingredient = Ingredient(quantity: "", unit: nil, item: ingredientText, preparation: nil, section: nil)
-            ingredient.order = index
-            recipe.ingredients.append(ingredient)
-        }
-
-        for (index, instructionText) in importData.instructions.enumerated() {
-            let step = Step(instruction: instructionText)
-            step.order = index
-            recipe.instructions.append(step)
-        }
-
-        if let nutritionData = importData.nutrition {
-            let nutritionInfo = NutritionInfo(
-                calories: nutritionData.calories,
-                carbohydrates: nutritionData.carbohydrates,
-                protein: nutritionData.protein,
-                fat: nutritionData.fat,
-                fiber: nutritionData.fiber,
-                sodium: nutritionData.sodium,
-                sugar: nutritionData.sugar
-            )
-            recipe.nutrition = nutritionInfo
-        }
-
-        modelContext.insert(recipe)
-
-        do {
-            try modelContext.save()
-            HapticFeedback.success.trigger()
-        } catch let saveError {
-            error = saveError
-        }
-    }
-
-    private func deleteRecipes(at offsets: IndexSet) {
-        for index in offsets {
-            let recipe = viewModel.displayedRecipes[index]
-            modelContext.delete(recipe)
-        }
-
-        do {
-            try modelContext.save()
-        } catch let saveError {
-            error = saveError
-        }
-    }
-
-    private func loadSuggestions(forceRefresh: Bool = false) {
-        Task {
-            suggestions = await suggestionEngine.getSuggestions(recipes: recipes, forceRefresh: forceRefresh)
         }
     }
 }

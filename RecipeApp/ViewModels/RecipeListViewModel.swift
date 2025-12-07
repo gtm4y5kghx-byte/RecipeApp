@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 @MainActor
 @Observable
@@ -7,12 +8,20 @@ class RecipeListViewModel {
     var filteredResults: [Recipe] = []
     var selectedSection: MenuSection = .all
     var searchTask: Task<Void, Never>?
+    var suggestions: [RecipeSuggestion] = []
+    var error: Error?
+    var justImportedRecipe: Bool = false
 
-    
-    private let recipes: [Recipe]
+    private var recipes: [Recipe]
+    private let modelContext: ModelContext
+    private let suggestionEngine = AISuggestionEngine()
 
-    
-    init(recipes: [Recipe]) {
+    init(recipes: [Recipe], modelContext: ModelContext) {
+        self.recipes = recipes
+        self.modelContext = modelContext
+    }
+
+    func updateRecipes(_ recipes: [Recipe]) {
         self.recipes = recipes
     }
     
@@ -143,6 +152,85 @@ class RecipeListViewModel {
             return FuzzySearchService.fuzzyMatch(query: query, in: notes)
         }
         return false
+    }
+
+    func handlePendingImport() {
+        do {
+            if let importData = try checkForPendingImport() {
+                try createRecipeFromImport(importData)
+                justImportedRecipe = true
+                HapticFeedback.success.trigger()
+            }
+        } catch {
+            self.error = error
+        }
+    }
+    
+    func loadSuggestionsDev() async {
+        suggestions = await suggestionEngine.getSuggestions(recipes: recipes, forceRefresh: true)
+    }
+
+    func loadSuggestions() async {
+        suggestions = await suggestionEngine.getSuggestions(recipes: recipes)
+    }
+
+    func deleteRecipes(at offsets: IndexSet) throws {
+        for index in offsets {
+            let recipe = displayedRecipes[index]
+            modelContext.delete(recipe)
+        }
+        try modelContext.save()
+    }
+
+    private func checkForPendingImport() throws -> RecipeImportData? {
+        guard SharedDataManager.shared.hasPendingImport() else {
+            return nil
+        }
+
+        if let importData = try SharedDataManager.shared.loadPendingImport() {
+            try SharedDataManager.shared.deletePendingImport()
+            return importData
+        }
+
+        return nil
+    }
+
+    private func createRecipeFromImport(_ importData: RecipeImportData) throws {
+        let recipe = Recipe(title: importData.title, sourceType: .web_imported)
+        recipe.sourceURL = importData.sourceURL
+        recipe.servings = importData.servings
+        recipe.prepTime = importData.prepTime
+        recipe.cookTime = importData.cookTime
+        recipe.cuisine = importData.cuisine
+        recipe.notes = importData.description
+
+        for (index, ingredientText) in importData.ingredients.enumerated() {
+            let ingredient = Ingredient(quantity: "", unit: nil, item: ingredientText, preparation: nil, section: nil)
+            ingredient.order = index
+            recipe.ingredients.append(ingredient)
+        }
+
+        for (index, instructionText) in importData.instructions.enumerated() {
+            let step = Step(instruction: instructionText)
+            step.order = index
+            recipe.instructions.append(step)
+        }
+
+        if let nutritionData = importData.nutrition {
+            let nutritionInfo = NutritionInfo(
+                calories: nutritionData.calories,
+                carbohydrates: nutritionData.carbohydrates,
+                protein: nutritionData.protein,
+                fat: nutritionData.fat,
+                fiber: nutritionData.fiber,
+                sodium: nutritionData.sodium,
+                sugar: nutritionData.sugar
+            )
+            recipe.nutrition = nutritionInfo
+        }
+
+        modelContext.insert(recipe)
+        try modelContext.save()
     }
 }
 

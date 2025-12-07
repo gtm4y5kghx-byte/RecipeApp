@@ -1,8 +1,16 @@
 import Foundation
+import SwiftData
 @testable import RecipeApp
 
 @MainActor
 struct RecipeTestFixtures {
+
+    static func createInMemoryModelContext() -> ModelContext {
+        let schema = Schema([Recipe.self, Ingredient.self, Step.self, NutritionInfo.self])
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: config)
+        return ModelContext(container)
+    }
     
     static func createRecipe(
         title: String,

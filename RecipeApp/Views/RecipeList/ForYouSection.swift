@@ -4,7 +4,6 @@ struct ForYouSection: View {
     let isPremium: Bool
     let suggestions: [RecipeSuggestion]
     let recipes: [Recipe]
-    let onRefresh: () -> Void
     let onShowPaywall: () -> Void
 
     var body: some View {
@@ -27,15 +26,7 @@ struct ForYouSection: View {
                         }
                     }
                 } header: {
-                    HStack {
-                        Text("For You")
-                        Spacer()
-                        Button("Refresh") {
-                            onRefresh()
-                        }
-                        .font(.caption)
-                        .textCase(.none)
-                    }
+                    Text("For You")
                 }
             }
         } else {
