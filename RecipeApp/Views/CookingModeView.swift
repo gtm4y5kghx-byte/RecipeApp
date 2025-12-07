@@ -7,11 +7,11 @@ struct CookingModeView: View {
     @State private var showReference = false
     
     private var currentStep: Step {
-        recipe.instructions.sorted(by: { $0.order < $1.order })[currentStepIndex]
+        recipe.sortedInstructions[currentStepIndex]
     }
     
     private var sortedSteps: [Step] {
-        recipe.instructions.sorted(by: { $0.order < $1.order })
+        recipe.sortedInstructions
     }
     
     var body: some View {
@@ -81,7 +81,7 @@ struct CookingModeView: View {
             NavigationStack {
                 List {
                     Section("Ingredients") {
-                        ForEach(recipe.ingredients.sorted(by: { $0.order < $1.order })) { ingredient in
+                        ForEach(recipe.sortedIngredients) { ingredient in
                             Text(IngredientFormatter.format(ingredient))
                         }
                     }

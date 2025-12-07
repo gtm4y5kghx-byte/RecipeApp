@@ -146,7 +146,7 @@ struct RecipeDetailView: View {
             Text("Ingredients")
                 .font(.headline)
             
-            ForEach(recipe.ingredients.sorted(by: { $0.order < $1.order })) { ingredient in
+            ForEach(recipe.sortedIngredients) { ingredient in
                 HStack(alignment: .top) {
                     Image(systemName: "circle")
                         .foregroundStyle(.secondary)
@@ -162,7 +162,7 @@ struct RecipeDetailView: View {
             Text("Instructions")
                 .font(.headline)
             
-            ForEach(Array(recipe.instructions.sorted(by: { $0.order < $1.order }).enumerated()), id: \.element.id) { index, step in
+            ForEach(Array(recipe.sortedInstructions.enumerated()), id: \.element.id) { index, step in
                 HStack(alignment: .top, spacing: 12) {
                     Text("\(index + 1).")
                         .fontWeight(.bold)

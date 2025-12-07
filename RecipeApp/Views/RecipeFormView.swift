@@ -87,11 +87,11 @@ struct RecipeFormView: View {
             _cuisine = State(initialValue: recipe.cuisine ?? "")
             _notes = State(initialValue: recipe.notes ?? "")
             
-            let sortedIngredients = recipe.ingredients.sorted(by: { $0.order < $1.order })
+            let sortedIngredients = recipe.sortedIngredients
             let ingredientTexts = sortedIngredients.map { $0.item }
             _ingredientFields = State(initialValue: ingredientTexts.isEmpty ? [""] : ingredientTexts )
             
-            let sortedInstructions = recipe.instructions.sorted(by: { $0.order < $1.order })
+            let sortedInstructions = recipe.sortedInstructions
             let instructionTexts = sortedInstructions.map { $0.instruction }
             _instructionFields = State(initialValue: instructionTexts.isEmpty ? [""] : instructionTexts )
             

@@ -109,12 +109,12 @@ class FoundationModelsService {
         }
         
         context += "\nIngredients:\n"
-        for ingredient in recipe.ingredients.sorted(by: { $0.order < $1.order }) {
+        for ingredient in recipe.sortedIngredients {
             context += "- \(IngredientFormatter.format(ingredient))\n"
         }
         
         context += "\nInstructions:\n"
-        for (index, step) in recipe.instructions.sorted(by: { $0.order < $1.order }).enumerated() {
+        for (index, step) in recipe.sortedInstructions.enumerated() {
             context += "\(index + 1). \(step.instruction)\n"
         }
         
