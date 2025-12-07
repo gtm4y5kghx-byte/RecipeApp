@@ -4,18 +4,13 @@ import SwiftUI
 @MainActor
 @Observable
 class RecipeListViewModel {
-    
-    // MARK: - Published State
-    
     var filteredResults: [Recipe] = []
     var selectedSection: MenuSection = .all
     var searchTask: Task<Void, Never>?
-    
-    // MARK: - Dependencies
+
     
     private let recipes: [Recipe]
-    
-    // MARK: - Initialization
+
     
     init(recipes: [Recipe]) {
         self.recipes = recipes

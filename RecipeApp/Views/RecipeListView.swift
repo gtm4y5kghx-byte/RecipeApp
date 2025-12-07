@@ -25,8 +25,6 @@ struct RecipeListView: View {
         _viewModel = State(initialValue: RecipeListViewModel(recipes: []))
     }
 
-    // MARK: - Computed Views
-
     private var recipeList: some View {
         List {
             forYouSection

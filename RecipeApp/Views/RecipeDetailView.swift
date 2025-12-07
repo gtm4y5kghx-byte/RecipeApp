@@ -12,9 +12,15 @@ struct RecipeDetailView: View {
     @Query private var allRecipes: [Recipe]
     @State private var showingCookingMode = false
     @State private var error: Error?
-    
+    @State private var viewModel: RecipeDetailViewModel
+
+    init(recipe: Recipe) {
+        self.recipe = recipe
+        _viewModel = State(initialValue: RecipeDetailViewModel(recipe: recipe))
+    }
+
     private var recipeVariations: [Recipe] {
-        allRecipes.filter { $0.parentRecipeID == recipe.id }
+        viewModel.getVariations(from: allRecipes)
     }
     
     var body: some View {
@@ -37,7 +43,10 @@ struct RecipeDetailView: View {
         .navigationTitle("Recipe Details")
         .toolbar{
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: cookedThisRecipe) {
+                Button(action: {
+                    viewModel.markAsCooked()
+                    saveChanges()
+                }) {
                     Label("I Cooked This", systemImage: "checkmark.circle")
                 }
             }
@@ -225,14 +234,9 @@ struct RecipeDetailView: View {
     
     private var favoriteSection: some View {
         Button(action: {
-            recipe.isFavorite.toggle()
+            viewModel.toggleFavorite()
             HapticFeedback.light.trigger()
-            do {
-                try modelContext.save()
-            } catch let saveError {
-                recipe.isFavorite.toggle()
-                error = saveError
-            }
+            saveChanges()
         }) {
             Label(
                 recipe.isFavorite ? "Favorited" : "Favorite",
@@ -268,7 +272,8 @@ struct RecipeDetailView: View {
             .buttonStyle(.bordered)
             
             Button(action: {
-                markAsCooked()
+                viewModel.markAsCooked()
+                saveChanges()
             }){
                 Label("I made this", systemImage: "checkmark.circle")
                     .frame(maxWidth: .infinity)
@@ -308,24 +313,7 @@ struct RecipeDetailView: View {
         }
     }
     
-    private func cookedThisRecipe() {
-        recipe.timesCooked += 1
-        recipe.lastMade = Date()
-        
-        do {
-            try modelContext.save()
-            HapticFeedback.success.trigger()
-        } catch let saveError {
-            recipe.timesCooked -= 1
-            recipe.lastMade = nil
-            error = saveError
-        }
-    }
-    
-    private func markAsCooked() {
-        recipe.lastMade = Date()
-        recipe.timesCooked += 1
-        
+    private func saveChanges() {
         do {
             try modelContext.save()
             HapticFeedback.success.trigger()
