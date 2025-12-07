@@ -1,22 +1,48 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 @MainActor
 @Observable
 class RecipeDetailViewModel {
-    private let recipe: Recipe
+    var error: Error?
 
-    init(recipe: Recipe) {
+    private let recipe: Recipe
+    private let modelContext: ModelContext
+
+    init(recipe: Recipe, modelContext: ModelContext) {
         self.recipe = recipe
+        self.modelContext = modelContext
     }
 
     func toggleFavorite() {
         recipe.isFavorite.toggle()
+        do {
+            try modelContext.save()
+        } catch {
+            self.error = error
+        }
     }
 
     func markAsCooked() {
         recipe.timesCooked += 1
         recipe.lastMade = Date()
+        do {
+            try modelContext.save()
+        } catch {
+            self.error = error
+        }
+    }
+
+    func deleteRecipe() -> Bool {
+        do {
+            modelContext.delete(recipe)
+            try modelContext.save()
+            return true
+        } catch {
+            self.error = error
+            return false
+        }
     }
 
     func getVariations(from allRecipes: [Recipe]) -> [Recipe] {

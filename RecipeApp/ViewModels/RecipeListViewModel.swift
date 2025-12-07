@@ -159,7 +159,6 @@ class RecipeListViewModel {
             if let importData = try checkForPendingImport() {
                 try createRecipeFromImport(importData)
                 justImportedRecipe = true
-                HapticFeedback.success.trigger()
             }
         } catch {
             self.error = error

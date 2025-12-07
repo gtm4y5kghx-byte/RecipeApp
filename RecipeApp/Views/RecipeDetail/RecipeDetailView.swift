@@ -11,12 +11,14 @@ struct RecipeDetailView: View {
     @State private var showingEditSheet = false
     @Query private var allRecipes: [Recipe]
     @State private var showingCookingMode = false
-    @State private var error: Error?
     @State private var viewModel: RecipeDetailViewModel
 
     init(recipe: Recipe) {
         self.recipe = recipe
-        _viewModel = State(initialValue: RecipeDetailViewModel(recipe: recipe))
+        _viewModel = State(initialValue: RecipeDetailViewModel(
+            recipe: recipe,
+            modelContext: ModelContext(try! ModelContainer(for: Recipe.self))
+        ))
     }
 
     private var recipeVariations: [Recipe] {
@@ -45,7 +47,7 @@ struct RecipeDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
                     viewModel.markAsCooked()
-                    saveChanges()
+                    HapticFeedback.success.trigger()
                 }) {
                     Label("I Cooked This", systemImage: "checkmark.circle")
                 }
@@ -62,7 +64,10 @@ struct RecipeDetailView: View {
                 CookingModeView(recipe: recipe)
             }
         }
-        .errorAlert($error)
+        .onAppear {
+            viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+        }
+        .errorAlert($viewModel.error)
     }
     
     private var titleSection: some View {
@@ -127,7 +132,6 @@ struct RecipeDetailView: View {
         Button(action: {
             viewModel.toggleFavorite()
             HapticFeedback.light.trigger()
-            saveChanges()
         }) {
             Label(
                 recipe.isFavorite ? "Favorited" : "Favorite",
@@ -145,7 +149,7 @@ struct RecipeDetailView: View {
             onTransform: { showingTransformSheet = true },
             onMarkAsCooked: {
                 viewModel.markAsCooked()
-                saveChanges()
+                HapticFeedback.success.trigger()
             },
             onDelete: { showDeleteAlert = true },
             onShare: {
@@ -155,26 +159,13 @@ struct RecipeDetailView: View {
         .alert("Delete Recipe", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
-                modelContext.delete(recipe)
-                do {
-                    try modelContext.save()
+                if viewModel.deleteRecipe() {
                     HapticFeedback.warning.trigger()
                     dismiss()
-                } catch let saveError {
-                    error = saveError
                 }
             }
         } message: {
             Text("Are you sure you want to delete '\(recipe.title)'? This action cannot be undone.")
-        }
-    }
-    
-    private func saveChanges() {
-        do {
-            try modelContext.save()
-            HapticFeedback.success.trigger()
-        } catch let saveError {
-            error = saveError
         }
     }
 }
