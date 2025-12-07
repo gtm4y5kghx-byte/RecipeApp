@@ -8,51 +8,28 @@ struct RecipeFormViewModelTests {
 
     @Test("Form has changes returns false for new recipe with no input")
     func testFormHasChangesNewRecipeEmpty() {
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "",
-            ingredientFields: [""],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
 
         #expect(viewModel.formHasChanges == false)
     }
 
     @Test("Form has changes returns true for new recipe with title")
     func testFormHasChangesNewRecipeWithTitle() {
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "New Recipe",
-            ingredientFields: [""],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.title = "New Recipe"
 
         #expect(viewModel.formHasChanges == true)
     }
 
     @Test("Form has changes returns true for new recipe with ingredients")
     func testFormHasChangesNewRecipeWithIngredients() {
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "",
-            ingredientFields: ["flour"],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.ingredientFields = ["flour"]
 
         #expect(viewModel.formHasChanges == true)
     }
@@ -67,20 +44,11 @@ struct RecipeFormViewModelTests {
             servings: 4,
             ingredients: [("", nil, "flour")],
             instructions: ["Mix ingredients"],
-            notes: "Test notes",
-        )
-
-        let viewModel = RecipeFormViewModel(
-            recipe: recipe,
-            title: "Original Recipe",
-            ingredientFields: ["flour"],
-            instructionFields: ["Mix ingredients"],
-            servings: "4",
-            prepTime: "15",
-            cookTime: "30",
-            cuisine: "Italian",
             notes: "Test notes"
         )
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
 
         #expect(viewModel.formHasChanges == false)
     }
@@ -93,17 +61,10 @@ struct RecipeFormViewModelTests {
             instructions: ["Mix ingredients"]
         )
 
-        let viewModel = RecipeFormViewModel(
-            recipe: recipe,
-            title: "Modified Recipe",
-            ingredientFields: ["flour"],
-            instructionFields: ["Mix ingredients"],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
+
+        viewModel.title = "Modified Recipe"
 
         #expect(viewModel.formHasChanges == true)
     }
@@ -116,17 +77,10 @@ struct RecipeFormViewModelTests {
             instructions: ["Mix"]
         )
 
-        let viewModel = RecipeFormViewModel(
-            recipe: recipe,
-            title: "Recipe",
-            ingredientFields: ["flour", "sugar"],
-            instructionFields: ["Mix"],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
+
+        viewModel.ingredientFields = ["flour", "sugar"]
 
         #expect(viewModel.formHasChanges == true)
     }
@@ -137,19 +91,10 @@ struct RecipeFormViewModelTests {
             RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "pasta"])
         ]
 
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "",
-            ingredientFields: [""],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
 
-        let suggestions = viewModel.getTagSuggestions(tagInput: "", allRecipes: allRecipes)
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
 
         #expect(suggestions.isEmpty)
     }
@@ -162,19 +107,11 @@ struct RecipeFormViewModelTests {
             RecipeTestFixtures.createRecipe(title: "R3", tags: ["indian"])
         ]
 
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "",
-            ingredientFields: [""],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
 
-        let suggestions = viewModel.getTagSuggestions(tagInput: "ita", allRecipes: allRecipes)
+        viewModel.tagInput = "ita"
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
 
         #expect(suggestions.count == 1)
         #expect(suggestions[0].0 == "italian")
@@ -190,19 +127,11 @@ struct RecipeFormViewModelTests {
             RecipeTestFixtures.createRecipe(title: "R4", tags: ["indonesian"])
         ]
 
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "",
-            ingredientFields: [""],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
 
-        let suggestions = viewModel.getTagSuggestions(tagInput: "ind", allRecipes: allRecipes)
+        viewModel.tagInput = "ind"
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
 
         #expect(suggestions.count == 2)
         #expect(suggestions[0].0 == "indian")
@@ -217,19 +146,11 @@ struct RecipeFormViewModelTests {
             RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "italy"])
         ]
 
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "",
-            ingredientFields: [""],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
 
-        let suggestions = viewModel.getTagSuggestions(tagInput: "italian", allRecipes: allRecipes)
+        viewModel.tagInput = "italian"
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
 
         #expect(suggestions.isEmpty)
     }
@@ -240,19 +161,11 @@ struct RecipeFormViewModelTests {
             RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "quick"])
         ]
 
-        let viewModel = RecipeFormViewModel(
-            recipe: nil,
-            title: "",
-            ingredientFields: [""],
-            instructionFields: [""],
-            servings: "",
-            prepTime: "",
-            cookTime: "",
-            cuisine: "",
-            notes: ""
-        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
 
-        let suggestions = viewModel.getTagSuggestions(tagInput: "quick, ita", allRecipes: allRecipes)
+        viewModel.tagInput = "quick, ita"
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
 
         #expect(suggestions.count == 1)
         #expect(suggestions[0].0 == "italian")
