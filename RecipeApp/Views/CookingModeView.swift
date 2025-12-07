@@ -82,7 +82,7 @@ struct CookingModeView: View {
                 List {
                     Section("Ingredients") {
                         ForEach(recipe.ingredients.sorted(by: { $0.order < $1.order })) { ingredient in
-                            Text(ingredientText(for: ingredient))
+                            Text(IngredientFormatter.format(ingredient))
                         }
                     }
                     
@@ -116,23 +116,6 @@ struct CookingModeView: View {
                 }
             }
         }
-    }
-    
-    private func ingredientText(for ingredient: Ingredient) -> String {
-        var parts: [String] = []
-        
-        if !ingredient.quantity.isEmpty {
-            parts.append(ingredient.quantity)
-        }
-        if let unit = ingredient.unit {
-            parts.append(unit)
-        }
-        parts.append(ingredient.item)
-        if let prep = ingredient.preparation {
-            parts.append(prep)
-        }
-        
-        return parts.joined(separator: " ")
     }
     
     private func markAsCooked() {
