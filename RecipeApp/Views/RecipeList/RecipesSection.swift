@@ -16,14 +16,7 @@ struct RecipesSection: View {
             } else {
                 ForEach(displayedRecipes) { recipe in
                     NavigationLink(value: recipe) {
-                        VStack(alignment: .leading) {
-                            Text(recipe.title)
-                                .font(.headline)
-
-                            Text("\(recipe.sourceType.rawValue)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+                        RecipeRow(recipe: recipe)
                     }
                 }
                 .onDelete(perform: onDelete)

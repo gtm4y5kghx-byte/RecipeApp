@@ -54,7 +54,7 @@ struct RecipeTestFixtures {
         let today = Date()
         let fiveDaysAgo = Calendar.current.date(byAdding: .day, value: -5, to: today)!
         let thirtyFiveDaysAgo = Calendar.current.date(byAdding: .day, value: -35, to: today)!
-        
+
         return [
             createRecipe(title: "Pasta Carbonara", cuisine: "Italian", timesCooked: 5, lastMade: fiveDaysAgo, isFavorite: true, tags: ["dinner", "pasta"]),
             createRecipe(title: "Chicken Tikka Masala", cuisine: "Indian", timesCooked: 2, lastMade: thirtyFiveDaysAgo, tags: ["dinner", "spicy"]),
