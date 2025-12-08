@@ -35,7 +35,7 @@ struct RecipeContextFormatter {
         return context
     }
     
-    /// for recipe catalogs (used by AISuggestionEngine)
+    /// for recipe catalogs (used by AISuggestionEngineService)
     static func formatCatalog(_ recipes: [Recipe]) -> String {
         var context = ""
         

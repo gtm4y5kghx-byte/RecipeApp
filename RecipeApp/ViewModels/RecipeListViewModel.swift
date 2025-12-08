@@ -14,7 +14,7 @@ class RecipeListViewModel {
 
     private var recipes: [Recipe]
     private let modelContext: ModelContext
-    private let suggestionEngine = AISuggestionEngine()
+    private let suggestionEngine = AISuggestionEngineService()
 
     init(recipes: [Recipe], modelContext: ModelContext) {
         self.recipes = recipes

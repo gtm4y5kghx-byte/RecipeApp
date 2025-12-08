@@ -11,8 +11,16 @@ class ClaudeRecipeTransformationService {
 
     func transformRecipe(recipe: Recipe, transformation: String) async throws -> RecipeTransformation {
         let recipeContext = RecipeContextFormatter.format(recipe)
+        let systemPrompt = buildTransformationSystemPrompt()
+        let userPrompt = buildTransformationUserPrompt(recipeContext: recipeContext, transformation: transformation)
 
-        let systemPrompt = """
+        let responseText = try await claudeClient.sendMessage(prompt: userPrompt, systemPrompt: systemPrompt)
+
+        return try parseTransformation(from: responseText)
+    }
+
+    private func buildTransformationSystemPrompt() -> String {
+        """
         You are a recipe transformation assistant. Transform recipes based on user requests while preserving the essence of the dish.
 
         CRITICAL RULES - Follow these exactly:
@@ -43,8 +51,10 @@ class ClaudeRecipeTransformationService {
           ]
         }
         """
+    }
 
-        let userPrompt = """
+    private func buildTransformationUserPrompt(recipeContext: String, transformation: String) -> String {
+        """
         Original Recipe:
         \(recipeContext)
 
@@ -53,14 +63,17 @@ class ClaudeRecipeTransformationService {
         IMPORTANT: If doubling, multiply servings by exactly 2. If halving, divide by exactly 2.
         Return only the JSON transformation, no other text.
         """
+    }
 
-        let responseText = try await claudeClient.sendMessage(prompt: userPrompt, systemPrompt: systemPrompt)
-
-        // Clean response using existing extension
+    private func parseTransformation(from responseText: String) throws -> RecipeTransformation {
         let cleanedJSON = responseText.strippingMarkdownCodeFences()
 
-        // Parse JSON response manually since RecipeTransformation is @Generable, not Codable
-        let jsonData = cleanedJSON.data(using: .utf8)!
+        guard let jsonData = cleanedJSON.data(using: .utf8) else {
+            throw ClaudeAPIClient.ClaudeError.decodingError(
+                NSError(domain: "ClaudeRecipeTransformationService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not convert response to data"])
+            )
+        }
+
         let json = try JSONSerialization.jsonObject(with: jsonData) as! [String: Any]
 
         let title = json["title"] as! String
