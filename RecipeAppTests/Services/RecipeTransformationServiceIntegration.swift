@@ -2,9 +2,9 @@ import Testing
 import Foundation
 @testable import RecipeApp
 
-@Suite("Claude Recipe Transformation Tests")
+@Suite("Recipe Transformation Integration - Manual Validation")
 @MainActor
-struct RecipeTransformationServiceTests {
+struct RecipeTransformationServiceIntegration {
 
     private let service = ClaudeRecipeTransformationService()
 

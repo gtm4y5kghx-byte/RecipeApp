@@ -6,18 +6,45 @@ class MockClaudeAPIClient: ClaudeAPIClient {
     var shouldThrowError = false
     var mockResponse: String = ""
     var mockScreenResult: Bool = true
+    var sendMessageCallCount = 0
+    var screenUserInputCallCount = 0
+    var lastPrompt: String?
+    var lastSystemPrompt: String?
+    var lastQuery: String?
 
-    override func sendMessage(prompt: String, systemPrompt: String?) async throws -> String {
+    init() {
+        super.init(apiKey: "mock-api-key-for-testing")
+    }
+
+    override func sendMessage(prompt: String, systemPrompt: String? = nil) async throws -> String {
+        sendMessageCallCount += 1
+        lastPrompt = prompt
+        lastSystemPrompt = systemPrompt
+
         if shouldThrowError {
-            throw NSError(domain: "MockError", code: 1, userInfo: nil)
+            throw ClaudeError.networkError(NSError(domain: "MockError", code: 1, userInfo: nil))
         }
         return mockResponse
     }
 
     override func screenUserInput(_ input: String) async throws -> Bool {
+        screenUserInputCallCount += 1
+        lastQuery = input
+
         if shouldThrowError {
-            throw NSError(domain: "MockError", code: 1, userInfo: nil)
+            throw ClaudeError.networkError(NSError(domain: "MockError", code: 1, userInfo: nil))
         }
         return mockScreenResult
+    }
+
+    func reset() {
+        mockResponse = ""
+        mockScreenResult = true
+        shouldThrowError = false
+        sendMessageCallCount = 0
+        screenUserInputCallCount = 0
+        lastPrompt = nil
+        lastSystemPrompt = nil
+        lastQuery = nil
     }
 }
