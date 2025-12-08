@@ -8,6 +8,7 @@ struct RecipeFormIngredientsSection: View {
             ForEach(ingredientFields.indices, id: \.self) { index in
                 HStack {
                     TextField("e.g., 2 cups flour", text: $ingredientFields[index])
+                        .accessibilityIdentifier("ingredient-field-\(index)")
 
                     Button(action: {
                         ingredientFields.remove(at: index)
@@ -16,6 +17,7 @@ struct RecipeFormIngredientsSection: View {
                             .foregroundStyle(.red)
                     }
                     .disabled(ingredientFields.count == 1)
+                    .accessibilityIdentifier("delete-ingredient-\(index)")
                 }
             }
             .onMove { source, destination in
@@ -27,6 +29,7 @@ struct RecipeFormIngredientsSection: View {
             }) {
                 Label("Add Ingredient", systemImage: "plus.circle.fill")
             }
+            .accessibilityIdentifier("add-ingredient-button")
         }
     }
 }

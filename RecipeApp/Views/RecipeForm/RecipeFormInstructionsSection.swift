@@ -14,6 +14,7 @@ struct RecipeFormInstructionsSection: View {
                         instructionFields.remove(at: index)
                     }
                 )
+                .accessibilityIdentifier("instruction-row-\(index)")
             }
             .onMove { source, destination in
                 instructionFields.move(fromOffsets: source, toOffset: destination)
@@ -24,6 +25,7 @@ struct RecipeFormInstructionsSection: View {
             }) {
                 Label("Add Step", systemImage: "plus.circle.fill")
             }
+            .accessibilityIdentifier("add-step-button")
         }
     }
 }

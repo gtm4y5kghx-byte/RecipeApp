@@ -29,6 +29,7 @@ struct RecipeFormView: View {
             Form {
                 Section("Recipe Details") {
                     TextField("Title", text: $viewModel.title)
+                        .accessibilityIdentifier("recipe-title-field")
                 }
 
                 Section("Optional Details") {
@@ -37,6 +38,7 @@ struct RecipeFormView: View {
                         TextField("8", text: $viewModel.servings)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
+                            .accessibilityIdentifier("recipe-servings-field")
                     }
 
                     HStack {
@@ -44,6 +46,7 @@ struct RecipeFormView: View {
                         TextField("20", text: $viewModel.prepTime)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
+                            .accessibilityIdentifier("recipe-prep-time-field")
                     }
 
                     HStack {
@@ -51,15 +54,18 @@ struct RecipeFormView: View {
                         TextField("45", text: $viewModel.cookTime)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
+                            .accessibilityIdentifier("recipe-cook-time-field")
                     }
 
                     TextField("Cuisine", text: $viewModel.cuisine)
                         .textInputAutocapitalization(.words)
+                        .accessibilityIdentifier("recipe-cuisine-field")
                 }
 
                 Section("Notes") {
                     TextEditor(text: $viewModel.notes)
                         .frame(minHeight: 100)
+                        .accessibilityIdentifier("recipe-notes-editor")
                 }
 
                 RecipeFormTagSection(
@@ -83,6 +89,7 @@ struct RecipeFormView: View {
                             dismiss()
                         }
                     }
+                    .accessibilityIdentifier("recipe-form-cancel-button")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -93,6 +100,7 @@ struct RecipeFormView: View {
                         }
                     }
                     .disabled(viewModel.title.isEmpty)
+                    .accessibilityIdentifier("recipe-form-save-button")
                 }
 
             }

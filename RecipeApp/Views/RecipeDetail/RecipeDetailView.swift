@@ -51,6 +51,7 @@ struct RecipeDetailView: View {
                 }) {
                     Label("I Cooked This", systemImage: "checkmark.circle")
                 }
+                .accessibilityIdentifier("mark-cooked-button")
             }
         }
         .sheet(isPresented: $showingEditSheet) {

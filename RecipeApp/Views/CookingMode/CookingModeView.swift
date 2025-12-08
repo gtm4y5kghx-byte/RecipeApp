@@ -46,11 +46,13 @@ struct CookingModeView: View {
                 Button("Exit") {
                     dismiss()
                 }
+                .accessibilityIdentifier("exit-cooking-mode-button")
             }
             ToolbarItem(placement: .primaryAction) {
                 Button("Reference") {
                     viewModel.showReference.toggle()
                 }
+                .accessibilityIdentifier("reference-button")
             }
         }
         .sheet(isPresented: $viewModel.showReference) {

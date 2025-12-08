@@ -15,6 +15,7 @@ struct InstructionRowView: View {
             TextEditor(text: $instruction)
                 .frame(minHeight: 60)
                 .scrollContentBackground(.hidden)
+                .accessibilityIdentifier("instruction-editor-\(index)")
 
             Button(action: onDelete) {
                 Image(systemName: "minus.circle.fill")
@@ -22,6 +23,7 @@ struct InstructionRowView: View {
             }
             .disabled(!canDelete)
             .padding(.top, 8)
+            .accessibilityIdentifier("delete-instruction-\(index)")
         }
     }
 }

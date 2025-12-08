@@ -16,15 +16,18 @@ struct CookingNavigationButtons: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .accessibilityIdentifier("mark-as-cooked-button")
             } else {
                 Button("Previous") {
                     onPrevious()
                 }
                 .disabled(!canGoToPrevious)
+                .accessibilityIdentifier("previous-step-button")
 
                 Button("Next") {
                     onNext()
                 }
+                .accessibilityIdentifier("next-step-button")
             }
         }
         .buttonStyle(.borderedProminent)

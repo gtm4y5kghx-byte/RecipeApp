@@ -83,16 +83,18 @@ struct RecipeListView: View {
                         }) {
                             Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
                         }
+                        .accessibilityIdentifier("filter-button")
                     }
-                    
+
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             showingAddRecipe = true
                         }) {
                             Image(systemName: "plus")
                         }
+                        .accessibilityIdentifier("add-recipe-button")
                     }
-                    
+
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: {
                             subscriptionService.requiresPremium(
@@ -102,6 +104,7 @@ struct RecipeListView: View {
                         }) {
                             Image(systemName: "sparkles")
                         }
+                        .accessibilityIdentifier("ai-search-button")
                     }
                     
                     ToolbarItem(placement: .topBarTrailing) {
