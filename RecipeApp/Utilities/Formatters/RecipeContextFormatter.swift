@@ -1,7 +1,7 @@
 import Foundation
 
 struct RecipeContextFormatter {
-    /// for single recipes (used by FoundationModelsService)
+    /// for single recipes (used by ClaudeRecipeTransformationService)
     static func format(_ recipe: Recipe) -> String {
         var context = "Title: \(recipe.title)\n"
         

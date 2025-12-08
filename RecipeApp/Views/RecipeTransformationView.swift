@@ -5,10 +5,16 @@ struct RecipeTransformationView: View {
     let recipe: Recipe
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @State private var transformationPrompt = ""
-    @State private var isProcessing = false
-    @State private var error: Error?
-    
+    @State private var viewModel: RecipeTransformationViewModel
+
+    init(recipe: Recipe) {
+        self.recipe = recipe
+        _viewModel = State(initialValue: RecipeTransformationViewModel(
+            recipe: recipe,
+            modelContext: ModelContext(try! ModelContainer(for: Recipe.self))
+        ))
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -16,11 +22,11 @@ struct RecipeTransformationView: View {
                     .font(.headline)
                     .padding(.top)
                 
-                TextField("E.g., Make it vegan, Double the recipe, Convert to air fryer", text: $transformationPrompt, axis: .vertical)
+                TextField("E.g., Make it vegan, Double the recipe, Convert to air fryer", text: $viewModel.transformationPrompt, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(3...6)
                     .padding()
-                
+
                 Spacer()
             }
             .navigationTitle("Transform Recipe")
@@ -31,17 +37,22 @@ struct RecipeTransformationView: View {
                         dismiss()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Transform") {
-                        transformRecipe()
+                        Task {
+                            if await viewModel.transformRecipe() {
+                                HapticFeedback.success.trigger()
+                                dismiss()
+                            }
+                        }
                     }
-                    .disabled(transformationPrompt.isEmpty)
+                    .disabled(viewModel.transformationPrompt.isEmpty)
                 }
             }
         }
         .overlay {
-            if isProcessing {
+            if viewModel.isProcessing {
                 ZStack {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
@@ -61,68 +72,12 @@ struct RecipeTransformationView: View {
                 }
             }
         }
-        .errorAlert($error)
-    }
-    
-    private func transformRecipe() {
-        isProcessing = true
-        
-        Task {
-            do {
-                let service = FoundationModelsService()
-                let transformation = try await service.transformRecipe(recipe: recipe, transformation: transformationPrompt)
-                
-                await MainActor.run {
-                    createVariation(from: transformation)
-                    isProcessing = false
-                    dismiss()
-                }
-            } catch {
-                await MainActor.run {
-                    self.error = error
-                    isProcessing = false
-                }
-            }
-        }
-    }
-    
-    private func createVariation(from transformation: RecipeTransformation) {
-        let variation = Recipe(title: transformation.title, sourceType: recipe.sourceType)
-        
-        variation.parentRecipeID = recipe.id
-        variation.variationNote = transformation.variationNote
-        
-        variation.servings = transformation.servings
-        variation.prepTime = transformation.prepTime
-        variation.cookTime = transformation.cookTime
-        variation.cuisine = transformation.cuisine
-        variation.notes = transformation.notes
-        
-        variation.ingredients = transformation.ingredients.enumerated().map { index, transformedIngredient in
-            let ingredient = Ingredient(
-                quantity: "",
-                unit: nil,
-                item: transformedIngredient.text,
-                preparation: nil,
-                section: nil
+        .onAppear {
+            viewModel = RecipeTransformationViewModel(
+                recipe: recipe,
+                modelContext: modelContext
             )
-            ingredient.order = index
-            return ingredient
         }
-        
-        variation.instructions = transformation.instructions.enumerated().map { index, transformedInstruction in
-            let step = Step(instruction: transformedInstruction.text)
-            step.order = index
-            return step
-        }
-        
-        modelContext.insert(variation)
-        
-        do {
-            try modelContext.save()
-            HapticFeedback.success.trigger()
-        } catch {
-            self.error = error
-        }
+        .errorAlert($viewModel.error)
     }
 }

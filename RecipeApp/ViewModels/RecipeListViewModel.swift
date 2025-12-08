@@ -82,13 +82,11 @@ class RecipeListViewModel {
     }
     
     func performFuzzySearch(query: String, scope: SearchScope) {
-        // If query is empty, clear results
         guard !query.isEmpty else {
             filteredResults = []
             return
         }
 
-        // Perform search based on scope
         let results = recipes.filter { recipe in
             switch scope {
             case .all:
