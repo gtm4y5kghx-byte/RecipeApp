@@ -25,22 +25,10 @@ struct ClaudeAPIClientTests {
         mock.shouldThrowError = true
 
         await #expect(throws: ClaudeAPIClient.ClaudeError.self) {
-            try await mock.sendMessage(prompt: "Test", systemPrompt: nil)
+            try await mock.sendMessage(prompt: "Test", systemPrompt: "Test system")
         }
 
         #expect(mock.sendMessageCallCount == 1)
-    }
-
-    @Test("sendMessage works without system prompt")
-    func testSendMessageWithoutSystemPrompt() async throws {
-        let mock = MockClaudeAPIClient()
-        mock.mockResponse = "Response without system prompt"
-
-        let result = try await mock.sendMessage(prompt: "Just a prompt", systemPrompt: nil)
-
-        #expect(result == "Response without system prompt")
-        #expect(mock.lastPrompt == "Just a prompt")
-        #expect(mock.lastSystemPrompt == nil)
     }
 
     @Test("screenUserInput returns true for ALLOW verdict")

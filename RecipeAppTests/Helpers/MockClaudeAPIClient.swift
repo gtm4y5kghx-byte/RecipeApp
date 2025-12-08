@@ -16,7 +16,7 @@ class MockClaudeAPIClient: ClaudeAPIClient {
         super.init(apiKey: "mock-api-key-for-testing")
     }
 
-    override func sendMessage(prompt: String, systemPrompt: String? = nil) async throws -> String {
+    override func sendMessage(prompt: String, systemPrompt: String) async throws -> String {
         sendMessageCallCount += 1
         lastPrompt = prompt
         lastSystemPrompt = systemPrompt
