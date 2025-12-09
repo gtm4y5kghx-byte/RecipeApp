@@ -3,10 +3,6 @@ import SwiftData
 
 @main
 struct RecipeAppApp: App {
-    init() {
-        SetupAPIKey.configure()
-    }
-
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Recipe.self,
