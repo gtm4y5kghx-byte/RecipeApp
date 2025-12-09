@@ -42,48 +42,61 @@ struct DiscoveredRecipe: Codable, Identifiable {
     func toRecipe() -> Recipe {
         let recipe = Recipe(title: title, sourceType: .web_imported)
 
+        setBasicProperties(on: recipe)
+        addIngredients(to: recipe)
+        addInstructions(to: recipe)
+        addNutrition(to: recipe)
+
+        return recipe
+    }
+
+    private func setBasicProperties(on recipe: Recipe) {
         recipe.sourceURL = sourceUrl
         recipe.servings = servings
         recipe.cookTime = readyInMinutes
         recipe.cuisine = cuisines?.first
         recipe.notes = sourceName.map { "Imported from \($0)" }
+    }
 
-        if let spoonIngredients = extendedIngredients {
-            for (index, spoonIngredient) in spoonIngredients.enumerated() {
-                let ingredient = Ingredient(
-                    quantity: String(spoonIngredient.measures.us.amount),
-                    unit: spoonIngredient.measures.us.unitLong.isEmpty ? nil : spoonIngredient.measures.us.unitLong,
-                    item: spoonIngredient.name,
-                    preparation: nil,
-                    section: nil
-                )
-                ingredient.order = index
-                recipe.ingredients.append(ingredient)
-            }
-        }
+    private func addIngredients(to recipe: Recipe) {
+        guard let spoonIngredients = extendedIngredients else { return }
 
-        if let instructions = analyzedInstructions?.first?.steps {
-            for (index, spoonStep) in instructions.enumerated() {
-                let step = Step(instruction: spoonStep.step)
-                step.order = index
-                recipe.instructions.append(step)
-            }
-        }
-
-        if let nutritionData = nutrition {
-            let nutritionInfo = NutritionInfo(
-                calories: nutritionData.nutrients.first(where: { $0.name == "Calories" }).map { Int($0.amount) },
-                carbohydrates: nutritionData.nutrients.first(where: { $0.name == "Carbohydrates" })?.amount,
-                protein: nutritionData.nutrients.first(where: { $0.name == "Protein" })?.amount,
-                fat: nutritionData.nutrients.first(where: { $0.name == "Fat" })?.amount,
-                fiber: nutritionData.nutrients.first(where: { $0.name == "Fiber" })?.amount,
-                sodium: nutritionData.nutrients.first(where: { $0.name == "Sodium" })?.amount,
-                sugar: nutritionData.nutrients.first(where: { $0.name == "Sugar" })?.amount
+        for (index, spoonIngredient) in spoonIngredients.enumerated() {
+            let ingredient = Ingredient(
+                quantity: String(spoonIngredient.measures.us.amount),
+                unit: spoonIngredient.measures.us.unitLong.isEmpty ? nil : spoonIngredient.measures.us.unitLong,
+                item: spoonIngredient.name,
+                preparation: nil,
+                section: nil
             )
-            recipe.nutrition = nutritionInfo
+            ingredient.order = index
+            recipe.ingredients.append(ingredient)
         }
+    }
 
-        return recipe
+    private func addInstructions(to recipe: Recipe) {
+        guard let instructions = analyzedInstructions?.first?.steps else { return }
+
+        for (index, spoonStep) in instructions.enumerated() {
+            let step = Step(instruction: spoonStep.step)
+            step.order = index
+            recipe.instructions.append(step)
+        }
+    }
+
+    private func addNutrition(to recipe: Recipe) {
+        guard let nutritionData = nutrition else { return }
+
+        let nutritionInfo = NutritionInfo(
+            calories: nutritionData.nutrients.first(where: { $0.name == "Calories" }).map { Int($0.amount) },
+            carbohydrates: nutritionData.nutrients.first(where: { $0.name == "Carbohydrates" })?.amount,
+            protein: nutritionData.nutrients.first(where: { $0.name == "Protein" })?.amount,
+            fat: nutritionData.nutrients.first(where: { $0.name == "Fat" })?.amount,
+            fiber: nutritionData.nutrients.first(where: { $0.name == "Fiber" })?.amount,
+            sodium: nutritionData.nutrients.first(where: { $0.name == "Sodium" })?.amount,
+            sugar: nutritionData.nutrients.first(where: { $0.name == "Sugar" })?.amount
+        )
+        recipe.nutrition = nutritionInfo
     }
 }
 
