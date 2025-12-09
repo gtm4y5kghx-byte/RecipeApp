@@ -9,6 +9,7 @@ struct RecipeFormTagSection: View {
             TextField("Add tags (comma-separated)...", text: $tagInput)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
+                .accessibilityIdentifier("recipe-tag-field")
 
             if !tagInput.isEmpty && !tagSuggestions.isEmpty {
                 ForEach(tagSuggestions.prefix(5), id: \.0) { tag, count in
