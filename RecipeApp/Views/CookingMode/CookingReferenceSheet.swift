@@ -28,8 +28,11 @@ struct CookingReferenceSheet: View {
                                     Spacer()
                                     Image(systemName: "arrow.left.circle.fill")
                                         .foregroundStyle(.blue)
+                                        .accessibilityIdentifier("current-step-indicator")
                                 }
                             }
+                            .accessibilityElement(children: .contain)
+                            .accessibilityIdentifier("reference-step-\(index)")
                         }
                     }
                 }
