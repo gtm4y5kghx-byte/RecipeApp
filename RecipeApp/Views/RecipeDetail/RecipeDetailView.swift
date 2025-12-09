@@ -98,7 +98,8 @@ struct RecipeDetailView: View {
         RecipeMetadataSection(
             prepTime: recipe.prepTime,
             cookTime: recipe.cookTime,
-            servings: recipe.servings
+            servings: recipe.servings,
+            cuisine: recipe.cuisine
         )
     }
     

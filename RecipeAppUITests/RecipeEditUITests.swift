@@ -134,4 +134,40 @@ final class RecipeEditUITests: BaseUITestCase {
         XCTAssertFalse(app.staticTexts["This Should Not Save"].exists)
         XCTAssertTrue(app.staticTexts["Test Recipe"].waitForExistence(timeout: 3))
     }
+
+    func testEditRecipeMetadata() throws {
+        let editButton = app.buttons["edit-recipe-button"]
+        editButton.tap()
+
+        let servingsField = app.textFields["recipe-servings-field"]
+        XCTAssertTrue(servingsField.waitForExistence(timeout: 2))
+        servingsField.tap()
+        servingsField.clearText()
+        servingsField.typeText("4")
+
+        let prepTimeField = app.textFields["recipe-prep-time-field"]
+        prepTimeField.tap()
+        prepTimeField.clearText()
+        prepTimeField.typeText("15")
+
+        let cookTimeField = app.textFields["recipe-cook-time-field"]
+        cookTimeField.tap()
+        cookTimeField.clearText()
+        cookTimeField.typeText("30")
+
+        let cuisineField = app.textFields["recipe-cuisine-field"]
+        cuisineField.tap()
+        cuisineField.clearText()
+        cuisineField.typeText("Italian")
+
+        let saveButton = app.buttons["recipe-form-save-button"]
+        saveButton.tap()
+
+        XCTAssertFalse(saveButton.waitForExistence(timeout: 2))
+
+        XCTAssertTrue(app.staticTexts["4 servings"].exists)
+        XCTAssertTrue(app.staticTexts["15 min"].exists)
+        XCTAssertTrue(app.staticTexts["30 min"].exists)
+        XCTAssertTrue(app.staticTexts["Italian"].exists)
+    }
 }

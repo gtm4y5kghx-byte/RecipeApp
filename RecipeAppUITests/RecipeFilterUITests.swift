@@ -149,11 +149,55 @@ final class RecipeFilterUITests: BaseUITestCase {
 
         let allFilter = app.buttons.containing(NSPredicate(format: "label CONTAINS 'ALL'")).firstMatch
         XCTAssertTrue(allFilter.waitForExistence(timeout: 2))
-        
+
         app.expandSheet()
 
         let weeknightFilter = app.buttons.containing(NSPredicate(format: "label CONTAINS 'WEEKNIGHT'")).firstMatch
         XCTAssertTrue(weeknightFilter.waitForExistence(timeout: 2))
         XCTAssertTrue(weeknightFilter.staticTexts["1"].exists)
+    }
+
+    func testFilterTagDisappearsWhenRemoved() throws {
+        createRecipeWithProperties(
+            title: "Summer Salad",
+            ingredients: ["lettuce"],
+            instructions: ["chop lettuce"],
+            tags: ["Summer"]
+        )
+
+        let filterButton = app.buttons["filter-button"]
+        filterButton.tap()
+
+        let allFilter = app.buttons.containing(NSPredicate(format: "label CONTAINS 'ALL'")).firstMatch
+        XCTAssertTrue(allFilter.waitForExistence(timeout: 2))
+
+        app.expandSheet()
+
+        let summerFilter = app.buttons.containing(NSPredicate(format: "label CONTAINS 'SUMMER'")).firstMatch
+        XCTAssertTrue(summerFilter.waitForExistence(timeout: 2))
+
+        let closeButton = app.buttons["Close"]
+        closeButton.tap()
+
+        app.staticTexts["Summer Salad"].tap()
+
+        let editButton = app.buttons["edit-recipe-button"]
+        editButton.tap()
+
+        let tagField = app.textFields["recipe-tag-field"]
+        tagField.tap()
+        tagField.clearText()
+
+        let saveButton = app.buttons["recipe-form-save-button"]
+        saveButton.tap()
+
+        app.navigationBars.buttons.firstMatch.tap()
+
+        filterButton.tap()
+        XCTAssertTrue(allFilter.waitForExistence(timeout: 2))
+
+        app.expandSheet()
+
+        XCTAssertFalse(summerFilter.exists)
     }
 }

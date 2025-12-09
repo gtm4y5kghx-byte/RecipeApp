@@ -102,4 +102,6 @@ DerivedData/
 .netrc
 
 # Project-specific
-CLAUDE.md
+# Ignore all markdown files except README.md
+*.md
+!README.md
