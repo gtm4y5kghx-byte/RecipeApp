@@ -93,6 +93,8 @@ class RecipeListViewModel {
                 return matchesAnyField(recipe: recipe, query: query)
             case .title:
                 return FuzzySearchService.fuzzyMatch(query: query, in: recipe.title)
+            case .cuisine:
+                return matchesCuisine(recipe: recipe, query: query)
             case .ingredients:
                 return matchesIngredients(recipe: recipe, query: query)
             case .instructions:
@@ -111,19 +113,23 @@ class RecipeListViewModel {
         if FuzzySearchService.fuzzyMatch(query: query, in: recipe.title) {
             return true
         }
-        
+
+        if matchesCuisine(recipe: recipe, query: query) {
+            return true
+        }
+
         if matchesIngredients(recipe: recipe, query: query) {
             return true
         }
-        
+
         if matchesInstructions(recipe: recipe, query: query) {
             return true
         }
-        
+
         if matchesNotes(recipe: recipe, query: query) {
             return true
         }
-        
+
         return false
     }
     
@@ -145,6 +151,13 @@ class RecipeListViewModel {
         return false
     }
     
+    private func matchesCuisine(recipe: Recipe, query: String) -> Bool {
+        if let cuisine = recipe.cuisine {
+            return FuzzySearchService.fuzzyMatch(query: query, in: cuisine)
+        }
+        return false
+    }
+
     private func matchesNotes(recipe: Recipe, query: String) -> Bool {
         if let notes = recipe.notes {
             return FuzzySearchService.fuzzyMatch(query: query, in: notes)
@@ -234,6 +247,7 @@ class RecipeListViewModel {
 enum SearchScope: String, CaseIterable {
     case all = "All"
     case title = "Title"
+    case cuisine = "Cuisine"
     case ingredients = "Ingredients"
     case instructions = "Instructions"
     case notes = "Notes"
