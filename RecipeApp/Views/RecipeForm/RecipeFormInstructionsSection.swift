@@ -14,7 +14,6 @@ struct RecipeFormInstructionsSection: View {
                         instructionFields.remove(at: index)
                     }
                 )
-                .accessibilityIdentifier("instruction-row-\(index)")
             }
             .onMove { source, destination in
                 instructionFields.move(fromOffsets: source, toOffset: destination)

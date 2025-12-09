@@ -1,64 +1,56 @@
 import XCTest
 
-final class RecipeCreationUITests: XCTestCase {
-
-    var app: XCUIApplication!
-
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-        app = XCUIApplication()
-        app.launch()
-    }
+final class RecipeCreationUITests: BaseUITestCase {
 
     func testCreateRecipeFlow() throws {
-        let addButton = app.navigationBars.buttons["Add"]
+        let addButton = app.buttons["add-recipe-button"]
         XCTAssertTrue(addButton.waitForExistence(timeout: 5))
         addButton.tap()
 
-        let titleField = app.textFields["Title"]
+        let titleField = app.textFields["recipe-title-field"]
         XCTAssertTrue(titleField.waitForExistence(timeout: 2))
         titleField.tap()
         titleField.typeText("Pasta Carbonara")
 
-        let servingsField = app.textFields["Servings"]
+        let servingsField = app.textFields["recipe-servings-field"]
         servingsField.tap()
         servingsField.typeText("4")
 
-        let prepTimeField = app.textFields["Prep Time (min)"]
+        let prepTimeField = app.textFields["recipe-prep-time-field"]
         prepTimeField.tap()
         prepTimeField.typeText("10")
 
-        let cookTimeField = app.textFields["Cook Time (min)"]
+        let cookTimeField = app.textFields["recipe-cook-time-field"]
         cookTimeField.tap()
         cookTimeField.typeText("20")
 
-        let cuisineField = app.textFields["Cuisine"]
+        let cuisineField = app.textFields["recipe-cuisine-field"]
         cuisineField.tap()
         cuisineField.typeText("Italian")
 
-        let ingredientField = app.textFields.matching(identifier: "ingredient-field").element(boundBy: 0)
-        ingredientField.tap()
-        ingredientField.typeText("500g spaghetti")
+        let firstIngredientField = app.textFields["ingredient-field-0"]
+        firstIngredientField.tap()
+        firstIngredientField.typeText("500g spaghetti")
 
-        let addIngredientButton = app.buttons["Add Ingredient"]
+        let addIngredientButton = app.buttons["add-ingredient-button"]
         addIngredientButton.tap()
 
-        let secondIngredientField = app.textFields.matching(identifier: "ingredient-field").element(boundBy: 1)
+        let secondIngredientField = app.textFields["ingredient-field-1"]
         secondIngredientField.tap()
         secondIngredientField.typeText("4 eggs")
 
-        let instructionField = app.textViews.matching(identifier: "instruction-field").element(boundBy: 0)
-        instructionField.tap()
-        instructionField.typeText("Boil pasta according to package directions")
+        let firstInstructionField = app.textViews["instruction-editor-0"]
+        firstInstructionField.tap()
+        firstInstructionField.typeText("Boil pasta according to package directions")
 
-        let addStepButton = app.buttons["Add Step"]
+        let addStepButton = app.buttons["add-step-button"]
         addStepButton.tap()
 
-        let secondInstructionField = app.textViews.matching(identifier: "instruction-field").element(boundBy: 1)
+        let secondInstructionField = app.textViews["instruction-editor-1"]
         secondInstructionField.tap()
         secondInstructionField.typeText("Mix eggs with pasta and serve")
 
-        let saveButton = app.navigationBars.buttons["Save"]
+        let saveButton = app.buttons["recipe-form-save-button"]
         XCTAssertTrue(saveButton.isEnabled)
         saveButton.tap()
 
@@ -66,14 +58,14 @@ final class RecipeCreationUITests: XCTestCase {
     }
 
     func testCreateRecipeValidation() throws {
-        let addButton = app.navigationBars.buttons["Add"]
+        let addButton = app.buttons["add-recipe-button"]
         addButton.tap()
 
-        let saveButton = app.navigationBars.buttons["Save"]
+        let saveButton = app.buttons["recipe-form-save-button"]
         XCTAssertTrue(saveButton.waitForExistence(timeout: 2))
         XCTAssertFalse(saveButton.isEnabled)
 
-        let titleField = app.textFields["Title"]
+        let titleField = app.textFields["recipe-title-field"]
         titleField.tap()
         titleField.typeText("Test Recipe")
 
@@ -81,14 +73,14 @@ final class RecipeCreationUITests: XCTestCase {
     }
 
     func testCancelRecipeCreation() throws {
-        let addButton = app.navigationBars.buttons["Add"]
+        let addButton = app.buttons["add-recipe-button"]
         addButton.tap()
 
-        let titleField = app.textFields["Title"]
+        let titleField = app.textFields["recipe-title-field"]
         titleField.tap()
         titleField.typeText("Test Recipe to Cancel")
 
-        let cancelButton = app.navigationBars.buttons["Cancel"]
+        let cancelButton = app.buttons["recipe-form-cancel-button"]
         cancelButton.tap()
 
         let discardButton = app.alerts.buttons["Discard"]

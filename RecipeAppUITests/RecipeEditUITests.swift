@@ -1,132 +1,137 @@
 import XCTest
 
-final class RecipeEditUITests: XCTestCase {
-
-    var app: XCUIApplication!
+final class RecipeEditUITests: BaseUITestCase {
 
     override func setUpWithError() throws {
-        continueAfterFailure = false
-        app = XCUIApplication()
-        app.launch()
+        try super.setUpWithError()
+
+        createTestRecipe()
+
+        let recipeTitle = app.staticTexts["Test Recipe"]
+        recipeTitle.tap()
     }
 
     func testEditRecipeTitle() throws {
-        let firstRecipe = app.collectionViews.cells.firstMatch
-        XCTAssertTrue(firstRecipe.waitForExistence(timeout: 5))
-        firstRecipe.tap()
-
-        let editButton = app.navigationBars.buttons["Edit"]
-        XCTAssertTrue(editButton.exists)
+        let editButton = app.buttons["edit-recipe-button"]
+        XCTAssertTrue(editButton.waitForExistence(timeout: 2))
         editButton.tap()
 
-        let titleField = app.textFields["Title"]
+        let titleField = app.textFields["recipe-title-field"]
         XCTAssertTrue(titleField.waitForExistence(timeout: 2))
         titleField.tap()
         titleField.clearText()
         titleField.typeText("Updated Recipe Title")
 
-        let saveButton = app.navigationBars.buttons["Save"]
+        let saveButton = app.buttons["recipe-form-save-button"]
         XCTAssertTrue(saveButton.isEnabled)
         saveButton.tap()
 
-        XCTAssertTrue(app.staticTexts["Updated Recipe Title"].waitForExistence(timeout: 3))
+        XCTAssertFalse(saveButton.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Updated Recipe Title"].exists)
     }
 
     func testEditRecipeIngredients() throws {
-        let firstRecipe = app.collectionViews.cells.firstMatch
-        firstRecipe.tap()
-
-        let editButton = app.navigationBars.buttons["Edit"]
+        let editButton = app.buttons["edit-recipe-button"]
         editButton.tap()
 
-        let ingredientField = app.textFields.matching(identifier: "ingredient-field").element(boundBy: 0)
+        let ingredientField = app.textFields["ingredient-field-0"]
         XCTAssertTrue(ingredientField.waitForExistence(timeout: 2))
         ingredientField.tap()
         ingredientField.clearText()
         ingredientField.typeText("Updated ingredient")
 
-        let saveButton = app.navigationBars.buttons["Save"]
+        let saveButton = app.buttons["recipe-form-save-button"]
         saveButton.tap()
 
-        app.staticTexts["Ingredients"].tap()
+        XCTAssertFalse(saveButton.waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["Updated ingredient"].exists)
     }
 
-    func testDeleteIngredient() throws {
-        let firstRecipe = app.collectionViews.cells.firstMatch
-        firstRecipe.tap()
-
-        let editButton = app.navigationBars.buttons["Edit"]
+    func testAddIngredient() throws {
+        let editButton = app.buttons["edit-recipe-button"]
         editButton.tap()
 
-        let ingredientsList = app.textFields.matching(identifier: "ingredient-field")
-        let initialCount = ingredientsList.count
+        let addIngredientButton = app.buttons["add-ingredient-button"]
+        addIngredientButton.tap()
 
-        let deleteButton = app.buttons.matching(identifier: "delete-ingredient").element(boundBy: 0)
-        if deleteButton.exists {
-            deleteButton.tap()
+        let secondIngredientField = app.textFields["ingredient-field-1"]
+        XCTAssertTrue(secondIngredientField.waitForExistence(timeout: 2))
+        secondIngredientField.tap()
+        secondIngredientField.typeText("New ingredient")
 
-            let newCount = app.textFields.matching(identifier: "ingredient-field").count
-            XCTAssertEqual(newCount, initialCount - 1)
-        }
+        let saveButton = app.buttons["recipe-form-save-button"]
+        saveButton.tap()
 
-        app.navigationBars.buttons["Cancel"].tap()
+        XCTAssertFalse(saveButton.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["New ingredient"].exists)
+    }
+
+    func testDeleteIngredient() throws {
+        let editButton = app.buttons["edit-recipe-button"]
+        editButton.tap()
+
+        let addIngredientButton = app.buttons["add-ingredient-button"]
+        addIngredientButton.tap()
+
+        let secondIngredientField = app.textFields["ingredient-field-1"]
+        XCTAssertTrue(secondIngredientField.waitForExistence(timeout: 2))
+        secondIngredientField.tap()
+        secondIngredientField.typeText("Ingredient to delete")
+
+        let deleteButton = app.buttons["delete-ingredient-1"]
+        XCTAssertTrue(deleteButton.exists)
+        XCTAssertTrue(deleteButton.isEnabled)
+        deleteButton.tap()
+
+        XCTAssertFalse(app.textFields["ingredient-field-1"].exists)
+
+        let firstDeleteButton = app.buttons["delete-ingredient-0"]
+        XCTAssertFalse(firstDeleteButton.isEnabled)
+
+        let saveButton = app.buttons["recipe-form-save-button"]
+        saveButton.tap()
+
+        XCTAssertFalse(saveButton.waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts["Ingredient to delete"].exists)
     }
 
     func testEditRecipeInstructions() throws {
-        let firstRecipe = app.collectionViews.cells.firstMatch
-        firstRecipe.tap()
-
-        let editButton = app.navigationBars.buttons["Edit"]
+        let editButton = app.buttons["edit-recipe-button"]
         editButton.tap()
 
-        let instructionField = app.textViews.matching(identifier: "instruction-field").element(boundBy: 0)
+        app.swipeUp()
+
+        let instructionField = app.textViews["instruction-editor-0"]
         XCTAssertTrue(instructionField.waitForExistence(timeout: 2))
-        instructionField.tap()
-        instructionField.clearText()
+        instructionField.clearTextView()
         instructionField.typeText("Updated cooking instruction")
 
-        let saveButton = app.navigationBars.buttons["Save"]
+        let saveButton = app.buttons["recipe-form-save-button"]
         saveButton.tap()
 
-        app.staticTexts["Instructions"].tap()
-        XCTAssertTrue(app.staticTexts["Updated cooking instruction"].exists)
+        XCTAssertFalse(saveButton.waitForExistence(timeout: 2))
+
+        let updatedInstruction = app.staticTexts["Updated cooking instruction"]
+        XCTAssertTrue(updatedInstruction.exists)
     }
 
     func testCancelEditWithChanges() throws {
-        let firstRecipe = app.collectionViews.cells.firstMatch
-        firstRecipe.tap()
-
-        let originalTitle = app.staticTexts.firstMatch.label
-
-        let editButton = app.navigationBars.buttons["Edit"]
+        let editButton = app.buttons["edit-recipe-button"]
         editButton.tap()
 
-        let titleField = app.textFields["Title"]
+        let titleField = app.textFields["recipe-title-field"]
         titleField.tap()
         titleField.clearText()
         titleField.typeText("This Should Not Save")
 
-        let cancelButton = app.navigationBars.buttons["Cancel"]
+        let cancelButton = app.buttons["recipe-form-cancel-button"]
         cancelButton.tap()
 
         let discardButton = app.alerts.buttons["Discard"]
-        if discardButton.exists {
-            discardButton.tap()
-        }
+        XCTAssertTrue(discardButton.waitForExistence(timeout: 2))
+        discardButton.tap()
 
         XCTAssertFalse(app.staticTexts["This Should Not Save"].exists)
-        XCTAssertTrue(app.staticTexts[originalTitle].exists)
-    }
-}
-
-extension XCUIElement {
-    func clearText() {
-        guard let stringValue = self.value as? String else {
-            return
-        }
-
-        let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: stringValue.count)
-        self.typeText(deleteString)
+        XCTAssertTrue(app.staticTexts["Test Recipe"].waitForExistence(timeout: 3))
     }
 }

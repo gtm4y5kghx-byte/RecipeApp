@@ -4,7 +4,6 @@ import SwiftData
 @main
 struct RecipeAppApp: App {
     init() {
-        // Configure Claude API key on first launch
         SetupAPIKey.configure()
     }
 
@@ -14,8 +13,10 @@ struct RecipeAppApp: App {
             Ingredient.self,
             Step.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
+
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("UI-TESTING")
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITesting)
+
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
