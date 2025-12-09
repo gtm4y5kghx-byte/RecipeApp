@@ -17,6 +17,7 @@ struct RecipeActionButtons: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            .disabled(!recipe.canStartCooking)
             .accessibilityIdentifier("start-cooking-button")
 
             Button(action: onEdit) {
@@ -31,6 +32,7 @@ struct RecipeActionButtons: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
+            .disabled(!recipe.canStartCooking)
             .accessibilityIdentifier("transform-recipe-button")
 
             Button(action: onMarkAsCooked) {

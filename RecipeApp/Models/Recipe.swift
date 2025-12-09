@@ -48,6 +48,10 @@ class Recipe {
         guard let prep = prepTime, let cook = cookTime else { return nil }
         return prep + cook
     }
+
+    var canStartCooking: Bool {
+        !ingredients.isEmpty && !instructions.isEmpty
+    }
 }
 
 @Model

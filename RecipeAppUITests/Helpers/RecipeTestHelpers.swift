@@ -30,5 +30,51 @@ class BaseUITestCase: XCTestCase {
         saveButton.tap()
 
         let recipeTitle = app.staticTexts[title]
+        recipeTitle.waitForExistence(timeout: 3)
+    }
+
+    func createRecipeWithProperties(
+        title: String,
+        ingredients: [String] = [],
+        instructions: [String] = []
+    ) {
+        let addButton = app.buttons["add-recipe-button"]
+        addButton.tap()
+
+        let titleField = app.textFields["recipe-title-field"]
+        titleField.tap()
+        titleField.typeText(title)
+
+        if !ingredients.isEmpty {
+            for (index, ingredient) in ingredients.enumerated() {
+                if index > 0 {
+                    let addIngredientButton = app.buttons["add-ingredient-button"]
+                    addIngredientButton.tap()
+                }
+                let ingredientField = app.textFields["ingredient-field-\(index)"]
+                ingredientField.tap()
+                ingredientField.typeText(ingredient)
+            }
+        }
+
+        if !instructions.isEmpty {
+            app.swipeUp()
+
+            for (index, instruction) in instructions.enumerated() {
+                if index > 0 {
+                    let addStepButton = app.buttons["add-step-button"]
+                    addStepButton.tap()
+                }
+                let instructionField = app.textViews["instruction-editor-\(index)"]
+                instructionField.tap()
+                instructionField.typeText(instruction)
+            }
+        }
+
+        let saveButton = app.buttons["recipe-form-save-button"]
+        saveButton.tap()
+
+        let recipeTitle = app.staticTexts[title]
+        recipeTitle.waitForExistence(timeout: 3)
     }
 }
