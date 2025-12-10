@@ -25,6 +25,7 @@ struct RecipeTestFixtures {
         ingredients: [(quantity: String, unit: String?, item: String)] = [],
         instructions: [String] = [],
         notes: String? = nil,
+        nutrition: NutritionInfo? = nil
     ) -> Recipe {
         let recipe = Recipe(title: title, sourceType: .manual)
         recipe.cuisine = cuisine
@@ -36,7 +37,8 @@ struct RecipeTestFixtures {
         recipe.cookTime = cookTime
         recipe.servings = servings
         recipe.notes = notes
-        
+        recipe.nutrition = nutrition
+
         for (index, ing) in ingredients.enumerated() {
             let ingredient = Ingredient(
                 quantity: ing.quantity,
@@ -48,16 +50,46 @@ struct RecipeTestFixtures {
             ingredient.order = index
             recipe.ingredients.append(ingredient)
         }
-        
+
         for (index, instructionText) in instructions.enumerated() {
             let step = Step(instruction: instructionText)
             step.order = index
             recipe.instructions.append(step)
         }
-        
+
         return recipe
     }
     
+    static func createImportData(
+        title: String,
+        description: String? = nil,
+        sourceURL: String? = nil,
+        prepTime: Int? = nil,
+        cookTime: Int? = nil,
+        servings: Int? = nil,
+        cuisine: String? = nil,
+        ingredients: [String] = [],
+        instructions: [String] = [],
+        nutrition: NutritionImportData? = nil
+    ) -> RecipeImportData {
+        return RecipeImportData(
+            title: title,
+            description: description,
+            sourceURL: sourceURL,
+            imageURL: nil,
+            prepTime: prepTime,
+            cookTime: cookTime,
+            totalTime: nil,
+            servings: servings,
+            cuisine: cuisine,
+            category: nil,
+            ingredients: ingredients,
+            instructions: instructions,
+            nutrition: nutrition,
+            author: nil
+        )
+    }
+
     static func createSampleRecipes() -> [Recipe] {
         let today = Date()
         let fiveDaysAgo = Calendar.current.date(byAdding: .day, value: -5, to: today)!
