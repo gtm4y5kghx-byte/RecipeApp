@@ -45,8 +45,12 @@ class Recipe {
     }
     
     var totalTime: Int? {
-        guard let prep = prepTime, let cook = cookTime else { return nil }
-        return prep + cook
+        // Try combined time first
+        if let prep = prepTime, let cook = cookTime {
+            return prep + cook
+        }
+        // Fall back to either field if only one is set (e.g., Spoonacular recipes)
+        return prepTime ?? cookTime
     }
 
     var canStartCooking: Bool {

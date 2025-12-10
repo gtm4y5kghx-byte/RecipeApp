@@ -119,4 +119,51 @@ struct AISearchServiceIntegration {
             print("==========================================\n")
         }
     }
+
+    @Test("Full search - quick recipes with cookTime only")
+    func validateQuickRecipesWithCookTimeOnly() async throws {
+        let recipes = [
+            RecipeTestFixtures.createRecipe(
+                title: "Quick Pasta",
+                cuisine: "Italian",
+                prepTime: nil,
+                cookTime: 25,
+                ingredients: [("", nil, "pasta")]
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "Slow Roast",
+                cuisine: "American",
+                prepTime: nil,
+                cookTime: 120,
+                ingredients: [("", nil, "beef")]
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "Combined Time Recipe",
+                cuisine: "French",
+                prepTime: 10,
+                cookTime: 15,
+                ingredients: [("", nil, "chicken")]
+            )
+        ]
+
+        let results = try await service.search(query: "quick recipes", recipes: recipes)
+
+        print("\n========== QUICK RECIPES (cookTime only) ==========")
+        print("Query: \"quick recipes\"")
+        print("Total recipes: \(recipes.count)")
+        print("\nRecipe times:")
+        print("  1. Quick Pasta: prepTime=nil, cookTime=25, totalTime=\(recipes[0].totalTime?.description ?? "nil")")
+        print("  2. Slow Roast: prepTime=nil, cookTime=120, totalTime=\(recipes[1].totalTime?.description ?? "nil")")
+        print("  3. Combined: prepTime=10, cookTime=15, totalTime=\(recipes[2].totalTime?.description ?? "nil")")
+        print("\nResults (\(results.count) found):")
+        for (index, recipe) in results.enumerated() {
+            print("  \(index + 1). \(recipe.title) - totalTime: \(recipe.totalTime?.description ?? "nil")")
+        }
+        print("==========================================\n")
+
+        #expect(results.count == 2, "Should find 2 quick recipes (≤30 min)")
+        #expect(results.contains(where: { $0.title == "Quick Pasta" }), "Should include Quick Pasta")
+        #expect(results.contains(where: { $0.title == "Combined Time Recipe" }), "Should include Combined Time Recipe")
+        #expect(!results.contains(where: { $0.title == "Slow Roast" }), "Should NOT include Slow Roast")
+    }
 }
