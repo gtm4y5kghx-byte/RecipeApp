@@ -49,10 +49,10 @@ class DiscoverViewModel {
             let criteria = SpoonacularSearchCriteria(
                 query: query,
                 cuisine: cuisine,
-                diet: nil,
-                maxReadyTime: nil,
+                diet: dietForAPI,
+                maxReadyTime: maxReadyTime,
                 type: nil,
-                intolerances: nil,
+                intolerances: intolerancesForAPI,
                 includeIngredients: nil,
                 excludeIngredients: nil,
                 maxCalories: nil,
@@ -96,22 +96,34 @@ class DiscoverViewModel {
     }
 
     private func buildCacheKey(query: String, cuisine: String?) -> String {
-        var key = query
+        var parts: [String] = [query]
+
         if let cuisine = cuisine {
-            key += "_\(cuisine)"
-        } else {
-            key += "_"
+            parts.append(cuisine)
         }
-        return key
+
+        if let diet = dietForAPI {
+            parts.append(diet)
+        }
+
+        if let intolerances = intolerancesForAPI {
+            parts.append(intolerances.joined(separator: ","))
+        }
+
+        if let maxTime = maxReadyTime {
+            parts.append(String(maxTime))
+        }
+
+        return parts.joined(separator: "_")
     }
 
     var dietForAPI: String? {
         diet?.spoonacularValue
     }
 
-    var intolerancesForAPI: String? {
+    var intolerancesForAPI: [String]? {
         guard !intolerances.isEmpty else { return nil }
-        return intolerances.map { $0.spoonacularValue }.joined(separator: ",")
+        return intolerances.map { $0.spoonacularValue }
     }
 
     var hasActiveFilters: Bool {

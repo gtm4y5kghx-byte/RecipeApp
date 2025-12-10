@@ -60,7 +60,7 @@ final class DiscoverViewModelTests: XCTestCase {
             totalResults: 1
         )
 
-        mockCache.setSearch(key: "pasta_", response: cachedResponse)
+        mockCache.setSearch(key: "pasta", response: cachedResponse)
 
         await viewModel.search(query: "pasta")
 
@@ -197,16 +197,16 @@ final class DiscoverViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.dietForAPI)
     }
 
-    func testIntolerancesForAPIReturnsCommaSeparatedString() {
+    func testIntolerancesForAPIReturnsArray() {
         viewModel.intolerances = [.dairy, .peanut, .shellfish]
 
         let result = viewModel.intolerancesForAPI
 
         XCTAssertNotNil(result)
+        XCTAssertEqual(result?.count, 3)
         XCTAssertTrue(result?.contains("Dairy") == true)
         XCTAssertTrue(result?.contains("Peanut") == true)
         XCTAssertTrue(result?.contains("Shellfish") == true)
-        XCTAssertTrue(result?.contains(",") == true)
     }
 
     func testIntolerancesForAPIReturnsNilWhenEmpty() {
@@ -248,6 +248,145 @@ final class DiscoverViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.intolerances.isEmpty)
         XCTAssertNil(viewModel.maxReadyTime)
     }
+
+    func testSearchWithDietFilter() async {
+        viewModel.diet = .vegetarian
+
+        mockService.mockSearchResponse = SpoonacularSearchResponse(
+            results: [],
+            offset: 0,
+            number: 10,
+            totalResults: 0
+        )
+
+        await viewModel.search(query: "pasta")
+
+        XCTAssertTrue(mockService.searchWasCalled)
+        XCTAssertEqual(mockService.lastCriteria?.diet, "Vegetarian")
+    }
+
+    func testSearchWithIntolerancesFilter() async {
+        viewModel.intolerances = [.dairy, .gluten]
+
+        mockService.mockSearchResponse = SpoonacularSearchResponse(
+            results: [],
+            offset: 0,
+            number: 10,
+            totalResults: 0
+        )
+
+        await viewModel.search(query: "pasta")
+
+        XCTAssertTrue(mockService.searchWasCalled)
+        XCTAssertNotNil(mockService.lastCriteria?.intolerances)
+        XCTAssertEqual(mockService.lastCriteria?.intolerances?.count, 2)
+        XCTAssertTrue(mockService.lastCriteria?.intolerances?.contains("Dairy") == true)
+        XCTAssertTrue(mockService.lastCriteria?.intolerances?.contains("Gluten") == true)
+    }
+
+    func testSearchWithMaxReadyTimeFilter() async {
+        viewModel.maxReadyTime = 30
+
+        mockService.mockSearchResponse = SpoonacularSearchResponse(
+            results: [],
+            offset: 0,
+            number: 10,
+            totalResults: 0
+        )
+
+        await viewModel.search(query: "pasta")
+
+        XCTAssertTrue(mockService.searchWasCalled)
+        XCTAssertEqual(mockService.lastCriteria?.maxReadyTime, 30)
+    }
+
+    func testSearchWithAllFilters() async {
+        viewModel.diet = .vegetarian
+        viewModel.intolerances = [.dairy]
+        viewModel.maxReadyTime = 30
+
+        mockService.mockSearchResponse = SpoonacularSearchResponse(
+            results: [],
+            offset: 0,
+            number: 10,
+            totalResults: 0
+        )
+
+        await viewModel.search(query: "pasta")
+
+        XCTAssertTrue(mockService.searchWasCalled)
+        XCTAssertEqual(mockService.lastCriteria?.diet, "Vegetarian")
+        XCTAssertEqual(mockService.lastCriteria?.intolerances, ["Dairy"])
+        XCTAssertEqual(mockService.lastCriteria?.maxReadyTime, 30)
+    }
+
+    func testSearchWithDifferentFiltersCacheSeparately() async {
+        mockService.mockSearchResponse = SpoonacularSearchResponse(
+            results: [
+                DiscoveredRecipe(
+                    id: 1,
+                    title: "Vegetarian Pasta",
+                    image: nil,
+                    imageType: nil,
+                    servings: nil,
+                    readyInMinutes: nil,
+                    sourceUrl: nil,
+                    sourceName: nil,
+                    cuisines: nil,
+                    dishTypes: nil,
+                    vegetarian: nil,
+                    vegan: nil,
+                    glutenFree: nil,
+                    extendedIngredients: nil,
+                    analyzedInstructions: nil,
+                    nutrition: nil
+                )
+            ],
+            offset: 0,
+            number: 10,
+            totalResults: 1
+        )
+
+        viewModel.diet = .vegetarian
+        await viewModel.search(query: "pasta")
+        XCTAssertEqual(viewModel.results.count, 1)
+        XCTAssertEqual(mockTracker.searchesUsedToday, 1)
+
+        mockService.searchWasCalled = false
+        mockService.mockSearchResponse = SpoonacularSearchResponse(
+            results: [
+                DiscoveredRecipe(
+                    id: 2,
+                    title: "Vegan Pasta",
+                    image: nil,
+                    imageType: nil,
+                    servings: nil,
+                    readyInMinutes: nil,
+                    sourceUrl: nil,
+                    sourceName: nil,
+                    cuisines: nil,
+                    dishTypes: nil,
+                    vegetarian: nil,
+                    vegan: nil,
+                    glutenFree: nil,
+                    extendedIngredients: nil,
+                    analyzedInstructions: nil,
+                    nutrition: nil
+                )
+            ],
+            offset: 0,
+            number: 10,
+            totalResults: 1
+        )
+
+        viewModel.diet = .vegan
+        await viewModel.search(query: "pasta")
+
+        XCTAssertTrue(mockService.searchWasCalled)
+        XCTAssertEqual(viewModel.results.count, 1)
+        XCTAssertEqual(viewModel.results[0].title, "Vegan Pasta")
+        XCTAssertEqual(mockTracker.searchesUsedToday, 2)
+    }
 }
 
 // MARK: - Mock SpoonacularService
@@ -257,9 +396,11 @@ class MockSpoonacularService: SpoonacularServiceProtocol {
     var mockSearchResponse: SpoonacularSearchResponse?
     var mockRecipeResponse: DiscoveredRecipe?
     var shouldThrowError = false
+    var lastCriteria: SpoonacularSearchCriteria?
 
     func searchRecipes(criteria: SpoonacularSearchCriteria) async throws -> SpoonacularSearchResponse {
         searchWasCalled = true
+        lastCriteria = criteria
 
         if shouldThrowError {
             throw SpoonacularError.apiError("Mock error")
