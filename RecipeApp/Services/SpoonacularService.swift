@@ -6,7 +6,7 @@ enum SpoonacularError: Error {
     case apiError(String)
 }
 
-class SpoonacularService {
+class SpoonacularService: SpoonacularServiceProtocol {
     private let session: URLSessionProtocol
     private let apiKey: String
     private let baseURL = "https://api.spoonacular.com"
