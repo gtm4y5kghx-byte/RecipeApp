@@ -1,10 +1,12 @@
 import Foundation
+import SwiftData
 
 @Observable
 class DiscoverViewModel {
     private let service: SpoonacularServiceProtocol
     private let cache: SpoonacularCache
     private let usageTracker: SpoonacularUsageTracker
+    private let modelContext: ModelContext
 
     var results: [DiscoveredRecipe] = []
     var selectedRecipe: DiscoveredRecipe?
@@ -18,11 +20,13 @@ class DiscoverViewModel {
     init(
         service: SpoonacularServiceProtocol,
         cache: SpoonacularCache,
-        usageTracker: SpoonacularUsageTracker
+        usageTracker: SpoonacularUsageTracker,
+        modelContext: ModelContext
     ) {
         self.service = service
         self.cache = cache
         self.usageTracker = usageTracker
+        self.modelContext = modelContext
     }
 
     @MainActor
@@ -134,5 +138,12 @@ class DiscoverViewModel {
         diet = nil
         intolerances = []
         maxReadyTime = nil
+    }
+
+    @MainActor
+    func saveRecipe(_ discoveredRecipe: DiscoveredRecipe) throws {
+        let recipe = discoveredRecipe.toRecipe()
+        modelContext.insert(recipe)
+        try modelContext.save()
     }
 }

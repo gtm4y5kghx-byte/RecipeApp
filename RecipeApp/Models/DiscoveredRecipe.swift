@@ -40,7 +40,7 @@ struct DiscoveredRecipe: Codable, Identifiable {
     }
 
     func toRecipe() -> Recipe {
-        let recipe = Recipe(title: title, sourceType: .web_imported)
+        let recipe = Recipe(title: title, sourceType: .spoonacular)
 
         setBasicProperties(on: recipe)
         addIngredients(to: recipe)

@@ -121,4 +121,5 @@ class NutritionInfo {
 enum SourceType: String, Codable {
     case manual
     case web_imported
+    case spoonacular
 }

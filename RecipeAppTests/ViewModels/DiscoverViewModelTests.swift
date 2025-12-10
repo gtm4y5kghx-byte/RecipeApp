@@ -1,4 +1,5 @@
 import XCTest
+import SwiftData
 @testable import RecipeApp
 
 @MainActor
@@ -8,9 +9,17 @@ final class DiscoverViewModelTests: XCTestCase {
     var mockService: MockSpoonacularService!
     var mockCache: SpoonacularCache!
     var mockTracker: SpoonacularUsageTracker!
+    var modelContext: ModelContext!
+    var modelContainer: ModelContainer!
 
     override func setUp() {
         super.setUp()
+
+        let schema = Schema([Recipe.self, Ingredient.self, Step.self, NutritionInfo.self])
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        modelContainer = try! ModelContainer(for: schema, configurations: config)
+        modelContext = ModelContext(modelContainer)
+
         mockService = MockSpoonacularService()
         mockCache = SpoonacularCache()
         mockTracker = SpoonacularUsageTracker()
@@ -19,7 +28,8 @@ final class DiscoverViewModelTests: XCTestCase {
         viewModel = DiscoverViewModel(
             service: mockService,
             cache: mockCache,
-            usageTracker: mockTracker
+            usageTracker: mockTracker,
+            modelContext: modelContext
         )
     }
 
@@ -30,6 +40,8 @@ final class DiscoverViewModelTests: XCTestCase {
         mockService = nil
         mockCache = nil
         mockTracker = nil
+        modelContext = nil
+        modelContainer = nil
         super.tearDown()
     }
 
@@ -386,6 +398,243 @@ final class DiscoverViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.results.count, 1)
         XCTAssertEqual(viewModel.results[0].title, "Vegan Pasta")
         XCTAssertEqual(mockTracker.searchesUsedToday, 2)
+    }
+
+    // MARK: - Save Recipe Tests
+
+    func testSaveRecipeBasicProperties() throws {
+        let discoveredRecipe = DiscoveredRecipe(
+            id: 123,
+            title: "Spaghetti Carbonara",
+            image: nil,
+            imageType: nil,
+            servings: 4,
+            readyInMinutes: 30,
+            sourceUrl: "https://example.com/recipe",
+            sourceName: "Example Site",
+            cuisines: ["Italian"],
+            dishTypes: nil,
+            vegetarian: false,
+            vegan: false,
+            glutenFree: false,
+            extendedIngredients: nil,
+            analyzedInstructions: nil,
+            nutrition: nil
+        )
+
+        try viewModel.saveRecipe(discoveredRecipe)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let recipes = try modelContext.fetch(descriptor)
+
+        XCTAssertEqual(recipes.count, 1)
+        let savedRecipe = recipes[0]
+        XCTAssertEqual(savedRecipe.title, "Spaghetti Carbonara")
+        XCTAssertEqual(savedRecipe.sourceType, .spoonacular)
+        XCTAssertEqual(savedRecipe.servings, 4)
+        XCTAssertEqual(savedRecipe.cookTime, 30)
+        XCTAssertEqual(savedRecipe.sourceURL, "https://example.com/recipe")
+        XCTAssertEqual(savedRecipe.cuisine, "Italian")
+        XCTAssertEqual(savedRecipe.notes, "Imported from Example Site")
+    }
+
+    func testSaveRecipeWithIngredients() throws {
+        let discoveredRecipe = DiscoveredRecipe(
+            id: 123,
+            title: "Pasta",
+            image: nil,
+            imageType: nil,
+            servings: nil,
+            readyInMinutes: nil,
+            sourceUrl: nil,
+            sourceName: nil,
+            cuisines: nil,
+            dishTypes: nil,
+            vegetarian: nil,
+            vegan: nil,
+            glutenFree: nil,
+            extendedIngredients: [
+                SpoonacularIngredient(
+                    id: 1,
+                    name: "spaghetti",
+                    original: "200g spaghetti",
+                    measures: SpoonacularMeasures(
+                        us: SpoonacularMeasure(amount: 7.05, unitShort: "oz", unitLong: "ounces"),
+                        metric: SpoonacularMeasure(amount: 200, unitShort: "g", unitLong: "grams")
+                    )
+                ),
+                SpoonacularIngredient(
+                    id: 2,
+                    name: "bacon",
+                    original: "100g bacon",
+                    measures: SpoonacularMeasures(
+                        us: SpoonacularMeasure(amount: 3.53, unitShort: "oz", unitLong: "ounces"),
+                        metric: SpoonacularMeasure(amount: 100, unitShort: "g", unitLong: "grams")
+                    )
+                )
+            ],
+            analyzedInstructions: nil,
+            nutrition: nil
+        )
+
+        try viewModel.saveRecipe(discoveredRecipe)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let recipes = try modelContext.fetch(descriptor)
+
+        XCTAssertEqual(recipes.count, 1)
+        let savedRecipe = recipes[0]
+        let sortedIngredients = savedRecipe.sortedIngredients
+        XCTAssertEqual(sortedIngredients.count, 2)
+        XCTAssertEqual(sortedIngredients[0].item, "spaghetti")
+        XCTAssertEqual(sortedIngredients[0].quantity, "7.05")
+        XCTAssertEqual(sortedIngredients[0].unit, "ounces")
+        XCTAssertEqual(sortedIngredients[0].order, 0)
+        XCTAssertEqual(sortedIngredients[1].item, "bacon")
+        XCTAssertEqual(sortedIngredients[1].order, 1)
+    }
+
+    func testSaveRecipeWithInstructions() throws {
+        let discoveredRecipe = DiscoveredRecipe(
+            id: 123,
+            title: "Pasta",
+            image: nil,
+            imageType: nil,
+            servings: nil,
+            readyInMinutes: nil,
+            sourceUrl: nil,
+            sourceName: nil,
+            cuisines: nil,
+            dishTypes: nil,
+            vegetarian: nil,
+            vegan: nil,
+            glutenFree: nil,
+            extendedIngredients: nil,
+            analyzedInstructions: [
+                SpoonacularInstruction(
+                    name: nil,
+                    steps: [
+                        SpoonacularStep(number: 1, step: "Boil water"),
+                        SpoonacularStep(number: 2, step: "Add pasta"),
+                        SpoonacularStep(number: 3, step: "Cook for 10 minutes")
+                    ]
+                )
+            ],
+            nutrition: nil
+        )
+
+        try viewModel.saveRecipe(discoveredRecipe)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let recipes = try modelContext.fetch(descriptor)
+
+        XCTAssertEqual(recipes.count, 1)
+        let savedRecipe = recipes[0]
+        let sortedInstructions = savedRecipe.sortedInstructions
+        XCTAssertEqual(sortedInstructions.count, 3)
+        XCTAssertEqual(sortedInstructions[0].instruction, "Boil water")
+        XCTAssertEqual(sortedInstructions[0].order, 0)
+        XCTAssertEqual(sortedInstructions[1].instruction, "Add pasta")
+        XCTAssertEqual(sortedInstructions[1].order, 1)
+        XCTAssertEqual(sortedInstructions[2].instruction, "Cook for 10 minutes")
+        XCTAssertEqual(sortedInstructions[2].order, 2)
+    }
+
+    func testSaveRecipeWithNutrition() throws {
+        let discoveredRecipe = DiscoveredRecipe(
+            id: 123,
+            title: "Pasta",
+            image: nil,
+            imageType: nil,
+            servings: nil,
+            readyInMinutes: nil,
+            sourceUrl: nil,
+            sourceName: nil,
+            cuisines: nil,
+            dishTypes: nil,
+            vegetarian: nil,
+            vegan: nil,
+            glutenFree: nil,
+            extendedIngredients: nil,
+            analyzedInstructions: nil,
+            nutrition: SpoonacularNutrition(
+                nutrients: [
+                    SpoonacularNutrient(name: "Calories", amount: 450, unit: "kcal", percentOfDailyNeeds: nil),
+                    SpoonacularNutrient(name: "Carbohydrates", amount: 60, unit: "g", percentOfDailyNeeds: nil),
+                    SpoonacularNutrient(name: "Protein", amount: 15, unit: "g", percentOfDailyNeeds: nil),
+                    SpoonacularNutrient(name: "Fat", amount: 12, unit: "g", percentOfDailyNeeds: nil),
+                    SpoonacularNutrient(name: "Fiber", amount: 3, unit: "g", percentOfDailyNeeds: nil),
+                    SpoonacularNutrient(name: "Sodium", amount: 500, unit: "mg", percentOfDailyNeeds: nil),
+                    SpoonacularNutrient(name: "Sugar", amount: 5, unit: "g", percentOfDailyNeeds: nil)
+                ]
+            )
+        )
+
+        try viewModel.saveRecipe(discoveredRecipe)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let recipes = try modelContext.fetch(descriptor)
+
+        XCTAssertEqual(recipes.count, 1)
+        let savedRecipe = recipes[0]
+        XCTAssertNotNil(savedRecipe.nutrition)
+        XCTAssertEqual(savedRecipe.nutrition?.calories, 450)
+        XCTAssertEqual(savedRecipe.nutrition?.carbohydrates, 60)
+        XCTAssertEqual(savedRecipe.nutrition?.protein, 15)
+        XCTAssertEqual(savedRecipe.nutrition?.fat, 12)
+        XCTAssertEqual(savedRecipe.nutrition?.fiber, 3)
+        XCTAssertEqual(savedRecipe.nutrition?.sodium, 500)
+        XCTAssertEqual(savedRecipe.nutrition?.sugar, 5)
+    }
+
+    func testSaveRecipeMultipleTimes() throws {
+        let recipe1 = DiscoveredRecipe(
+            id: 123,
+            title: "Recipe 1",
+            image: nil,
+            imageType: nil,
+            servings: nil,
+            readyInMinutes: nil,
+            sourceUrl: nil,
+            sourceName: nil,
+            cuisines: nil,
+            dishTypes: nil,
+            vegetarian: nil,
+            vegan: nil,
+            glutenFree: nil,
+            extendedIngredients: nil,
+            analyzedInstructions: nil,
+            nutrition: nil
+        )
+
+        let recipe2 = DiscoveredRecipe(
+            id: 456,
+            title: "Recipe 2",
+            image: nil,
+            imageType: nil,
+            servings: nil,
+            readyInMinutes: nil,
+            sourceUrl: nil,
+            sourceName: nil,
+            cuisines: nil,
+            dishTypes: nil,
+            vegetarian: nil,
+            vegan: nil,
+            glutenFree: nil,
+            extendedIngredients: nil,
+            analyzedInstructions: nil,
+            nutrition: nil
+        )
+
+        try viewModel.saveRecipe(recipe1)
+        try viewModel.saveRecipe(recipe2)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let recipes = try modelContext.fetch(descriptor)
+
+        XCTAssertEqual(recipes.count, 2)
+        XCTAssertTrue(recipes.contains(where: { $0.title == "Recipe 1" }))
+        XCTAssertTrue(recipes.contains(where: { $0.title == "Recipe 2" }))
     }
 }
 
