@@ -4,14 +4,11 @@ import SwiftData
 struct SampleData {
     static func loadSampleRecipes(into context: ModelContext) {
         let recipes = [
-            // Original 5
             createApplePie(),
             createChocolateCake(),
             createGrilledCheese(),
             createTacos(),
             createPasta(),
-
-            // Additional 15 for testing variety
             createChickenStirFry(),
             createTomSoup(),
             createQuickPickles(),
@@ -84,6 +81,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -124,6 +123,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -160,6 +161,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -202,6 +205,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -240,6 +245,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -283,6 +290,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -322,6 +331,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -359,6 +370,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -395,6 +408,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -435,6 +450,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -472,6 +489,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -513,6 +532,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -551,6 +572,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -591,6 +614,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -629,6 +654,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -666,6 +693,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -707,6 +736,8 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.imageURL = "https://placehold.co/400x300"
+
         return recipe
     }
 
@@ -744,6 +775,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -783,6 +816,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }
@@ -824,6 +859,8 @@ struct SampleData {
             step.order = index
         }
         recipe.instructions = steps
+
+        recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
     }

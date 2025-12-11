@@ -57,7 +57,12 @@ struct DSRecipeCard: View {
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                // Header with title and favorite button
+                // MARK: - Image
+                if let imageURL = imageURL {
+                    DSImage(url: imageURL, height: 160)
+                        .cornerRadius(Theme.CornerRadius.md)
+                }
+                // MARK: - Body
                 HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                     DSLabel(title, style: .headline, color: .primary)
                         .lineLimit(2)
@@ -73,7 +78,7 @@ struct DSRecipeCard: View {
                     .buttonStyle(PlainButtonStyle())
                 }
 
-                // Metadata row
+                // MARK: - Metadata
                 if totalTime != nil || servings != nil || cuisine != nil {
                     HStack(spacing: Theme.Spacing.md) {
                         if let time = totalTime {
@@ -99,7 +104,7 @@ struct DSRecipeCard: View {
                     }
                 }
 
-                // Tags
+                // MARK: - Tags
                 if !tags.isEmpty {
                     HStack(spacing: Theme.Spacing.xs) {
                         ForEach(tags.prefix(3), id: \.self) { tag in
@@ -137,6 +142,7 @@ struct DSRecipeCard: View {
             servings: 4,
             isFavorite: false,
             tags: ["Pasta", "Quick", "Dinner"],
+            imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {}
         )
@@ -149,6 +155,7 @@ struct DSRecipeCard: View {
             servings: 6,
             isFavorite: true,
             tags: ["Spicy", "Comfort Food", "Main Course"],
+            imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {}
         )
@@ -172,6 +179,7 @@ struct DSRecipeCard: View {
             cookTime: 10,
             isFavorite: false,
             tags: ["Breakfast", "Quick", "Easy", "Protein", "Vegetarian"],
+            imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {}
         )
@@ -184,6 +192,7 @@ struct DSRecipeCard: View {
             servings: 8,
             isFavorite: true,
             tags: ["Complex"],
+            imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {}
         )
@@ -208,6 +217,7 @@ struct DSRecipeCard: View {
                     servings: 4,
                     isFavorite: index % 3 == 0,
                     tags: index % 2 == 0 ? ["Pasta", "Quick"] : ["Spicy", "Comfort Food"],
+                    imageURL: "https://placehold.co/400x300",
                     onTap: {},
                     onFavoriteTap: {}
                 )
@@ -233,6 +243,7 @@ struct DSRecipeCard: View {
             servings: 4,
             isFavorite: isFavorite,
             tags: ["Pasta", "Quick", "Dinner"],
+            imageURL: "https://placehold.co/400x300",
             onTap: {
                 print("Card tapped!")
             },
@@ -270,6 +281,7 @@ struct DSRecipeCard: View {
                         servings: 4,
                         isFavorite: index % 2 == 0,
                         tags: ["Quick"],
+                        imageURL: "https://placehold.co/400x300",
                         onTap: {},
                         onFavoriteTap: {}
                     )

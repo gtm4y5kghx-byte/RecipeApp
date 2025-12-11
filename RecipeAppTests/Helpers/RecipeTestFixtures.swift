@@ -4,7 +4,7 @@ import SwiftData
 
 @MainActor
 struct RecipeTestFixtures {
-
+    
     static func createInMemoryModelContext() -> ModelContext {
         let schema = Schema([Recipe.self, Ingredient.self, Step.self, NutritionInfo.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -25,7 +25,10 @@ struct RecipeTestFixtures {
         ingredients: [(quantity: String, unit: String?, item: String)] = [],
         instructions: [String] = [],
         notes: String? = nil,
-        nutrition: NutritionInfo? = nil
+        nutrition: NutritionInfo? = nil,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date(),
+        imageURL: String? = nil
     ) -> Recipe {
         let recipe = Recipe(title: title, sourceType: .manual)
         recipe.cuisine = cuisine
@@ -38,7 +41,10 @@ struct RecipeTestFixtures {
         recipe.servings = servings
         recipe.notes = notes
         recipe.nutrition = nutrition
-
+        recipe.createdAt = createdAt
+        recipe.updatedAt = updatedAt
+        recipe.imageURL = imageURL
+        
         for (index, ing) in ingredients.enumerated() {
             let ingredient = Ingredient(
                 quantity: ing.quantity,
@@ -50,13 +56,13 @@ struct RecipeTestFixtures {
             ingredient.order = index
             recipe.ingredients.append(ingredient)
         }
-
+        
         for (index, instructionText) in instructions.enumerated() {
             let step = Step(instruction: instructionText)
             step.order = index
             recipe.instructions.append(step)
         }
-
+        
         return recipe
     }
     
@@ -89,18 +95,57 @@ struct RecipeTestFixtures {
             author: nil
         )
     }
-
+    
     static func createSampleRecipes() -> [Recipe] {
         let today = Date()
         let fiveDaysAgo = Calendar.current.date(byAdding: .day, value: -5, to: today)!
         let thirtyFiveDaysAgo = Calendar.current.date(byAdding: .day, value: -35, to: today)!
-
+        let oneWeekAgo = Calendar.current.date(byAdding: .day, value: -7, to: today)!
+        let twoWeeksAgo = Calendar.current.date(byAdding: .day, value: -14, to: today)!
+        
         return [
-            createRecipe(title: "Pasta Carbonara", cuisine: "Italian", timesCooked: 5, lastMade: fiveDaysAgo, isFavorite: true, tags: ["dinner", "pasta"]),
-            createRecipe(title: "Chicken Tikka Masala", cuisine: "Indian", timesCooked: 2, lastMade: thirtyFiveDaysAgo, tags: ["dinner", "spicy"]),
-            createRecipe(title: "Caesar Salad", cuisine: "American", timesCooked: 0, tags: ["lunch", "salad"]),
-            createRecipe(title: "Thai Green Curry", cuisine: "Thai", timesCooked: 3, lastMade: fiveDaysAgo, isFavorite: true, tags: ["dinner"]),
-            createRecipe(title: "Untagged Recipe"),
+            createRecipe(
+                title: "Pasta Carbonara",
+                cuisine: "Italian",
+                timesCooked: 5,
+                lastMade: fiveDaysAgo,
+                isFavorite: true,
+                tags: ["dinner", "pasta"],
+                createdAt: thirtyFiveDaysAgo,
+                imageURL: "https://placehold.co/400x300"
+            ),
+            createRecipe(
+                title: "Chicken Tikka Masala",
+                cuisine: "Indian",
+                timesCooked: 2,
+                lastMade: thirtyFiveDaysAgo,
+                tags: ["dinner", "spicy"],
+                createdAt: twoWeeksAgo,
+                imageURL: "https://placehold.co/400x300"
+            ),
+            createRecipe(
+                title: "Caesar Salad",
+                cuisine: "American",
+                timesCooked: 0,
+                tags: ["lunch", "salad"],
+                createdAt: oneWeekAgo,
+                imageURL: "https://placehold.co/400x300"
+            ),
+            createRecipe(
+                title: "Thai Green Curry",
+                cuisine: "Thai",
+                timesCooked: 3,
+                lastMade: fiveDaysAgo,
+                isFavorite: true,
+                tags: ["dinner"],
+                createdAt: fiveDaysAgo,
+                imageURL: "https://placehold.co/400x300"
+            ),
+            createRecipe(
+                title: "Untagged Recipe",
+                createdAt: today,
+                imageURL: "https://placehold.co/400x300"
+            ),
         ]
     }
 }

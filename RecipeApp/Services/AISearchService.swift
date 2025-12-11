@@ -1,16 +1,5 @@
 import Foundation
 
-enum SearchError: LocalizedError {
-    case outOfScope(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .outOfScope(let message):
-            return message
-        }
-    }
-}
-
 @MainActor
 class AISearchService {
 

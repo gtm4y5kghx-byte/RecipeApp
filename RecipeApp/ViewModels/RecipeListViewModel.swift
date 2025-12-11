@@ -61,6 +61,15 @@ class RecipeListViewModel {
     
     // MARK: - Methods
     
+    func toggleFavorite(_ recipe: Recipe) {
+        recipe.isFavorite.toggle()
+        do {
+            try modelContext.save()
+        } catch {
+            self.error = error
+        }
+    }
+    
     func recipeCount(for section: MenuSection) -> Int {
         switch section {
         case .all:

@@ -97,4 +97,61 @@ final class RecipeTests: XCTestCase {
         XCTAssertEqual(recipe.nutrition?.sodium, 600.0)
         XCTAssertEqual(recipe.nutrition?.sugar, 8.0)
     }
+
+    func testCreatedAtDefaultsToNow() {
+        let beforeCreation = Date()
+        let recipe = Recipe(title: "Test Recipe", sourceType: .manual)
+        let afterCreation = Date()
+
+        // createdAt should be between before and after
+        XCTAssertTrue(recipe.createdAt >= beforeCreation)
+        XCTAssertTrue(recipe.createdAt <= afterCreation)
+    }
+
+    func testUpdatedAtDefaultsToNow() {
+        let beforeCreation = Date()
+        let recipe = Recipe(title: "Test Recipe", sourceType: .manual)
+        let afterCreation = Date()
+
+        // updatedAt should be between before and after
+        XCTAssertTrue(recipe.updatedAt >= beforeCreation)
+        XCTAssertTrue(recipe.updatedAt <= afterCreation)
+    }
+
+    func testRecipesSortByCreatedAtDescending() {
+        let now = Date()
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: now)!
+        let lastWeek = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+
+        let oldRecipe = Recipe(title: "Old Recipe", sourceType: .manual)
+        oldRecipe.createdAt = lastWeek
+
+        let middleRecipe = Recipe(title: "Middle Recipe", sourceType: .manual)
+        middleRecipe.createdAt = yesterday
+
+        let newRecipe = Recipe(title: "New Recipe", sourceType: .manual)
+        newRecipe.createdAt = now
+
+        let recipes = [oldRecipe, middleRecipe, newRecipe]
+        let sorted = recipes.sorted { $0.createdAt > $1.createdAt }
+
+        XCTAssertEqual(sorted[0].title, "New Recipe")
+        XCTAssertEqual(sorted[1].title, "Middle Recipe")
+        XCTAssertEqual(sorted[2].title, "Old Recipe")
+    }
+    
+    func testRecipesImage() {
+        let recipe = Recipe(title: "Test Recipe", sourceType: .manual)
+
+        XCTAssertNil(recipe.imageURL)
+
+        recipe.imageURL = "https://placehold.co/400x300"
+        XCTAssertEqual(recipe.imageURL, "https://placehold.co/400x300")
+
+        recipe.imageURL = "https://example.com/recipe.jpg"
+        XCTAssertEqual(recipe.imageURL, "https://example.com/recipe.jpg")
+
+        recipe.imageURL = nil
+        XCTAssertNil(recipe.imageURL)
+    }
 }

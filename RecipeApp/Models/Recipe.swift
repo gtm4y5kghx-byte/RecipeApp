@@ -4,6 +4,8 @@ import SwiftData
 @Model
 class Recipe {
     var id: UUID
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     var title: String
     var sourceType: SourceType
     var servings: Int?
@@ -14,6 +16,7 @@ class Recipe {
     var userTags: [String] = []
     var notes: String?
     var sourceURL: String?
+    var imageURL: String?
     var dateAdded: Date
     var lastModified: Date
     var lastMade: Date?
