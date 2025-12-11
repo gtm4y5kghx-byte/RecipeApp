@@ -122,34 +122,8 @@ struct RecipeListView: View {
         for: Recipe.self,
         configurations: config
     )
-
-    let recipe1 = Recipe(title: "Pasta Carbonara", sourceType: .manual)
-    recipe1.cuisine = "Italian"
-    recipe1.prepTime = 10
-    recipe1.cookTime = 20
-    recipe1.imageURL = "https://placehold.co/400x300"
-    container.mainContext.insert(recipe1)
     
-    let recipe2 = Recipe(title: "Chicken Tikka Masala", sourceType: .manual)
-    recipe2.cuisine = "Indian"
-    recipe2.prepTime = 30
-    recipe2.cookTime = 45
-    recipe2.imageURL = "https://placehold.co/400x300"
-    container.mainContext.insert(recipe2)
-    
-    let recipe3 = Recipe(title: "Caesar Salad", sourceType: .manual)
-    recipe3.cuisine = "American"
-    recipe3.prepTime = 5
-    recipe3.imageURL = "https://placehold.co/400x300"
-    container.mainContext.insert(recipe3)
-    
-    let recipe4 = Recipe(title: "Thai Green Curry", sourceType: .manual)
-    recipe4.cuisine = "Thai"
-    recipe4.prepTime = 15
-    recipe4.cookTime = 20
-    recipe4.isFavorite = true
-    recipe4.imageURL = "https://placehold.co/400x300"
-    container.mainContext.insert(recipe4)
+    SampleData.loadSampleRecipes(into: container.mainContext)
     
     return RecipeListView()
         .modelContainer(container)
