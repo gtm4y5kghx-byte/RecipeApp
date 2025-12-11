@@ -26,7 +26,7 @@ struct RecipeListView: View {
                     
                     if let viewModel = viewModel {
                         RecipeGrid(
-                            recipes: recipes,
+                            recipes: viewModel.displayedRecipes,
                             onRecipeTap: { recipe in
                                 selectedRecipe = recipe
                             },
