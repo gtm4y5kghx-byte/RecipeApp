@@ -76,6 +76,19 @@ struct RecipeListView: View {
             .onChange(of: recipes) { oldValue, newValue in
                 viewModel?.updateRecipes(newValue)
             }
+            .sheet(isPresented: $showingMenu) {
+                if let viewModel = viewModel {
+                    RecipesMenuSheet(
+                        viewModel: viewModel,
+                        onNewRecipe: {
+                            // TODO: Navigate to recipe form
+                        },
+                        onSettings: {
+                            // TODO: Navigate to settings
+                        }
+                    )
+                }
+            }
             .sheet(item: $importedRecipe) { recipe in
                 // TODO: RecipeDetailView
                 Text("Recipe Detail View Coming Soon")

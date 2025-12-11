@@ -81,6 +81,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Dessert", "Baking", "Pie"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -123,6 +124,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Dessert", "Baking", "Chocolate"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -162,6 +164,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Lunch", "Quick", "Sandwich"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -205,6 +208,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Dinner", "Mexican", "Beef"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -246,6 +250,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Dinner", "Pasta", "Italian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -290,6 +295,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Dinner", "Chicken", "Chinese", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -331,6 +337,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Soup", "Vegetarian", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -370,6 +377,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Side Dish", "Vegetarian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -409,6 +417,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Beef", "Grilling", "Sandwich"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -450,6 +459,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Vegetarian", "Mexican", "Comfort Food", "Vegan"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -490,6 +500,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Thai", "Noodles", "Seafood"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -532,6 +543,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Soup", "French", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -573,6 +585,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Seafood", "Healthy", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -614,6 +627,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Chicken", "Italian", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -654,6 +668,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Vegan", "Thai", "Healthy"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -694,6 +709,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Breakfast", "Eggs", "Quick", "French"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -736,6 +752,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Beef", "Slow Cooker", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -776,6 +793,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Salad", "Italian", "Vegetarian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -817,6 +835,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Japanese", "Noodles", "Spicy"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
@@ -860,6 +879,7 @@ struct SampleData {
         }
         recipe.instructions = steps
 
+        recipe.userTags = ["Dessert", "French", "Baking"]
         recipe.imageURL = "https://placehold.co/400x300"
 
         return recipe
