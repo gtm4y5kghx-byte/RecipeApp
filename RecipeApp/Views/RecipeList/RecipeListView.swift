@@ -10,9 +10,9 @@ struct RecipeListView: View {
     @State private var showImportBanner = false
     @State private var importedRecipe: Recipe?
     @State private var selectedRecipe: Recipe?
-    
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
+    @State private var showAISearch = false
     
     @State private var error: Error?
     
@@ -22,46 +22,7 @@ struct RecipeListView: View {
                 if showImportBanner { importBanner }
                 
                 headerView
-                
-                if viewModel != nil {
-                    if viewModel!.displayedRecipes.isEmpty {
-                        if viewModel!.isSearching {
-                            DSEmptyState(
-                                icon: "magnifyingglass",
-                                title: "No Results Found",
-                                message: "We couldn't find any recipes matching '\(searchText)'. Try different keywords.",
-                                actionTitle: "Clear Search",
-                                action: { searchText = "" }
-                            )
-                        } else if viewModel!.selectedSection != .all {
-                            DSEmptyState(
-                                icon: viewModel!.selectedSection.icon,
-                                title: "No \(viewModel!.selectedSection.title)",
-                                message: "No recipes found in this category."
-                            )
-                        } else {
-                            DSEmptyState(
-                                icon: "fork.knife",
-                                title: "No Recipes Yet",
-                                message: "Start building your recipe collection by adding your first recipe.",
-                                actionTitle: "Add Recipe",
-                                action: { /* TODO: Navigate to new recipe */ }
-                            )
-                        }
-                    } else {
-                        RecipeGrid(
-                            recipes: viewModel!.displayedRecipes,
-                            onRecipeTap: { recipe in
-                                selectedRecipe = recipe
-                            },
-                            onFavoriteTap: { recipe in
-                                viewModel!.toggleFavorite(recipe)
-                            }
-                        )
-                    }
-                } else {
-                    DSLoadingSpinner(message: "Loading recipes...")
-                }
+                contentArea
                 
                 Spacer()
                 
@@ -79,10 +40,10 @@ struct RecipeListView: View {
                 SearchBar(
                     text: $searchText,
                     onSubmit: {
-                        // Real-time search via onChange
+                        viewModel?.performSearch(query: searchText, scope: searchScope)
                     },
                     onAISearch: {
-                        // TODO: AI Search
+                        showAISearch = true
                     }
                 )
             }
@@ -136,6 +97,11 @@ struct RecipeListView: View {
                 // TODO: RecipeDetailView
                 Text("Recipe Detail View Coming Soon")
             }
+            .sheet(isPresented: $showAISearch) {
+                if let viewModel = viewModel {
+                    AISearchSheet(viewModel: viewModel)
+                }
+            }
         }
     }
     
@@ -186,6 +152,54 @@ struct RecipeListView: View {
         }
         .padding(Theme.Spacing.md)
         .background(Theme.Colors.backgroundLight)
+    }
+    
+    @ViewBuilder
+    private var contentArea: some View {
+        if let viewModel = viewModel {
+            if viewModel.displayedRecipes.isEmpty {
+                emptyState
+            } else {
+                RecipeGrid(
+                    recipes: viewModel.displayedRecipes,
+                    onRecipeTap: { recipe in
+                        selectedRecipe = recipe
+                    },
+                    onFavoriteTap: { recipe in
+                        viewModel.toggleFavorite(recipe)
+                    }
+                )
+            }
+        } else {
+            DSLoadingSpinner(message: "Loading recipes...")
+        }
+    }
+    
+    @ViewBuilder
+    private var emptyState: some View {
+        if viewModel!.isSearching {
+            DSEmptyState(
+                icon: "magnifyingglass",
+                title: "No Results Found",
+                message: "We couldn't find any recipes matching '\(searchText)'. Try different keywords.",
+                actionTitle: "Clear Search",
+                action: { searchText = "" }
+            )
+        } else if viewModel!.selectedSection != .all {
+            DSEmptyState(
+                icon: viewModel!.selectedSection.icon,
+                title: "No \(viewModel!.selectedSection.title)",
+                message: "No recipes found in this category."
+            )
+        } else {
+            DSEmptyState(
+                icon: "fork.knife",
+                title: "No Recipes Yet",
+                message: "Start building your recipe collection by adding your first recipe.",
+                actionTitle: "Add Recipe",
+                action: { /* TODO: Navigate to new recipe */ }
+            )
+        }
     }
 }
 

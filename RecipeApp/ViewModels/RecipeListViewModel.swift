@@ -7,15 +7,21 @@ import SwiftData
 class RecipeListViewModel {
     var filteredResults: [Recipe] = []
     var isSearching: Bool = false
-    var selectedSection: MenuSection = .all
     var searchTask: Task<Void, Never>?
+    var hasAISearched = false
+    var isAISearching = false
+    var aiSearchResults: [Recipe] = []
+    var aiSearchError: SearchError?
+    var aiSearchTask: Task<Void, Never>?
+    var selectedSection: MenuSection = .all
     var suggestions: [RecipeSuggestion] = []
-    var error: Error?
     var justImportedRecipe: Bool = false
-    
     private var recipes: [Recipe]
     private let modelContext: ModelContext
+    private let aiSearchService = AISearchService()
     private let suggestionEngine = AISuggestionEngineService()
+    
+    var error: Error?
     
     init(recipes: [Recipe], modelContext: ModelContext) {
         self.recipes = recipes
@@ -100,32 +106,79 @@ class RecipeListViewModel {
     }
     
     func performSearch(query: String, scope: SearchScope) {
-        guard !query.isEmpty else {
-            filteredResults = []
-            isSearching = false
-            return
+        searchTask?.cancel()
+        searchTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            
+            guard !query.isEmpty else {
+                filteredResults = []
+                isSearching = false
+                return
+            }
+            
+            isSearching = true
+            
+            let results = recipes.filter { recipe in
+                switch scope {
+                case .all:
+                    return matchesAnyField(recipe: recipe, query: query)
+                case .title:
+                    return substringMatch(query: query, in: recipe.title)
+                case .cuisine:
+                    return matchesCuisine(recipe: recipe, query: query)
+                case .ingredients:
+                    return matchesIngredients(recipe: recipe, query: query)
+                case .instructions:
+                    return matchesInstructions(recipe: recipe, query: query)
+                case .notes:
+                    return matchesNotes(recipe: recipe, query: query)
+                }
+            }
+            
+            filteredResults = results
         }
-        
-        isSearching = true
-        
-        let results = recipes.filter { recipe in
-            switch scope {
-            case .all:
-                return matchesAnyField(recipe: recipe, query: query)
-            case .title:
-                return substringMatch(query: query, in: recipe.title)
-            case .cuisine:
-                return matchesCuisine(recipe: recipe, query: query)
-            case .ingredients:
-                return matchesIngredients(recipe: recipe, query: query)
-            case .instructions:
-                return matchesInstructions(recipe: recipe, query: query)
-            case .notes:
-                return matchesNotes(recipe: recipe, query: query)
+    }
+    
+    func performAISearch(query: String) async {
+        aiSearchTask?.cancel()
+        aiSearchTask = Task {
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            
+            guard !query.isEmpty else {
+                aiSearchResults = []
+                isAISearching = false
+                hasAISearched = false
+                return
+            }
+            
+            hasAISearched = true
+            isAISearching = true
+            aiSearchError = nil
+            
+            do {
+                aiSearchResults = try await aiSearchService.search(query: query, recipes: recipes)
+                isAISearching = false
+            } catch let error as SearchError {
+                aiSearchError = error
+                aiSearchResults = []
+                isAISearching = false
+            } catch {
+                aiSearchError = .searchFailed
+                aiSearchResults = []
+                isAISearching = false
             }
         }
         
-        filteredResults = results
+        await aiSearchTask?.value
+    }
+    
+    func clearAISearch() {
+        aiSearchResults = []
+        isAISearching = false
+        aiSearchError = nil
+        hasAISearched = false
     }
     
     // MARK: - Private Helpers
@@ -134,26 +187,26 @@ class RecipeListViewModel {
         if substringMatch(query: query, in: recipe.title) {
             return true
         }
-
+        
         if matchesCuisine(recipe: recipe, query: query) {
             return true
         }
-
+        
         if matchesIngredients(recipe: recipe, query: query) {
             return true
         }
-
+        
         if matchesInstructions(recipe: recipe, query: query) {
             return true
         }
-
+        
         if matchesNotes(recipe: recipe, query: query) {
             return true
         }
-
+        
         return false
     }
-
+    
     private func matchesIngredients(recipe: Recipe, query: String) -> Bool {
         for ingredient in recipe.ingredients {
             if substringMatch(query: query, in: ingredient.item) {
@@ -162,7 +215,7 @@ class RecipeListViewModel {
         }
         return false
     }
-
+    
     private func matchesInstructions(recipe: Recipe, query: String) -> Bool {
         for step in recipe.instructions {
             if substringMatch(query: query, in: step.instruction) {
@@ -171,27 +224,27 @@ class RecipeListViewModel {
         }
         return false
     }
-
+    
     private func matchesCuisine(recipe: Recipe, query: String) -> Bool {
         if let cuisine = recipe.cuisine {
             return substringMatch(query: query, in: cuisine)
         }
         return false
     }
-
+    
     private func matchesNotes(recipe: Recipe, query: String) -> Bool {
         if let notes = recipe.notes {
             return substringMatch(query: query, in: notes)
         }
         return false
     }
-
+    
     private func substringMatch(query: String, in text: String) -> Bool {
         let query = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         let text = text.lowercased()
-
+        
         guard !query.isEmpty else { return false }
-
+        
         return text.contains(query)
     }
     
