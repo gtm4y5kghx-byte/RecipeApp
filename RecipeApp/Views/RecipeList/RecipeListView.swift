@@ -12,44 +12,55 @@ struct RecipeListView: View {
     @State private var selectedRecipe: Recipe?
     
     @State private var searchText = ""
-    @State private var showingAISearch = false
+    @State private var searchScope: SearchScope = .all
     
     @State private var error: Error?
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                VStack(spacing: 0) {
-                    if showImportBanner { importBanner }
-                    
-                    headerView
-                    
-                    if let viewModel = viewModel {
-                        RecipeGrid(
-                            recipes: viewModel.displayedRecipes,
-                            onRecipeTap: { recipe in
-                                selectedRecipe = recipe
-                            },
-                            onFavoriteTap: { recipe in
-                                viewModel.toggleFavorite(recipe)
-                            }
-                        )
-                    } else {
-                        DSLoadingSpinner(message: "Loading recipes...")
-                    }
+            VStack(spacing: 0) {
+                if showImportBanner { importBanner }
+                
+                headerView
+                
+                if viewModel != nil {
+                    RecipeGrid(
+                        recipes: viewModel!.displayedRecipes,
+                        onRecipeTap: { recipe in
+                            selectedRecipe = recipe
+                        },
+                        onFavoriteTap: { recipe in
+                            viewModel!.toggleFavorite(recipe)
+                        }
+                    )
+                } else {
+                    DSLoadingSpinner(message: "Loading recipes...")
                 }
-                .background(Theme.Colors.background)
+                
+                Spacer()
+                
+                if !searchText.isEmpty {
+                    Picker("Search In", selection: $searchScope) {
+                        ForEach(SearchScope.allCases, id: \.self) { scope in
+                            Text(scope.rawValue).tag(scope)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.bottom, Theme.Spacing.xs)
+                }
                 
                 SearchBar(
                     text: $searchText,
                     onSubmit: {
-                        // TODO: Handle basic search submission
+                        // Real-time search via onChange
                     },
                     onAISearch: {
-                        showingAISearch = true
+                        // TODO: AI Search
                     }
                 )
             }
+            .background(Theme.Colors.background)
             .onAppear {
                 if viewModel == nil {
                     viewModel = RecipeListViewModel(
@@ -76,6 +87,12 @@ struct RecipeListView: View {
             .onChange(of: recipes) { oldValue, newValue in
                 viewModel?.updateRecipes(newValue)
             }
+            .onChange(of: searchText) { oldValue, newValue in
+                viewModel?.performSearch(query: newValue, scope: searchScope)
+            }
+            .onChange(of: searchScope) { oldValue, newValue in
+                viewModel?.performSearch(query: searchText, scope: newValue)
+            }
             .sheet(isPresented: $showingMenu) {
                 if let viewModel = viewModel {
                     RecipesMenuSheet(
@@ -92,10 +109,6 @@ struct RecipeListView: View {
             .sheet(item: $importedRecipe) { recipe in
                 // TODO: RecipeDetailView
                 Text("Recipe Detail View Coming Soon")
-            }
-            .sheet(isPresented: $showingAISearch) {
-                // TODO: AI Search Modal
-                Text("AI Search Coming Soon")
             }
         }
     }
@@ -117,11 +130,32 @@ struct RecipeListView: View {
     
     
     private var headerView: some View {
-        HStack {
-            DSLabel("Recipes", style: .largeTitle)
-            Spacer()
-            MenuButton {
-                showingMenu = true
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            HStack {
+                DSLabel("Recipes", style: .largeTitle)
+                Spacer()
+                MenuButton {
+                    showingMenu = true
+                }
+            }
+            
+            if let viewModel = viewModel, viewModel.selectedSection != .all {
+                HStack(spacing: Theme.Spacing.xs) {
+                    DSIcon(viewModel.selectedSection.icon, size: .small, color: .secondary)
+                    DSLabel(viewModel.selectedSection.title, style: .caption1, color: .secondary)
+                    
+                    
+                    Button {
+                        viewModel.selectedSection = .all
+                    } label: {
+                        DSIcon("xmark.circle.fill", size: .small, color: .tertiary)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .padding(.horizontal, Theme.Spacing.sm)
+                .padding(.vertical, Theme.Spacing.xs)
+                .background(Theme.Colors.backgroundDark)
+                .cornerRadius(Theme.CornerRadius.sm)
             }
         }
         .padding(Theme.Spacing.md)

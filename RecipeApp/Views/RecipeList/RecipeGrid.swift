@@ -30,7 +30,6 @@ struct RecipeGrid: View {
                 }
             }
             .padding(Theme.Spacing.md)
-            .padding(.bottom, 80)
         }
     }
 }

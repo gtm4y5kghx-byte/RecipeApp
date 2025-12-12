@@ -64,46 +64,22 @@ struct RecipesMenuSheet: View {
         }
     }
     
+    // TODO: Add Recently Added Filter
     private var filtersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             DSLabel("FILTERS", style: .caption1, color: .secondary)
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
             
-            FilterRow(
-                title: "All",
-                icon: "square.grid.2x2",
-                count: viewModel.recipeCount(for: .all)
-            ) {
-                dismiss()
-                viewModel.selectedSection = .all
-            }
-            
-            FilterRow(
-                title: "Recently Cooked",
-                icon: "clock",
-                count: viewModel.recipeCount(for: .recentlyCooked)
-            ) {
-                dismiss()
-                viewModel.selectedSection = .recentlyCooked
-            }
-            
-            FilterRow(
-                title: "Favorites",
-                icon: "heart.fill",
-                count: viewModel.recipeCount(for: .favorites)
-            ) {
-                dismiss()
-                viewModel.selectedSection = .favorites
-            }
-            
-            FilterRow(
-                title: "Uncategorized",
-                icon: "tray",
-                count: viewModel.recipeCount(for: .uncategorized)
-            ) {
-                dismiss()
-                viewModel.selectedSection = .uncategorized
+            ForEach(RecipeListViewModel.filterSections) { section in
+                FilterRow(
+                    title: section.title,
+                    icon: section.icon,
+                    count: viewModel.recipeCount(for: section)
+                ) {
+                    dismiss()
+                    viewModel.selectedSection = section
+                }
             }
         }
     }
@@ -113,15 +89,16 @@ struct RecipesMenuSheet: View {
             DSLabel("TAGS", style: .caption1, color: .secondary)
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
-            
+
             ForEach(viewModel.sortedTags, id: \.0) { tag, count in
+                let section = MenuSection.tag(tag)
                 FilterRow(
-                    title: tag,
-                    icon: "tag",
+                    title: section.title,
+                    icon: section.icon,
                     count: count
                 ) {
                     dismiss()
-                    viewModel.selectedSection = .tag(tag)
+                    viewModel.selectedSection = section
                 }
             }
         }

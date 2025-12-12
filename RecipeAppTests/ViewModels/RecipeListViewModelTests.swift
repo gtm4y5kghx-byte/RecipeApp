@@ -7,33 +7,34 @@ import SwiftData
 @MainActor
 struct RecipeListViewModelTests {
     
-    // MARK: - Fuzzy Search Tests
-    
-    @Test("Perform fuzzy search filters recipes by title")
-    func testPerformFuzzySearchTitle() {
+    // MARK: - Search Tests
+
+    @Test("Search filters recipes by title substring")
+    func testSearchByTitleSubstring() {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
 
-        viewModel.performFuzzySearch(query: "pasta", scope: .title)
+        viewModel.performSearch(query: "pasta", scope: .title)
 
         #expect(viewModel.filteredResults.count == 1)
         #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
     }
 
-    @Test("Perform fuzzy search with empty query returns all recipes")
-    func testPerformFuzzySearchEmpty() {
+    @Test("Search with empty query returns no results")
+    func testSearchEmptyQuery() {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
 
-        viewModel.performFuzzySearch(query: "", scope: .all)
+        viewModel.performSearch(query: "", scope: .all)
 
         #expect(viewModel.filteredResults.isEmpty)
+        #expect(viewModel.isSearching == false)
     }
 
-    @Test("Perform fuzzy search in all fields")
-    func testPerformFuzzySearchAll() {
+    @Test("Search in all fields finds matches")
+    func testSearchAllFields() {
         let recipe = RecipeTestFixtures.createRecipe(
             title: "Test Recipe",
             ingredients: [("2", "cups", "pasta")],
@@ -42,8 +43,35 @@ struct RecipeListViewModelTests {
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: [recipe], modelContext: modelContext)
 
-        viewModel.performFuzzySearch(query: "pasta", scope: .all)
+        viewModel.performSearch(query: "pasta", scope: .all)
 
+        #expect(viewModel.filteredResults.count == 1)
+    }
+
+    @Test("Search is case insensitive")
+    func testSearchCaseInsensitive() {
+        let recipes = RecipeTestFixtures.createSampleRecipes()
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        viewModel.performSearch(query: "PASTA", scope: .title)
+
+        #expect(viewModel.filteredResults.count == 1)
+        #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
+    }
+
+    @Test("Search does not match typos or fuzzy matches")
+    func testSearchNoFuzzyMatching() {
+        let recipes = RecipeTestFixtures.createSampleRecipes()
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // "pasto" should NOT match "Pasta" (no fuzzy matching)
+        viewModel.performSearch(query: "pasto", scope: .title)
+        #expect(viewModel.filteredResults.isEmpty)
+
+        // "past" SHOULD match "Pasta" (substring)
+        viewModel.performSearch(query: "past", scope: .title)
         #expect(viewModel.filteredResults.count == 1)
     }
     
@@ -209,6 +237,87 @@ struct RecipeListViewModelTests {
         let tags = viewModel.sortedTags
 
         #expect(tags.isEmpty)
+    }
+
+    // MARK: - Search State Tests
+
+    @Test("Search with zero results shows empty array when favorites filter active")
+    func testSearchZeroResultsWithFavoritesFilter() {
+        let recipes = [
+            RecipeTestFixtures.createRecipe(title: "Italian Pasta", isFavorite: true),
+            RecipeTestFixtures.createRecipe(title: "Mexican Tacos", isFavorite: true),
+            RecipeTestFixtures.createRecipe(title: "Thai Curry", isFavorite: false)
+        ]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // Set favorites filter
+        viewModel.selectedSection = .favorites
+
+        // Search for something that won't match
+        viewModel.performSearch(query: "zzzzz", scope: .title)
+
+        // Should show zero results (not all favorites)
+        let displayed = viewModel.displayedRecipes
+        #expect(displayed.isEmpty)
+        #expect(viewModel.isSearching == true)
+    }
+
+    @Test("Clearing search shows all filtered recipes")
+    func testClearSearchShowsFilteredRecipes() {
+        let recipes = [
+            RecipeTestFixtures.createRecipe(title: "Italian Pasta", isFavorite: true),
+            RecipeTestFixtures.createRecipe(title: "Mexican Tacos", isFavorite: true),
+            RecipeTestFixtures.createRecipe(title: "Thai Curry", isFavorite: false)
+        ]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // Set favorites filter
+        viewModel.selectedSection = .favorites
+
+        // Search for something
+        viewModel.performSearch(query: "pasta", scope: .title)
+        #expect(viewModel.isSearching == true)
+
+        // Clear search (empty query)
+        viewModel.performSearch(query: "", scope: .title)
+
+        // Should show all favorites (2 recipes)
+        let displayed = viewModel.displayedRecipes
+        #expect(displayed.count == 2)
+        #expect(viewModel.isSearching == false)
+    }
+
+    @Test("Search with results respects active filter")
+    func testSearchWithResultsRespectsFilter() {
+        let recipes = [
+            RecipeTestFixtures.createRecipe(title: "Italian Pasta", isFavorite: true),
+            RecipeTestFixtures.createRecipe(title: "Italian Pizza", isFavorite: false),
+            RecipeTestFixtures.createRecipe(title: "Mexican Tacos", isFavorite: true)
+        ]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // Set favorites filter
+        viewModel.selectedSection = .favorites
+
+        // Search for "italian" - should find 2 recipes but only 1 is favorite
+        viewModel.performSearch(query: "italian", scope: .title)
+
+        let displayed = viewModel.displayedRecipes
+        #expect(displayed.count == 1)
+        #expect(displayed[0].title == "Italian Pasta")
+        #expect(viewModel.isSearching == true)
+    }
+
+    @Test("isSearching flag is false by default")
+    func testIsSearchingDefaultFalse() {
+        let recipes = RecipeTestFixtures.createSampleRecipes()
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        #expect(viewModel.isSearching == false)
     }
 
     // MARK: - Recipe Import Tests

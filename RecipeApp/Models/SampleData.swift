@@ -224,7 +224,7 @@ struct SampleData {
         // No lastMade - never cooked
 
         let ingredients = [
-            Ingredient(quantity: "1", unit: "lb", item: "spaghetti", preparation: nil, section: nil),
+            Ingredient(quantity: "1", unit: "lb", item: "pasta", preparation: nil, section: nil),
             Ingredient(quantity: "4", unit: "cloves", item: "garlic", preparation: "minced", section: nil),
             Ingredient(quantity: "1/2", unit: "cup", item: "butter", preparation: nil, section: nil),
             Ingredient(quantity: "1/2", unit: "cup", item: "parmesan cheese", preparation: "grated", section: nil),

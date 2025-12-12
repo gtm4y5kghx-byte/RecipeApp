@@ -22,7 +22,7 @@ struct RecipeAppApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ThemePreview()  // Temporary: Preview design system
+            RecipeListView()
         }
         .modelContainer(sharedModelContainer)
     }

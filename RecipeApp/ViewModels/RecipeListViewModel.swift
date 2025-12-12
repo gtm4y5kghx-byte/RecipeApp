@@ -6,21 +6,30 @@ import SwiftData
 @Observable
 class RecipeListViewModel {
     var filteredResults: [Recipe] = []
+    var isSearching: Bool = false
     var selectedSection: MenuSection = .all
     var searchTask: Task<Void, Never>?
     var suggestions: [RecipeSuggestion] = []
     var error: Error?
     var justImportedRecipe: Bool = false
-
+    
     private var recipes: [Recipe]
     private let modelContext: ModelContext
     private let suggestionEngine = AISuggestionEngineService()
-
+    
     init(recipes: [Recipe], modelContext: ModelContext) {
         self.recipes = recipes
         self.modelContext = modelContext
     }
-
+    
+    static let filterSections: [MenuSection] = [
+        .all,
+        .recentlyAdded,
+        .recentlyCooked,
+        .favorites,
+        .uncategorized
+    ]
+    
     func updateRecipes(_ recipes: [Recipe]) {
         self.recipes = recipes
     }
@@ -28,7 +37,7 @@ class RecipeListViewModel {
     // MARK: - Computed Properties
     
     var displayedRecipes: [Recipe] {
-        let filtered = filteredResults.isEmpty ? recipes : filteredResults
+        let filtered = isSearching ? filteredResults : recipes
         
         switch selectedSection {
         case .all:
@@ -90,18 +99,21 @@ class RecipeListViewModel {
         }
     }
     
-    func performFuzzySearch(query: String, scope: SearchScope) {
+    func performSearch(query: String, scope: SearchScope) {
         guard !query.isEmpty else {
             filteredResults = []
+            isSearching = false
             return
         }
-
+        
+        isSearching = true
+        
         let results = recipes.filter { recipe in
             switch scope {
             case .all:
                 return matchesAnyField(recipe: recipe, query: query)
             case .title:
-                return FuzzySearchService.fuzzyMatch(query: query, in: recipe.title)
+                return substringMatch(query: query, in: recipe.title)
             case .cuisine:
                 return matchesCuisine(recipe: recipe, query: query)
             case .ingredients:
@@ -112,14 +124,14 @@ class RecipeListViewModel {
                 return matchesNotes(recipe: recipe, query: query)
             }
         }
-
+        
         filteredResults = results
     }
     
     // MARK: - Private Helpers
     
     private func matchesAnyField(recipe: Recipe, query: String) -> Bool {
-        if FuzzySearchService.fuzzyMatch(query: query, in: recipe.title) {
+        if substringMatch(query: query, in: recipe.title) {
             return true
         }
 
@@ -141,39 +153,48 @@ class RecipeListViewModel {
 
         return false
     }
-    
+
     private func matchesIngredients(recipe: Recipe, query: String) -> Bool {
         for ingredient in recipe.ingredients {
-            if FuzzySearchService.fuzzyMatch(query: query, in: ingredient.item) {
+            if substringMatch(query: query, in: ingredient.item) {
                 return true
             }
         }
         return false
     }
-    
+
     private func matchesInstructions(recipe: Recipe, query: String) -> Bool {
         for step in recipe.instructions {
-            if FuzzySearchService.fuzzyMatch(query: query, in: step.instruction) {
+            if substringMatch(query: query, in: step.instruction) {
                 return true
             }
         }
         return false
     }
-    
+
     private func matchesCuisine(recipe: Recipe, query: String) -> Bool {
         if let cuisine = recipe.cuisine {
-            return FuzzySearchService.fuzzyMatch(query: query, in: cuisine)
+            return substringMatch(query: query, in: cuisine)
         }
         return false
     }
 
     private func matchesNotes(recipe: Recipe, query: String) -> Bool {
         if let notes = recipe.notes {
-            return FuzzySearchService.fuzzyMatch(query: query, in: notes)
+            return substringMatch(query: query, in: notes)
         }
         return false
     }
 
+    private func substringMatch(query: String, in text: String) -> Bool {
+        let query = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = text.lowercased()
+
+        guard !query.isEmpty else { return false }
+
+        return text.contains(query)
+    }
+    
     func handlePendingImport() {
         do {
             if let importData = try checkForPendingImport() {
@@ -188,11 +209,11 @@ class RecipeListViewModel {
     func loadSuggestionsDev() async {
         suggestions = await suggestionEngine.getSuggestions(recipes: recipes, forceRefresh: true)
     }
-
+    
     func loadSuggestions() async {
         suggestions = await suggestionEngine.getSuggestions(recipes: recipes)
     }
-
+    
     func deleteRecipes(at offsets: IndexSet) throws {
         for index in offsets {
             let recipe = displayedRecipes[index]
@@ -200,20 +221,20 @@ class RecipeListViewModel {
         }
         try modelContext.save()
     }
-
+    
     private func checkForPendingImport() throws -> RecipeImportData? {
         guard SharedDataManager.shared.hasPendingImport() else {
             return nil
         }
-
+        
         if let importData = try SharedDataManager.shared.loadPendingImport() {
             try SharedDataManager.shared.deletePendingImport()
             return importData
         }
-
+        
         return nil
     }
-
+    
     private func createRecipeFromImport(_ importData: RecipeImportData) throws {
         let recipe = Recipe(title: importData.title, sourceType: .web_imported)
         recipe.sourceURL = importData.sourceURL
@@ -222,19 +243,19 @@ class RecipeListViewModel {
         recipe.cookTime = importData.cookTime
         recipe.cuisine = importData.cuisine
         recipe.notes = importData.description
-
+        
         for (index, ingredientText) in importData.ingredients.enumerated() {
             let ingredient = Ingredient(quantity: "", unit: nil, item: ingredientText, preparation: nil, section: nil)
             ingredient.order = index
             recipe.ingredients.append(ingredient)
         }
-
+        
         for (index, instructionText) in importData.instructions.enumerated() {
             let step = Step(instruction: instructionText)
             step.order = index
             recipe.instructions.append(step)
         }
-
+        
         if let nutritionData = importData.nutrition {
             let nutritionInfo = NutritionInfo(
                 calories: nutritionData.calories,
@@ -247,7 +268,7 @@ class RecipeListViewModel {
             )
             recipe.nutrition = nutritionInfo
         }
-
+        
         modelContext.insert(recipe)
         try modelContext.save()
     }
