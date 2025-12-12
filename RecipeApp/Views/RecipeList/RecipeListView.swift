@@ -24,15 +24,41 @@ struct RecipeListView: View {
                 headerView
                 
                 if viewModel != nil {
-                    RecipeGrid(
-                        recipes: viewModel!.displayedRecipes,
-                        onRecipeTap: { recipe in
-                            selectedRecipe = recipe
-                        },
-                        onFavoriteTap: { recipe in
-                            viewModel!.toggleFavorite(recipe)
+                    if viewModel!.displayedRecipes.isEmpty {
+                        if viewModel!.isSearching {
+                            DSEmptyState(
+                                icon: "magnifyingglass",
+                                title: "No Results Found",
+                                message: "We couldn't find any recipes matching '\(searchText)'. Try different keywords.",
+                                actionTitle: "Clear Search",
+                                action: { searchText = "" }
+                            )
+                        } else if viewModel!.selectedSection != .all {
+                            DSEmptyState(
+                                icon: viewModel!.selectedSection.icon,
+                                title: "No \(viewModel!.selectedSection.title)",
+                                message: "No recipes found in this category."
+                            )
+                        } else {
+                            DSEmptyState(
+                                icon: "fork.knife",
+                                title: "No Recipes Yet",
+                                message: "Start building your recipe collection by adding your first recipe.",
+                                actionTitle: "Add Recipe",
+                                action: { /* TODO: Navigate to new recipe */ }
+                            )
                         }
-                    )
+                    } else {
+                        RecipeGrid(
+                            recipes: viewModel!.displayedRecipes,
+                            onRecipeTap: { recipe in
+                                selectedRecipe = recipe
+                            },
+                            onFavoriteTap: { recipe in
+                                viewModel!.toggleFavorite(recipe)
+                            }
+                        )
+                    }
                 } else {
                     DSLoadingSpinner(message: "Loading recipes...")
                 }
