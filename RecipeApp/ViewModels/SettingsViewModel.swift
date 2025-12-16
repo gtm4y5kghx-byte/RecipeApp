@@ -15,11 +15,6 @@ class SettingsViewModel {
         set { userDefaults.set(newValue, forKey: "keepScreenOnWhileViewingRecipes") }
     }
 
-    var shoppingListTargetName: String {
-        get { userDefaults.string(forKey: "shoppingListTargetName") ?? "RecipeApp Shopping List" }
-        set { userDefaults.set(newValue, forKey: "shoppingListTargetName") }
-    }
-
     var isPremium: Bool {
         subscriptionService.isPremium
     }

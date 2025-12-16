@@ -64,7 +64,6 @@ struct RecipesMenuSheet: View {
         }
     }
     
-    // TODO: Add Recently Added Filter
     private var filtersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             DSLabel("FILTERS", style: .caption1, color: .secondary)

@@ -14,6 +14,8 @@ struct RecipeListView: View {
     @State private var searchScope: SearchScope = .all
     @State private var showAISearch = false
     
+    @State private var showSettings = false
+    
     @State private var error: Error?
     
     var body: some View {
@@ -88,7 +90,7 @@ struct RecipeListView: View {
                             // TODO: Navigate to recipe form
                         },
                         onSettings: {
-                            // TODO: Navigate to settings
+                            showSettings = true
                         }
                     )
                 }
@@ -101,6 +103,9 @@ struct RecipeListView: View {
                 if let viewModel = viewModel {
                     AISearchSheet(viewModel: viewModel)
                 }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
         }
     }
