@@ -28,19 +28,19 @@ struct RecipeListView: View {
                 if let viewModel = viewModel {
                     RecipeListHeader(
                         title: "Recipes",
-                        hasFilter: viewModel.selectedSection != .all,
-                        filterIcon: viewModel.selectedSection != .all ? viewModel.selectedSection.icon : nil,
-                        filterTitle: viewModel.selectedSection != .all ? viewModel.selectedSection.title : nil,
+                        hasFilter: viewModel.hasActiveFilter,
+                        filterIcon: viewModel.filterIcon,
+                        filterTitle: viewModel.filterTitle,
                         onMenuTap: { showingMenu = true },
                         onClearFilter: { viewModel.selectedSection = .all }
                     )
-                    
+
                     RecipeListContent(
                         recipes: viewModel.displayedRecipes,
                         isSearching: viewModel.isSearching,
                         searchText: searchText,
-                        selectedSectionTitle: viewModel.selectedSection != .all ? viewModel.selectedSection.title : nil,
-                        selectedSectionIcon: viewModel.selectedSection != .all ? viewModel.selectedSection.icon : nil,
+                        selectedSectionTitle: viewModel.filterTitle,
+                        selectedSectionIcon: viewModel.filterIcon,
                         onRecipeTap: { recipe in
                             selectedRecipe = recipe
                         },
@@ -92,13 +92,18 @@ struct RecipeListView: View {
                 Text("Recipe Detail View Coming Soon")
             }
             .sheet(isPresented: $showAISearch) {
-                if let viewModel = viewModel {
-                    AISearchSheet(viewModel: viewModel)
-                }
+               aiSearchSheet()
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func aiSearchSheet() -> some View {
+        if let viewModel = viewModel {
+            AISearchSheet(viewModel: viewModel)
         }
     }
     

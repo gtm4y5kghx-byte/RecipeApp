@@ -74,6 +74,18 @@ class RecipeListViewModel {
         return tagCounts
     }
 
+    var hasActiveFilter: Bool {
+        selectedSection != .all
+    }
+
+    var filterTitle: String? {
+        hasActiveFilter ? selectedSection.title : nil
+    }
+
+    var filterIcon: String? {
+        hasActiveFilter ? selectedSection.icon : nil
+    }
+
     var filterMenuOptions: [MenuOption] {
         Self.filterSections.map { section in
             MenuOption(
