@@ -45,6 +45,7 @@ struct SettingsContent: View {
                 } label: {
                     DSIcon("xmark", size: .medium, color: .accent)
                 }
+                .accessibilityIdentifier("settings-close-button")
             }
         }
     }
@@ -56,15 +57,17 @@ struct SettingsContent: View {
             settingRow(
                 icon: "moon.fill",
                 title: "Keep Screen On in Cooking Mode",
-                toggle: $viewModel.keepScreenOnInCookingMode
+                toggle: $viewModel.keepScreenOnInCookingMode,
+                identifier: "cooking-mode-toggle"
             )
-            
+
             DSDivider()
-            
+
             settingRow(
                 icon: "eye.fill",
                 title: "Keep Screen On While Viewing Recipes",
-                toggle: $viewModel.keepScreenOnWhileViewingRecipes
+                toggle: $viewModel.keepScreenOnWhileViewingRecipes,
+                identifier: "viewing-recipes-toggle"
             )
         }
         .padding(Theme.Spacing.md)
@@ -72,13 +75,14 @@ struct SettingsContent: View {
         .cornerRadius(Theme.CornerRadius.md)
     }
     
-    private func settingRow(icon: String, title: String, toggle: Binding<Bool>) -> some View {
+    private func settingRow(icon: String, title: String, toggle: Binding<Bool>, identifier: String) -> some View {
         HStack {
             DSIcon(icon, size: .medium, color: .primary)
             DSLabel(title, style: .body, color: .primary)
             Spacer()
             Toggle("", isOn: toggle)
                 .labelsHidden()
+                .accessibilityIdentifier(identifier)
         }
     }
     
@@ -109,6 +113,7 @@ struct SettingsContent: View {
             DSButton(title: "Manage Subscription", style: .secondary, size: .medium) {
                 // TODO: Open subscription management
             }
+            .accessibilityIdentifier("manage-subscription-button")
         }
     }
     
@@ -134,6 +139,7 @@ struct SettingsContent: View {
             ) {
                 // TODO: Open upgrade flow
             }
+            .accessibilityIdentifier("upgrade-premium-button")
         }
     }
     

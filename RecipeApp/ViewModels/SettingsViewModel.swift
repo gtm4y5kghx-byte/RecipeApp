@@ -6,7 +6,7 @@ class SettingsViewModel {
     private let userDefaults: UserDefaults
 
     var keepScreenOnInCookingMode: Bool {
-        get { userDefaults.bool(forKey: "keepScreenOnInCookingMode") }
+        get { userDefaults.object(forKey: "keepScreenOnInCookingMode") as? Bool ?? true }
         set { userDefaults.set(newValue, forKey: "keepScreenOnInCookingMode") }
     }
 

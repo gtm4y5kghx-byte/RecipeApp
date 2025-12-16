@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MenuButton: View {
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             DSIcon("line.3.horizontal", size: .medium, color: .white)
@@ -12,5 +12,6 @@ struct MenuButton: View {
                 .shadow(color: Theme.Colors.primary.opacity(0.3), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier("recipes-menu-button")
     }
 }
