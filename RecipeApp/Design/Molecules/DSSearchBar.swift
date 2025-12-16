@@ -40,6 +40,7 @@ struct DSSearchBar: View {
                 .onSubmit {
                     onSubmit?()
                 }
+                .accessibilityIdentifier("search-text-field")
 
             if !text.isEmpty {
                 Button {
@@ -48,6 +49,7 @@ struct DSSearchBar: View {
                     DSIcon("xmark.circle.fill", size: .medium, color: .tertiary)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityIdentifier("search-clear-button")
             }
         }
         .padding(.horizontal, Theme.Spacing.md)

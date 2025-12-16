@@ -73,7 +73,30 @@ class RecipeListViewModel {
             .sorted { $0.value > $1.value }
         return tagCounts
     }
-    
+
+    var filterMenuOptions: [MenuOption] {
+        Self.filterSections.map { section in
+            MenuOption(
+                id: section.id,
+                title: section.title,
+                icon: section.icon,
+                count: recipeCount(for: section)
+            )
+        }
+    }
+
+    var tagMenuOptions: [MenuOption] {
+        sortedTags.map { tag, count in
+            let section = MenuSection.tag(tag)
+            return MenuOption(
+                id: section.id,
+                title: section.title,
+                icon: section.icon,
+                count: count
+            )
+        }
+    }
+
     // MARK: - Methods
     
     func toggleFavorite(_ recipe: Recipe) {
@@ -274,7 +297,29 @@ class RecipeListViewModel {
         }
         try modelContext.save()
     }
-    
+
+    func selectMenuOption(_ optionId: String) {
+        if let section = menuSectionFromId(optionId) {
+            selectedSection = section
+        }
+    }
+
+    private func menuSectionFromId(_ id: String) -> MenuSection? {
+        switch id {
+        case "all": return .all
+        case "recently-added": return .recentlyAdded
+        case "recently-cooked": return .recentlyCooked
+        case "favorites": return .favorites
+        case "uncategorized": return .uncategorized
+        default:
+            if id.hasPrefix("tag-") {
+                let tagName = String(id.dropFirst(4))
+                return .tag(tagName)
+            }
+            return nil
+        }
+    }
+
     private func checkForPendingImport() throws -> RecipeImportData? {
         guard SharedDataManager.shared.hasPendingImport() else {
             return nil

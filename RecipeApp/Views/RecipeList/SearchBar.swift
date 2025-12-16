@@ -24,6 +24,7 @@ struct SearchBar: View {
                     )
             }
             .buttonStyle(PlainButtonStyle())
+            .accessibilityIdentifier("ai-search-button")
         }
         .padding(Theme.Spacing.md)
         .background(Theme.Colors.background)

@@ -1,31 +1,32 @@
 import SwiftUI
-import SwiftData
 
 struct RecipesMenuSheet: View {
-    
+
     @Environment(\.dismiss) private var dismiss
-    
-    let viewModel: RecipeListViewModel
+
+    let filterOptions: [MenuOption]
+    let tagOptions: [MenuOption]
+    let onSelectOption: (String) -> Void
     let onNewRecipe: () -> Void
     let onSettings: () -> Void
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     actionSection
-                    
+
                     DSDivider(spacing: .standard)
-                    
+
                     filtersSection
-                    
-                    DSDivider(spacing: .standard)
-                    
-                    if !viewModel.sortedTags.isEmpty {
-                        tagsSection
+
+                    if !tagOptions.isEmpty {
                         DSDivider(spacing: .standard)
+                        tagsSection
                     }
-                    
+
+                    DSDivider(spacing: .standard)
+
                     settingsSection
                 }
                 .padding(.vertical, Theme.Spacing.md)
@@ -41,17 +42,18 @@ struct RecipesMenuSheet: View {
                         DSIcon("xmark", size: .medium, color: .accent)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityIdentifier("recipes-menu-close-button")
                 }
             }
         }
     }
-    
+
     private var actionSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             DSLabel("ACTIONS", style: .caption1, color: .secondary)
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
-            
+
             DSButton(
                 title: "New Recipe",
                 style: .primary,
@@ -60,55 +62,76 @@ struct RecipesMenuSheet: View {
                 dismiss()
                 onNewRecipe()
             }
+            .accessibilityIdentifier("new-recipe-button")
             .padding(.horizontal, Theme.Spacing.md)
         }
     }
-    
+
     private var filtersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             DSLabel("FILTERS", style: .caption1, color: .secondary)
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
-            
-            ForEach(RecipeListViewModel.filterSections) { section in
+
+            ForEach(filterOptions) { option in
                 FilterRow(
-                    title: section.title,
-                    icon: section.icon,
-                    count: viewModel.recipeCount(for: section)
+                    title: option.title,
+                    icon: option.icon,
+                    count: option.count
                 ) {
                     dismiss()
-                    viewModel.selectedSection = section
+                    onSelectOption(option.id)
                 }
             }
         }
     }
-    
+
     private var tagsSection: some View {
         LazyVStack(alignment: .leading, spacing: 0) {
             DSLabel("TAGS", style: .caption1, color: .secondary)
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
 
-            ForEach(viewModel.sortedTags, id: \.0) { tag, count in
-                let section = MenuSection.tag(tag)
+            ForEach(tagOptions) { option in
                 FilterRow(
-                    title: section.title,
-                    icon: section.icon,
-                    count: count
+                    title: option.title,
+                    icon: option.icon,
+                    count: option.count
                 ) {
                     dismiss()
-                    viewModel.selectedSection = section
+                    onSelectOption(option.id)
                 }
             }
         }
     }
-    
+
     private var settingsSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            FilterRow(title: "Settings", icon: "gear") {
+            FilterRow(
+                title: "Settings",
+                icon: "gear",
+                accessibilityId: "settings-row"
+            ) {
                 dismiss()
                 onSettings()
             }
         }
     }
+}
+
+#Preview {
+    RecipesMenuSheet(
+        filterOptions: [
+            MenuOption(id: "all", title: "All", icon: "book", count: 42),
+            MenuOption(id: "favorites", title: "Favorites", icon: "heart.fill", count: 8),
+            MenuOption(id: "recent", title: "Recently Cooked", icon: "clock", count: 5)
+        ],
+        tagOptions: [
+            MenuOption(id: "italian", title: "Italian", icon: "tag", count: 12),
+            MenuOption(id: "quick", title: "Quick", icon: "tag", count: 8)
+        ],
+        onSelectOption: { _ in },
+        onNewRecipe: {},
+        onSettings: {}
+    )
 }

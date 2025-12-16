@@ -13,34 +13,56 @@ struct RecipeListView: View {
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
     @State private var showAISearch = false
-    
     @State private var showSettings = false
-    
     @State private var error: Error?
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if showImportBanner { importBanner }
+                if showImportBanner {
+                    RecipeImportBanner {
+                        importedRecipe = recipes.first
+                    }
+                }
                 
-                headerView
-                contentArea
+                if let viewModel = viewModel {
+                    RecipeListHeader(
+                        title: "Recipes",
+                        hasFilter: viewModel.selectedSection != .all,
+                        filterIcon: viewModel.selectedSection != .all ? viewModel.selectedSection.icon : nil,
+                        filterTitle: viewModel.selectedSection != .all ? viewModel.selectedSection.title : nil,
+                        onMenuTap: { showingMenu = true },
+                        onClearFilter: { viewModel.selectedSection = .all }
+                    )
+                    
+                    RecipeListContent(
+                        recipes: viewModel.displayedRecipes,
+                        isSearching: viewModel.isSearching,
+                        searchText: searchText,
+                        selectedSectionTitle: viewModel.selectedSection != .all ? viewModel.selectedSection.title : nil,
+                        selectedSectionIcon: viewModel.selectedSection != .all ? viewModel.selectedSection.icon : nil,
+                        onRecipeTap: { recipe in
+                            selectedRecipe = recipe
+                        },
+                        onFavoriteTap: { recipe in
+                            viewModel.toggleFavorite(recipe)
+                        },
+                        onClearSearch: {
+                            searchText = ""
+                        },
+                        onAddRecipe: {
+                            // TODO: Navigate to new recipe
+                        }
+                    )
+                } else {
+                    DSLoadingSpinner(message: "Loading recipes...")
+                }
                 
                 Spacer()
                 
-                if !searchText.isEmpty {
-                    Picker("Search In", selection: $searchScope) {
-                        ForEach(SearchScope.allCases, id: \.self) { scope in
-                            Text(scope.rawValue).tag(scope)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal, Theme.Spacing.md)
-                    .padding(.bottom, Theme.Spacing.xs)
-                }
-                
-                SearchBar(
-                    text: $searchText,
+                RecipeListSearchBar(
+                    searchText: $searchText,
+                    searchScope: $searchScope,
                     onSubmit: {
                         viewModel?.performSearch(query: searchText, scope: searchScope)
                     },
@@ -51,27 +73,7 @@ struct RecipeListView: View {
             }
             .background(Theme.Colors.background)
             .onAppear {
-                if viewModel == nil {
-                    viewModel = RecipeListViewModel(
-                        recipes: recipes,
-                        modelContext: modelContext
-                    )
-                }
-                
-                viewModel?.handlePendingImport()
-                
-                if viewModel?.justImportedRecipe == true {
-                    showImportBanner = true
-                    HapticFeedback.success.trigger()
-                    
-                    Task {
-                        try? await Task.sleep(for: .seconds(3))
-                        withAnimation {
-                            showImportBanner = false
-                        }
-                        viewModel?.justImportedRecipe = false
-                    }
-                }
+                handleViewAppear()
             }
             .onChange(of: recipes) { oldValue, newValue in
                 viewModel?.updateRecipes(newValue)
@@ -83,17 +85,7 @@ struct RecipeListView: View {
                 viewModel?.performSearch(query: searchText, scope: newValue)
             }
             .sheet(isPresented: $showingMenu) {
-                if let viewModel = viewModel {
-                    RecipesMenuSheet(
-                        viewModel: viewModel,
-                        onNewRecipe: {
-                            // TODO: Navigate to recipe form
-                        },
-                        onSettings: {
-                            showSettings = true
-                        }
-                    )
-                }
+                recipeMenuSheet()
             }
             .sheet(item: $importedRecipe) { recipe in
                 // TODO: RecipeDetailView
@@ -110,100 +102,46 @@ struct RecipeListView: View {
         }
     }
     
-    private var importBanner: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            DSIcon("checkmark.circle.fill", size: .medium, color: .success)
-            DSLabel("Recipe imported successfully!", style: .body, color: .success)
-            Spacer()
-            DSButton(title: "View", style: .secondary, size: .small) {
-                importedRecipe = recipes.first
-            }
-        }
-        .padding(Theme.Spacing.md)
-        .frame(maxWidth: .infinity)
-        .background(Theme.Colors.success.opacity(0.1))
-        .transition(.move(edge: .top).combined(with: .opacity))
-    }
-    
-    
-    private var headerView: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-            HStack {
-                DSLabel("Recipes", style: .largeTitle)
-                Spacer()
-                MenuButton {
-                    showingMenu = true
-                }
-            }
-            
-            if let viewModel = viewModel, viewModel.selectedSection != .all {
-                HStack(spacing: Theme.Spacing.xs) {
-                    DSIcon(viewModel.selectedSection.icon, size: .small, color: .secondary)
-                    DSLabel(viewModel.selectedSection.title, style: .caption1, color: .secondary)
-                    
-                    
-                    Button {
-                        viewModel.selectedSection = .all
-                    } label: {
-                        DSIcon("xmark.circle.fill", size: .small, color: .tertiary)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                .padding(.horizontal, Theme.Spacing.sm)
-                .padding(.vertical, Theme.Spacing.xs)
-                .background(Theme.Colors.backgroundDark)
-                .cornerRadius(Theme.CornerRadius.sm)
-            }
-        }
-        .padding(Theme.Spacing.md)
-        .background(Theme.Colors.backgroundLight)
-    }
-    
     @ViewBuilder
-    private var contentArea: some View {
+    private func recipeMenuSheet() -> some View {
         if let viewModel = viewModel {
-            if viewModel.displayedRecipes.isEmpty {
-                emptyState
-            } else {
-                RecipeGrid(
-                    recipes: viewModel.displayedRecipes,
-                    onRecipeTap: { recipe in
-                        selectedRecipe = recipe
-                    },
-                    onFavoriteTap: { recipe in
-                        viewModel.toggleFavorite(recipe)
-                    }
-                )
-            }
-        } else {
-            DSLoadingSpinner(message: "Loading recipes...")
+            RecipesMenuSheet(
+                filterOptions: viewModel.filterMenuOptions,
+                tagOptions: viewModel.tagMenuOptions,
+                onSelectOption: { optionId in
+                    viewModel.selectMenuOption(optionId)
+                },
+                onNewRecipe: {
+                    // TODO: Navigate to recipe form
+                },
+                onSettings: {
+                    showSettings = true
+                }
+            )
         }
     }
     
-    @ViewBuilder
-    private var emptyState: some View {
-        if viewModel!.isSearching {
-            DSEmptyState(
-                icon: "magnifyingglass",
-                title: "No Results Found",
-                message: "We couldn't find any recipes matching '\(searchText)'. Try different keywords.",
-                actionTitle: "Clear Search",
-                action: { searchText = "" }
+    private func handleViewAppear() {
+        if viewModel == nil {
+            viewModel = RecipeListViewModel(
+                recipes: recipes,
+                modelContext: modelContext
             )
-        } else if viewModel!.selectedSection != .all {
-            DSEmptyState(
-                icon: viewModel!.selectedSection.icon,
-                title: "No \(viewModel!.selectedSection.title)",
-                message: "No recipes found in this category."
-            )
-        } else {
-            DSEmptyState(
-                icon: "fork.knife",
-                title: "No Recipes Yet",
-                message: "Start building your recipe collection by adding your first recipe.",
-                actionTitle: "Add Recipe",
-                action: { /* TODO: Navigate to new recipe */ }
-            )
+        }
+        
+        viewModel?.handlePendingImport()
+        
+        if viewModel?.justImportedRecipe == true {
+            showImportBanner = true
+            HapticFeedback.success.trigger()
+            
+            Task {
+                try? await Task.sleep(for: .seconds(3))
+                withAnimation {
+                    showImportBanner = false
+                }
+                viewModel?.justImportedRecipe = false
+            }
         }
     }
 }
