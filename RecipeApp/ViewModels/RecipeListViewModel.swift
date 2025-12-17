@@ -13,8 +13,9 @@ class RecipeListViewModel {
     var aiSearchResults: [Recipe] = []
     var aiSearchError: SearchError?
     var aiSearchTask: Task<Void, Never>?
-    var selectedSection: MenuSection = .all
     var suggestions: [RecipeSuggestion] = []
+    var suggestionError: AIError?
+    var selectedSection: MenuSection = .all
     var justImportedRecipe: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext
@@ -73,19 +74,19 @@ class RecipeListViewModel {
             .sorted { $0.value > $1.value }
         return tagCounts
     }
-
+    
     var hasActiveFilter: Bool {
         selectedSection != .all
     }
-
+    
     var filterTitle: String? {
         hasActiveFilter ? selectedSection.title : nil
     }
-
+    
     var filterIcon: String? {
         hasActiveFilter ? selectedSection.icon : nil
     }
-
+    
     var filterMenuOptions: [MenuOption] {
         Self.filterSections.map { section in
             MenuOption(
@@ -96,7 +97,7 @@ class RecipeListViewModel {
             )
         }
     }
-
+    
     var tagMenuOptions: [MenuOption] {
         sortedTags.map { tag, count in
             let section = MenuSection.tag(tag)
@@ -108,7 +109,41 @@ class RecipeListViewModel {
             )
         }
     }
-
+    
+    var suggestionDisplayData: [SuggestionDisplayData] {
+        suggestions.compactMap { suggestion in
+            guard let recipe = recipes.first(where: { $0.id == suggestion.recipeID }) else {
+                return nil
+            }
+            
+            return SuggestionDisplayData(
+                id: suggestion.id,
+                recipeID: suggestion.recipeID,
+                recipeTitle: recipe.title,
+                reason: suggestion.aiGeneratedReason,
+                imageURL: recipe.imageURL
+            )
+        }
+    }
+    
+    var shouldShowForYou: Bool {
+        recipes.count >= 20 && !suggestionDisplayData.isEmpty
+    }
+    
+    var forYouEmptyMessage: String? {
+        guard recipes.count >= 20 else { return nil }
+        
+        if let _ = suggestionError {
+            return "Unable to load suggestions. Pull to refresh to try again."
+        }
+        
+        if suggestions.isEmpty {
+            return "Keep cooking! We need more data to personalize suggestions for you."
+        }
+        
+        return nil
+    }
+    
     // MARK: - Methods
     
     func toggleFavorite(_ recipe: Recipe) {
@@ -295,11 +330,23 @@ class RecipeListViewModel {
     }
     
     func loadSuggestionsDev() async {
-        suggestions = await suggestionEngine.getSuggestions(recipes: recipes, forceRefresh: true)
+        suggestionError = nil
+        do {
+            suggestions = try await suggestionEngine.getSuggestions(recipes: recipes, forceRefresh: true)
+        } catch {
+            suggestionError = .suggestionsFailed
+            suggestions = []
+        }
     }
     
     func loadSuggestions() async {
-        suggestions = await suggestionEngine.getSuggestions(recipes: recipes)
+        suggestionError = nil
+        do {
+            suggestions = try await suggestionEngine.getSuggestions(recipes: recipes)
+        } catch {
+            suggestionError = .suggestionsFailed
+            suggestions = []
+        }
     }
     
     func deleteRecipes(at offsets: IndexSet) throws {
@@ -309,13 +356,13 @@ class RecipeListViewModel {
         }
         try modelContext.save()
     }
-
+    
     func selectMenuOption(_ optionId: String) {
         if let section = menuSectionFromId(optionId) {
             selectedSection = section
         }
     }
-
+    
     private func menuSectionFromId(_ id: String) -> MenuSection? {
         switch id {
         case "all": return .all
@@ -331,7 +378,7 @@ class RecipeListViewModel {
             return nil
         }
     }
-
+    
     private func checkForPendingImport() throws -> RecipeImportData? {
         guard SharedDataManager.shared.hasPendingImport() else {
             return nil

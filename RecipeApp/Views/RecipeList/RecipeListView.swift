@@ -16,6 +16,10 @@ struct RecipeListView: View {
     @State private var showSettings = false
     @State private var error: Error?
     
+    init(previewViewModel: RecipeListViewModel? = nil) {
+        _viewModel = State(initialValue: previewViewModel)
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -34,7 +38,20 @@ struct RecipeListView: View {
                         onMenuTap: { showingMenu = true },
                         onClearFilter: { viewModel.selectedSection = .all }
                     )
-
+                    
+                    if viewModel.shouldShowForYou {
+                        ForYouSection(
+                            suggestions: viewModel.suggestionDisplayData,
+                            emptyStateMessage: viewModel.forYouEmptyMessage,
+                            onRecipeTap: { recipeID in
+                                selectedRecipe = recipes.first(where: { $0.id == recipeID })
+                            },
+                            onLearnMore: {
+                                // TODO: Show info about AI suggestions
+                            }
+                        )
+                    }
+                    
                     RecipeListContent(
                         recipes: viewModel.displayedRecipes,
                         isSearching: viewModel.isSearching,
@@ -92,7 +109,7 @@ struct RecipeListView: View {
                 Text("Recipe Detail View Coming Soon")
             }
             .sheet(isPresented: $showAISearch) {
-               aiSearchSheet()
+                aiSearchSheet()
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
@@ -147,19 +164,28 @@ struct RecipeListView: View {
                 }
                 viewModel?.justImportedRecipe = false
             }
+            
+            Task {
+                await viewModel?.loadSuggestions()
+            }
         }
     }
 }
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(
-        for: Recipe.self,
-        configurations: config
-    )
-    
+    let container = try! ModelContainer(for: Recipe.self, configurations: config)
+
     SampleData.loadSampleRecipes(into: container.mainContext)
-    
-    return RecipeListView()
+    let recipes = try! container.mainContext.fetch(FetchDescriptor<Recipe>())
+
+    let mockViewModel = RecipeListViewModel(recipes: recipes, modelContext: container.mainContext)
+    mockViewModel.suggestions = [
+        RecipeSuggestion(recipeID: recipes[0].id, aiGeneratedReason: "You haven't cooked this in a while"),
+        RecipeSuggestion(recipeID: recipes[1].id, aiGeneratedReason: "Quick weeknight dinner"),
+        RecipeSuggestion(recipeID: recipes[2].id, aiGeneratedReason: "Quick weekend dinner")
+    ]
+
+    return RecipeListView(previewViewModel: mockViewModel)
         .modelContainer(container)
 }

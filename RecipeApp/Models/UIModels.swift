@@ -13,3 +13,11 @@ struct MenuOption: Identifiable {
         self.count = count
     }
 }
+
+struct SuggestionDisplayData: Identifiable {
+     let id: UUID
+     let recipeID: UUID
+     let recipeTitle: String
+     let reason: String
+     let imageURL: String?
+ }
