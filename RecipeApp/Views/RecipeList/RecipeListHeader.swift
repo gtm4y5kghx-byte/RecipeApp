@@ -38,7 +38,6 @@ struct RecipeListHeader: View {
             }
         }
         .padding(Theme.Spacing.md)
-        .background(Theme.Colors.backgroundLight)
     }
 }
 

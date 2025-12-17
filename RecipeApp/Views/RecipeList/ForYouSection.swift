@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct ForYouSection: View {
     let suggestions: [SuggestionDisplayData]
@@ -8,11 +9,8 @@ struct ForYouSection: View {
     let onLearnMore: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            HStack {
-                DSLabel("For You", style: .title1)
-            }
-            .padding(.horizontal, Theme.Spacing.md)
+        VStack(alignment: .leading) {
+            DSLabel("For You", style: .title1)
             
             if suggestions.isEmpty, let message = emptyStateMessage {
                 emptyState(message: message)
@@ -20,13 +18,13 @@ struct ForYouSection: View {
                 suggestionsScroll
             }
         }
-        .padding(.vertical, Theme.Spacing.md)
+        .padding(Theme.Spacing.md)
     }
     
     @ViewBuilder
     private var suggestionsScroll: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: Theme.Spacing.md) {
+            LazyHStack {
                 ForEach(suggestions) { suggestion in
                     VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         DSRecipeCard(
@@ -41,15 +39,16 @@ struct ForYouSection: View {
                             onTap: { onRecipeTap(suggestion.recipe) },
                             onFavoriteTap: { onFavoriteTap(suggestion.recipe) }
                         )
+                        .frame(width: 320)
                         
                         DSLabel(suggestion.reason, style: .subheadline, color: .secondary)
                             .lineLimit(2)
                             .padding(.horizontal, Theme.Spacing.sm)
                     }
-                    .frame(width: 320)
                 }
             }
         }
+        
     }
     
     @ViewBuilder
@@ -63,61 +62,44 @@ struct ForYouSection: View {
     }
 }
 
-
-struct SuggestionCard: View {
-    let title: String
-    let reason: String
-    let imageURL: String?
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                Rectangle()
-                    .fill(Theme.Colors.backgroundDark)
-                    .frame(width: 280, height: 160)
-                    .cornerRadius(Theme.CornerRadius.md)
-                    .overlay(
-                        DSIcon("fork.knife", size: .large, color: .tertiary)
-                    )
-                
-                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    DSLabel(title, style: .headline, color: .primary)
-                        .lineLimit(1)
-                    
-                    DSLabel(reason, style: .footnote, color: .secondary)
-                        .lineLimit(2)
-                }
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
 #Preview("With Suggestions") {
-    ForYouSection(
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Recipe.self, configurations: config)
+    
+    let recipe1 = Recipe(title: "Spaghetti Carbonara", sourceType: .manual)
+    recipe1.imageURL = "https://placehold.co/400x300"
+    recipe1.servings = 4
+    recipe1.prepTime = 10
+    recipe1.cookTime = 20
+    recipe1.cuisine = "Italian"
+    recipe1.userTags = ["Pasta", "Quick"]
+    recipe1.isFavorite = true
+    
+    let recipe2 = Recipe(title: "Thai Green Curry", sourceType: .manual)
+    recipe2.imageURL = "https://placehold.co/400x300"
+    recipe2.servings = 4
+    recipe1.cuisine = "Asian"
+    recipe2.userTags = ["Spicy"]
+    
+    let recipe3 = Recipe(title: "Chicken Tikka Masala", sourceType: .manual)
+    recipe3.imageURL = "https://placehold.co/400x300"
+    recipe3.servings = 6
+    recipe1.cuisine = "Indian"
+    recipe3.userTags = ["Quick"]
+    
+    
+    return ForYouSection(
         suggestions: [
-            SuggestionDisplayData(
-                id: UUID(),
-                recipe: Recipe(title: "Spaghetti Carbonara", sourceType: .manual),
-                reason: "You haven't cooked this in a while"
-            ),
-            SuggestionDisplayData(
-                id: UUID(),
-                recipe: Recipe(title: "Thai Green Curry", sourceType: .manual),
-                reason: "Quick weeknight dinner under 30 minutes"
-            ),
-            SuggestionDisplayData(
-                id: UUID(),
-                recipe: Recipe(title: "Chicken Tikka Masala", sourceType: .manual),
-                reason: "Perfect for a cozy weekend"
-            )
+            SuggestionDisplayData(id: UUID(), recipe: recipe1, reason: "You haven't cooked this in a while"),
+            SuggestionDisplayData(id: UUID(), recipe: recipe2, reason: "Quick weeknight dinner under 30 minutes"),
+            SuggestionDisplayData(id: UUID(), recipe: recipe3, reason: "Perfect for a cozy weekend")
         ],
         emptyStateMessage: nil,
         onRecipeTap: { _ in },
         onFavoriteTap: { _ in },
         onLearnMore: {}
     )
+    .modelContainer(container)
 }
 
 #Preview("Empty State") {

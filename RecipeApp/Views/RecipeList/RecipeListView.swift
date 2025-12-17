@@ -29,53 +29,55 @@ struct RecipeListView: View {
                     }
                 }
                 
-                if let viewModel = viewModel {
-                    RecipeListHeader(
-                        title: "Recipes",
-                        hasFilter: viewModel.hasActiveFilter,
-                        filterIcon: viewModel.filterIcon,
-                        filterTitle: viewModel.filterTitle,
-                        onMenuTap: { showingMenu = true },
-                        onClearFilter: { viewModel.selectedSection = .all }
-                    )
-                    
-                    if viewModel.shouldShowForYou {
-                        ForYouSection(
-                            suggestions: viewModel.suggestionDisplayData,  // ← Changed back
-                            emptyStateMessage: viewModel.forYouEmptyMessage,
+                ScrollView {
+                    if let viewModel = viewModel {
+                        RecipeListHeader(
+                            title: "Recipes",
+                            hasFilter: viewModel.hasActiveFilter,
+                            filterIcon: viewModel.filterIcon,
+                            filterTitle: viewModel.filterTitle,
+                            onMenuTap: { showingMenu = true },
+                            onClearFilter: { viewModel.selectedSection = .all }
+                        )
+                        
+                        if viewModel.shouldShowForYou {
+                            ForYouSection(
+                                suggestions: viewModel.suggestionDisplayData,
+                                emptyStateMessage: viewModel.forYouEmptyMessage,
+                                onRecipeTap: { recipe in
+                                    selectedRecipe = recipe
+                                },
+                                onFavoriteTap: { recipe in
+                                    viewModel.toggleFavorite(recipe)
+                                },
+                                onLearnMore: {
+                                    // TODO: Show info about AI suggestions
+                                }
+                            )
+                        }
+                        
+                        RecipeListContent(
+                            recipes: viewModel.displayedRecipes,
+                            isSearching: viewModel.isSearching,
+                            searchText: searchText,
+                            selectedSectionTitle: viewModel.filterTitle,
+                            selectedSectionIcon: viewModel.filterIcon,
                             onRecipeTap: { recipe in
                                 selectedRecipe = recipe
                             },
                             onFavoriteTap: { recipe in
                                 viewModel.toggleFavorite(recipe)
                             },
-                            onLearnMore: {
-                                // TODO: Show info about AI suggestions
+                            onClearSearch: {
+                                searchText = ""
+                            },
+                            onAddRecipe: {
+                                // TODO: Navigate to new recipe
                             }
                         )
+                    } else {
+                        DSLoadingSpinner(message: "Loading recipes...")
                     }
-                    
-                    RecipeListContent(
-                        recipes: viewModel.displayedRecipes,
-                        isSearching: viewModel.isSearching,
-                        searchText: searchText,
-                        selectedSectionTitle: viewModel.filterTitle,
-                        selectedSectionIcon: viewModel.filterIcon,
-                        onRecipeTap: { recipe in
-                            selectedRecipe = recipe
-                        },
-                        onFavoriteTap: { recipe in
-                            viewModel.toggleFavorite(recipe)
-                        },
-                        onClearSearch: {
-                            searchText = ""
-                        },
-                        onAddRecipe: {
-                            // TODO: Navigate to new recipe
-                        }
-                    )
-                } else {
-                    DSLoadingSpinner(message: "Loading recipes...")
                 }
                 
                 Spacer()
