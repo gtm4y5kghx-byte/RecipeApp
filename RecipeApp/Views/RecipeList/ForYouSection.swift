@@ -3,7 +3,8 @@ import SwiftUI
 struct ForYouSection: View {
     let suggestions: [SuggestionDisplayData]
     let emptyStateMessage: String?
-    let onRecipeTap: (UUID) -> Void
+    let onRecipeTap: (Recipe) -> Void
+    let onFavoriteTap: (Recipe) -> Void
     let onLearnMore: () -> Void
     
     var body: some View {
@@ -16,29 +17,38 @@ struct ForYouSection: View {
             if suggestions.isEmpty, let message = emptyStateMessage {
                 emptyState(message: message)
             } else {
-                suggestionsScroll()
+                suggestionsScroll
             }
         }
         .padding(.vertical, Theme.Spacing.md)
-        .background(Theme.Colors.backgroundLight)
     }
     
     @ViewBuilder
-    private func suggestionsScroll() -> some View {
+    private var suggestionsScroll: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: Theme.Spacing.md) {
                 ForEach(suggestions) { suggestion in
-                    SuggestionCard(
-                        title: suggestion.recipeTitle,
-                        reason: suggestion.reason,
-                        imageURL: suggestion.imageURL,
-                        onTap: {
-                            onRecipeTap(suggestion.recipeID)
-                        }
-                    )
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                        DSRecipeCard(
+                            title: suggestion.recipe.title,
+                            cuisine: suggestion.recipe.cuisine,
+                            prepTime: suggestion.recipe.prepTime,
+                            cookTime: suggestion.recipe.cookTime,
+                            servings: suggestion.recipe.servings,
+                            isFavorite: suggestion.recipe.isFavorite,
+                            tags: suggestion.recipe.userTags,
+                            imageURL: suggestion.recipe.imageURL,
+                            onTap: { onRecipeTap(suggestion.recipe) },
+                            onFavoriteTap: { onFavoriteTap(suggestion.recipe) }
+                        )
+                        
+                        DSLabel(suggestion.reason, style: .subheadline, color: .secondary)
+                            .lineLimit(2)
+                            .padding(.horizontal, Theme.Spacing.sm)
+                    }
+                    .frame(width: 320)
                 }
             }
-            .padding(.horizontal, Theme.Spacing.md)
         }
     }
     
@@ -78,40 +88,34 @@ struct SuggestionCard: View {
                     DSLabel(reason, style: .footnote, color: .secondary)
                         .lineLimit(2)
                 }
-                .frame(width: 280, alignment: .leading)
             }
         }
         .buttonStyle(PlainButtonStyle())
     }
 }
 
-#Preview {
+#Preview("With Suggestions") {
     ForYouSection(
         suggestions: [
             SuggestionDisplayData(
                 id: UUID(),
-                recipeID: UUID(),
-                recipeTitle: "Spaghetti Carbonara",
-                reason: "You haven't cooked this in a while",
-                imageURL: nil
+                recipe: Recipe(title: "Spaghetti Carbonara", sourceType: .manual),
+                reason: "You haven't cooked this in a while"
             ),
             SuggestionDisplayData(
                 id: UUID(),
-                recipeID: UUID(),
-                recipeTitle: "Thai Green Curry",
-                reason: "Quick weeknight dinner under 30 minutes",
-                imageURL: nil
+                recipe: Recipe(title: "Thai Green Curry", sourceType: .manual),
+                reason: "Quick weeknight dinner under 30 minutes"
             ),
             SuggestionDisplayData(
                 id: UUID(),
-                recipeID: UUID(),
-                recipeTitle: "Chocolate Chip Cookies",
-                reason: "One of your favorites",
-                imageURL: nil
+                recipe: Recipe(title: "Chicken Tikka Masala", sourceType: .manual),
+                reason: "Perfect for a cozy weekend"
             )
         ],
         emptyStateMessage: nil,
         onRecipeTap: { _ in },
+        onFavoriteTap: { _ in },
         onLearnMore: {}
     )
 }
@@ -121,6 +125,8 @@ struct SuggestionCard: View {
         suggestions: [],
         emptyStateMessage: "Keep cooking! We need more data to personalize suggestions for you.",
         onRecipeTap: { _ in },
+        onFavoriteTap: { _ in },
         onLearnMore: {}
     )
 }
+

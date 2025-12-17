@@ -41,10 +41,13 @@ struct RecipeListView: View {
                     
                     if viewModel.shouldShowForYou {
                         ForYouSection(
-                            suggestions: viewModel.suggestionDisplayData,
+                            suggestions: viewModel.suggestionDisplayData,  // ← Changed back
                             emptyStateMessage: viewModel.forYouEmptyMessage,
-                            onRecipeTap: { recipeID in
-                                selectedRecipe = recipes.first(where: { $0.id == recipeID })
+                            onRecipeTap: { recipe in
+                                selectedRecipe = recipe
+                            },
+                            onFavoriteTap: { recipe in
+                                viewModel.toggleFavorite(recipe)
                             },
                             onLearnMore: {
                                 // TODO: Show info about AI suggestions
@@ -175,17 +178,17 @@ struct RecipeListView: View {
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Recipe.self, configurations: config)
-
+    
     SampleData.loadSampleRecipes(into: container.mainContext)
     let recipes = try! container.mainContext.fetch(FetchDescriptor<Recipe>())
-
+    
     let mockViewModel = RecipeListViewModel(recipes: recipes, modelContext: container.mainContext)
     mockViewModel.suggestions = [
         RecipeSuggestion(recipeID: recipes[0].id, aiGeneratedReason: "You haven't cooked this in a while"),
         RecipeSuggestion(recipeID: recipes[1].id, aiGeneratedReason: "Quick weeknight dinner"),
         RecipeSuggestion(recipeID: recipes[2].id, aiGeneratedReason: "Quick weekend dinner")
     ]
-
+    
     return RecipeListView(previewViewModel: mockViewModel)
         .modelContainer(container)
 }

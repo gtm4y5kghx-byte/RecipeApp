@@ -15,9 +15,7 @@ struct MenuOption: Identifiable {
 }
 
 struct SuggestionDisplayData: Identifiable {
-     let id: UUID
-     let recipeID: UUID
-     let recipeTitle: String
-     let reason: String
-     let imageURL: String?
+    let id: UUID
+    let recipe: Recipe
+    let reason: String
  }

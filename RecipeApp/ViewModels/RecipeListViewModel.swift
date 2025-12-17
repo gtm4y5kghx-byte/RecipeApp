@@ -41,6 +41,7 @@ class RecipeListViewModel {
         self.recipes = recipes
     }
     
+    
     // MARK: - Computed Properties
     
     var displayedRecipes: [Recipe] {
@@ -118,10 +119,8 @@ class RecipeListViewModel {
             
             return SuggestionDisplayData(
                 id: suggestion.id,
-                recipeID: suggestion.recipeID,
-                recipeTitle: recipe.title,
-                reason: suggestion.aiGeneratedReason,
-                imageURL: recipe.imageURL
+                recipe: recipe,
+                reason: suggestion.aiGeneratedReason
             )
         }
     }
