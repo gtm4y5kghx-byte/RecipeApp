@@ -55,7 +55,7 @@ class Recipe {
         // Fall back to either field if only one is set (e.g., Spoonacular recipes)
         return prepTime ?? cookTime
     }
-
+    
     var canStartCooking: Bool {
         !ingredients.isEmpty && !instructions.isEmpty
     }
@@ -78,6 +78,26 @@ class Ingredient {
         self.item = item
         self.preparation = preparation
         self.section = section
+    }
+    
+    var displayText: String {
+        var parts: [String] = []
+        
+        if !quantity.isEmpty {
+            parts.append(quantity)
+        }
+        
+        if let unit = unit {
+            parts.append(unit)
+        }
+        
+        parts.append(item)
+        
+        if let preparation = preparation {
+            parts.append("(\(preparation))")
+        }
+        
+        return parts.joined(separator: " ")
     }
 }
 

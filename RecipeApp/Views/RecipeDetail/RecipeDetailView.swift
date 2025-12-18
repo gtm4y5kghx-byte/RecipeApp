@@ -35,6 +35,14 @@ struct RecipeDetailView: View {
                     )
                     
                     RecipeDetailTags(tags: viewModel.recipe.userTags)
+                    
+                    RecipeDetailIngredients(
+                        ingredients: viewModel.recipe.ingredients
+                    )
+                    
+                    RecipeDetailInstructions(
+                        instructions: viewModel.recipe.instructions
+                    )
                 } else {
                     DSLoadingSpinner(message: "Loading recipe...")
                 }
