@@ -33,6 +33,8 @@ struct RecipeDetailView: View {
                         servings: viewModel.recipe.servings,
                         cuisine: viewModel.recipe.cuisine,
                     )
+                    
+                    RecipeDetailTags(tags: viewModel.recipe.userTags)
                 } else {
                     DSLoadingSpinner(message: "Loading recipe...")
                 }
