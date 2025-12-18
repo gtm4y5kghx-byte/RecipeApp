@@ -32,6 +32,7 @@ struct RecipeDetailView: View {
                         totalTime: viewModel.recipe.totalTime,
                         servings: viewModel.recipe.servings,
                         cuisine: viewModel.recipe.cuisine,
+                        sourceURL: viewModel.recipe.sourceURL
                     )
                     
                     RecipeDetailTags(tags: viewModel.recipe.userTags)
