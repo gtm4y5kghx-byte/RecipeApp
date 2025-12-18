@@ -148,14 +148,14 @@ struct AISuggestionEngineServiceIntegration {
     }
 
     @Test("Get suggestions returns empty when below minimum recipe count")
-    func validateMinimumRecipeCount() async {
+    func validateMinimumRecipeCount() async throws {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Recipe 1"),
             RecipeTestFixtures.createRecipe(title: "Recipe 2"),
             RecipeTestFixtures.createRecipe(title: "Recipe 3")
         ]
 
-        let suggestions = await service.getSuggestions(recipes: recipes, forceRefresh: false)
+        let suggestions = try await service.getSuggestions(recipes: recipes, forceRefresh: false)
 
         print("\n========== MINIMUM RECIPE COUNT ==========")
         print("Total recipes: \(recipes.count)")
@@ -172,13 +172,13 @@ struct AISuggestionEngineServiceIntegration {
 
         print("\n========== CACHE BEHAVIOR TEST ==========")
 
-        let firstCall = await service.getSuggestions(recipes: recipes, forceRefresh: false)
+        let firstCall = try await service.getSuggestions(recipes: recipes, forceRefresh: false)
         print("First call (no cache): \(firstCall.count) suggestions")
 
-        let secondCall = await service.getSuggestions(recipes: recipes, forceRefresh: false)
+        let secondCall = try await service.getSuggestions(recipes: recipes, forceRefresh: false)
         print("Second call (cached): \(secondCall.count) suggestions")
 
-        let thirdCall = await service.getSuggestions(recipes: recipes, forceRefresh: true)
+        let thirdCall = try await service.getSuggestions(recipes: recipes, forceRefresh: true)
         print("Third call (force refresh): \(thirdCall.count) suggestions")
 
         print("==========================================\n")
