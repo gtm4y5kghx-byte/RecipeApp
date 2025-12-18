@@ -6,15 +6,20 @@ import SwiftData
 @Observable
 class RecipeDetailViewModel {
     var error: Error?
-
-    private let recipe: Recipe
+    
+    var recipe: Recipe {
+        _recipe
+    }
+    
+    private let _recipe: Recipe
     private let modelContext: ModelContext
-
+    
     init(recipe: Recipe, modelContext: ModelContext) {
-        self.recipe = recipe
+        self._recipe = recipe
         self.modelContext = modelContext
     }
-
+    
+    
     func toggleFavorite() {
         recipe.isFavorite.toggle()
         do {
@@ -23,7 +28,7 @@ class RecipeDetailViewModel {
             self.error = error
         }
     }
-
+    
     func markAsCooked() {
         recipe.timesCooked += 1
         recipe.lastMade = Date()
@@ -33,7 +38,7 @@ class RecipeDetailViewModel {
             self.error = error
         }
     }
-
+    
     func deleteRecipe() -> Bool {
         do {
             modelContext.delete(recipe)
@@ -44,7 +49,7 @@ class RecipeDetailViewModel {
             return false
         }
     }
-
+    
     func getVariations(from allRecipes: [Recipe]) -> [Recipe] {
         return allRecipes.filter { $0.parentRecipeID == recipe.id }
     }

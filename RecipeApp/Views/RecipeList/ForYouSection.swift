@@ -66,33 +66,15 @@ struct ForYouSection: View {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Recipe.self, configurations: config)
     
-    let recipe1 = Recipe(title: "Spaghetti Carbonara", sourceType: .manual)
-    recipe1.imageURL = "https://placehold.co/400x300"
-    recipe1.servings = 4
-    recipe1.prepTime = 10
-    recipe1.cookTime = 20
-    recipe1.cuisine = "Italian"
-    recipe1.userTags = ["Pasta", "Quick"]
-    recipe1.isFavorite = true
-    
-    let recipe2 = Recipe(title: "Thai Green Curry", sourceType: .manual)
-    recipe2.imageURL = "https://placehold.co/400x300"
-    recipe2.servings = 4
-    recipe1.cuisine = "Asian"
-    recipe2.userTags = ["Spicy"]
-    
-    let recipe3 = Recipe(title: "Chicken Tikka Masala", sourceType: .manual)
-    recipe3.imageURL = "https://placehold.co/400x300"
-    recipe3.servings = 6
-    recipe1.cuisine = "Indian"
-    recipe3.userTags = ["Quick"]
+    SampleData.loadSampleRecipes(into: container.mainContext)
+    let recipes = try! container.mainContext.fetch(FetchDescriptor<Recipe>())
     
     
     return ForYouSection(
         suggestions: [
-            SuggestionDisplayData(id: UUID(), recipe: recipe1, reason: "You haven't cooked this in a while"),
-            SuggestionDisplayData(id: UUID(), recipe: recipe2, reason: "Quick weeknight dinner under 30 minutes"),
-            SuggestionDisplayData(id: UUID(), recipe: recipe3, reason: "Perfect for a cozy weekend")
+            SuggestionDisplayData(id: UUID(), recipe: recipes[0], reason: "You haven't cooked this in a while"),
+            SuggestionDisplayData(id: UUID(), recipe: recipes[1], reason: "Quick weeknight dinner under 30 minutes"),
+            SuggestionDisplayData(id: UUID(), recipe: recipes[2], reason: "Perfect for a cozy weekend")
         ],
         emptyStateMessage: nil,
         onRecipeTap: { _ in },
