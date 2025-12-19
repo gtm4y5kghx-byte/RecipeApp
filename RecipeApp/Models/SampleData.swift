@@ -83,6 +83,7 @@ struct SampleData {
 
         recipe.userTags = ["Dessert", "Baking", "Pie"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 320, carbohydrates: 48, protein: 3, fat: 14, fiber: 2, sodium: 180, sugar: 28)
 
         return recipe
     }
@@ -93,6 +94,7 @@ struct SampleData {
         recipe.prepTime = 20
         recipe.cookTime = 35
         recipe.cuisine = "Dessert"
+        recipe.notes = "Add a layer of chocolate ganache for extra richness!"
         recipe.timesCooked = 3
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -10, to: Date()) // 10 days ago
 
@@ -126,6 +128,7 @@ struct SampleData {
 
         recipe.userTags = ["Dessert", "Baking", "Chocolate"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 52, protein: 5, fat: 18, fiber: 2, sodium: 420, sugar: 36)
 
         return recipe
     }
@@ -136,6 +139,7 @@ struct SampleData {
         recipe.prepTime = 5
         recipe.cookTime = 10
         recipe.cuisine = "American"
+        recipe.notes = "Try adding tomato soup on the side for the perfect combo!"
         recipe.isFavorite = true
         recipe.timesCooked = 15
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -5, to: Date()) // 5 days ago
@@ -166,6 +170,7 @@ struct SampleData {
 
         recipe.userTags = ["Lunch", "Quick", "Sandwich"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 450, carbohydrates: 28, protein: 16, fat: 32, fiber: 1, sodium: 820, sugar: 3)
 
         return recipe
     }
@@ -210,6 +215,7 @@ struct SampleData {
 
         recipe.userTags = ["Dinner", "Mexican", "Beef"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 32, protein: 22, fat: 18, fiber: 4, sodium: 680, sugar: 4)
 
         return recipe
     }
@@ -220,6 +226,7 @@ struct SampleData {
         recipe.prepTime = 5
         recipe.cookTime = 15
         recipe.cuisine = "Italian"
+        recipe.notes = "A simple weeknight staple. Add red pepper flakes for heat!"
         recipe.timesCooked = 0
         // No lastMade - never cooked
 
@@ -252,6 +259,7 @@ struct SampleData {
 
         recipe.userTags = ["Dinner", "Pasta", "Italian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 520, carbohydrates: 65, protein: 14, fat: 22, fiber: 3, sodium: 380, sugar: 2)
 
         return recipe
     }
@@ -297,6 +305,7 @@ struct SampleData {
 
         recipe.userTags = ["Dinner", "Chicken", "Chinese", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 280, carbohydrates: 12, protein: 32, fat: 12, fiber: 3, sodium: 720, sugar: 5)
 
         return recipe
     }
@@ -339,6 +348,7 @@ struct SampleData {
 
         recipe.userTags = ["Soup", "Vegetarian", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 220, carbohydrates: 18, protein: 4, fat: 14, fiber: 3, sodium: 580, sugar: 10)
 
         return recipe
     }
@@ -379,6 +389,7 @@ struct SampleData {
 
         recipe.userTags = ["Side Dish", "Vegetarian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 15, carbohydrates: 3, protein: 0.5, fat: 0, fiber: 0.5, sodium: 580, sugar: 2)
 
         return recipe
     }
@@ -389,6 +400,7 @@ struct SampleData {
         recipe.prepTime = 10
         recipe.cookTime = 15
         recipe.cuisine = "American"
+        recipe.notes = "Don't press down on the patties while cooking - keeps them juicy!"
         recipe.isFavorite = false
         recipe.timesCooked = 8
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -15, to: Date())
@@ -419,6 +431,7 @@ struct SampleData {
 
         recipe.userTags = ["Beef", "Grilling", "Sandwich"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 420, carbohydrates: 24, protein: 28, fat: 24, fiber: 1, sodium: 620, sugar: 4)
 
         return recipe
     }
@@ -461,6 +474,7 @@ struct SampleData {
 
         recipe.userTags = ["Vegetarian", "Mexican", "Comfort Food", "Vegan"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 260, carbohydrates: 42, protein: 14, fat: 4, fiber: 12, sodium: 480, sugar: 8)
 
         return recipe
     }
@@ -502,6 +516,7 @@ struct SampleData {
 
         recipe.userTags = ["Thai", "Noodles", "Seafood"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 48, protein: 24, fat: 10, fiber: 2, sodium: 1200, sugar: 8)
 
         return recipe
     }
@@ -545,6 +560,7 @@ struct SampleData {
 
         recipe.userTags = ["Soup", "French", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 340, carbohydrates: 28, protein: 14, fat: 18, fiber: 2, sodium: 980, sugar: 8)
 
         return recipe
     }
@@ -587,6 +603,7 @@ struct SampleData {
 
         recipe.userTags = ["Seafood", "Healthy", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 320, carbohydrates: 2, protein: 34, fat: 18, fiber: 0, sodium: 520, sugar: 0)
 
         return recipe
     }
@@ -629,6 +646,7 @@ struct SampleData {
 
         recipe.userTags = ["Chicken", "Italian", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 480, carbohydrates: 24, protein: 42, fat: 22, fiber: 2, sodium: 860, sugar: 6)
 
         return recipe
     }
@@ -670,6 +688,7 @@ struct SampleData {
 
         recipe.userTags = ["Vegan", "Thai", "Healthy"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 320, carbohydrates: 28, protein: 12, fat: 18, fiber: 6, sodium: 620, sugar: 4)
 
         return recipe
     }
@@ -711,6 +730,7 @@ struct SampleData {
 
         recipe.userTags = ["Breakfast", "Eggs", "Quick", "French"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 280, carbohydrates: 1, protein: 18, fat: 22, fiber: 0, sodium: 380, sugar: 1)
 
         return recipe
     }
@@ -754,6 +774,7 @@ struct SampleData {
 
         recipe.userTags = ["Beef", "Slow Cooker", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 22, protein: 38, fat: 14, fiber: 4, sodium: 680, sugar: 4)
 
         return recipe
     }
@@ -795,6 +816,7 @@ struct SampleData {
 
         recipe.userTags = ["Salad", "Italian", "Vegetarian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 280, carbohydrates: 6, protein: 14, fat: 22, fiber: 1, sodium: 420, sugar: 4)
 
         return recipe
     }
@@ -837,6 +859,7 @@ struct SampleData {
 
         recipe.userTags = ["Japanese", "Noodles", "Spicy"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 420, carbohydrates: 52, protein: 18, fat: 14, fiber: 2, sodium: 1400, sugar: 2)
 
         return recipe
     }
@@ -881,6 +904,7 @@ struct SampleData {
 
         recipe.userTags = ["Dessert", "French", "Baking"]
         recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 340, carbohydrates: 42, protein: 5, fat: 16, fiber: 1, sodium: 180, sugar: 28)
 
         return recipe
     }

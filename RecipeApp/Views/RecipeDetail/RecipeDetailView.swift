@@ -44,6 +44,8 @@ struct RecipeDetailView: View {
                     RecipeDetailInstructions(
                         instructions: viewModel.recipe.instructions
                     )
+                    
+                    RecipeDetailNotes(notes: viewModel.recipe.notes)
                 } else {
                     DSLoadingSpinner(message: "Loading recipe...")
                 }
