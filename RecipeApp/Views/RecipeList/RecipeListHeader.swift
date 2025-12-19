@@ -9,7 +9,7 @@ struct RecipeListHeader: View {
     let onClearFilter: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+        DSSection {
             HStack {
                 DSLabel(title, style: .largeTitle)
                 Spacer()
@@ -19,25 +19,27 @@ struct RecipeListHeader: View {
             }
 
             if hasFilter, let filterIcon = filterIcon, let filterTitle = filterTitle {
-                HStack(spacing: Theme.Spacing.xs) {
-                    DSIcon(filterIcon, size: .small, color: .secondary)
-                    DSLabel(filterTitle, style: .caption1, color: .secondary)
+                VStack {
+                    HStack(spacing: Theme.Spacing.xs) {
+                        DSIcon(filterIcon, size: .small, color: .secondary)
+                        DSLabel(filterTitle, style: .caption1, color: .secondary)
 
-                    Button {
-                        onClearFilter()
-                    } label: {
-                        DSIcon("xmark.circle.fill", size: .small, color: .tertiary)
+                        Button {
+                            onClearFilter()
+                        } label: {
+                            DSIcon("xmark.circle.fill", size: .small, color: .tertiary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .accessibilityIdentifier("clear-filter-button")
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .accessibilityIdentifier("clear-filter-button")
+                    .padding(.horizontal, Theme.Spacing.sm)
+                    .padding(.vertical, Theme.Spacing.xs)
+                    .background(Theme.Colors.backgroundDark)
+                    .cornerRadius(Theme.CornerRadius.sm)
                 }
-                .padding(.horizontal, Theme.Spacing.sm)
-                .padding(.vertical, Theme.Spacing.xs)
-                .background(Theme.Colors.backgroundDark)
-                .cornerRadius(Theme.CornerRadius.sm)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(Theme.Spacing.md)
     }
 }
 

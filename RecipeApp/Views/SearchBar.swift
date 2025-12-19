@@ -26,8 +26,6 @@ struct SearchBar: View {
             .buttonStyle(PlainButtonStyle())
             .accessibilityIdentifier("ai-search-button")
         }
-        .padding(Theme.Spacing.md)
-        .background(Theme.Colors.background)
         .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: -2)
     }
 }
@@ -43,5 +41,4 @@ struct SearchBar: View {
             onAISearch: { print("AI search tapped") }
         )
     }
-    .background(Theme.Colors.background)
 }

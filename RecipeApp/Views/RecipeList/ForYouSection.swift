@@ -9,16 +9,13 @@ struct ForYouSection: View {
     let onLearnMore: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading) {
-            DSLabel("For You", style: .title1)
-            
+        DSSection("For You") {
             if suggestions.isEmpty, let message = emptyStateMessage {
                 emptyState(message: message)
             } else {
                 suggestionsScroll
             }
         }
-        .padding(Theme.Spacing.md)
     }
     
     @ViewBuilder
