@@ -13,23 +13,25 @@ struct RecipesMenuSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    actionSection
+                DSSection {
+                    VStack(alignment: .leading, spacing: 0) {
+                        actionSection
 
-                    DSDivider(spacing: .standard)
-
-                    filtersSection
-
-                    if !tagOptions.isEmpty {
                         DSDivider(spacing: .standard)
-                        tagsSection
+
+                        filtersSection
+
+                        if !tagOptions.isEmpty {
+                            DSDivider(spacing: .standard)
+                            tagsSection
+                        }
+
+                        DSDivider(spacing: .standard)
+
+                        settingsSection
                     }
-
-                    DSDivider(spacing: .standard)
-
-                    settingsSection
+                    .padding(.vertical, Theme.Spacing.md)
                 }
-                .padding(.vertical, Theme.Spacing.md)
             }
             .background(Theme.Colors.background)
             .navigationTitle("Recipes")
@@ -51,7 +53,6 @@ struct RecipesMenuSheet: View {
     private var actionSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             DSLabel("ACTIONS", style: .caption1, color: .secondary)
-                .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
 
             DSButton(
@@ -63,14 +64,12 @@ struct RecipesMenuSheet: View {
                 onNewRecipe()
             }
             .accessibilityIdentifier("new-recipe-button")
-            .padding(.horizontal, Theme.Spacing.md)
         }
     }
 
     private var filtersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             DSLabel("FILTERS", style: .caption1, color: .secondary)
-                .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
 
             ForEach(filterOptions) { option in
@@ -89,7 +88,6 @@ struct RecipesMenuSheet: View {
     private var tagsSection: some View {
         LazyVStack(alignment: .leading, spacing: 0) {
             DSLabel("TAGS", style: .caption1, color: .secondary)
-                .padding(.horizontal, Theme.Spacing.md)
                 .padding(.bottom, Theme.Spacing.xs)
 
             ForEach(tagOptions) { option in

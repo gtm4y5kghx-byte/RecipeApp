@@ -37,7 +37,6 @@ struct FilterRow: View {
 
                 DSIcon("chevron.right", size: .small, color: .tertiary)
             }
-            .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
             .contentShape(Rectangle())
         }
