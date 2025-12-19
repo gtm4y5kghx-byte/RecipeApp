@@ -6,20 +6,21 @@ struct RecipeDetailHeader: View {
     let onFavoriteTap: () -> Void
     
     var body: some View {
-        HStack(alignment: .top, spacing: Theme.Spacing.md) {
-            DSLabel(title, style: .title2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Button(action: onFavoriteTap) {
-                DSIcon(
-                    isFavorite ? "heart.fill" : "heart",
-                    size: .large,
-                    color: isFavorite ? .error : .secondary
-                )
+        DSSection {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                DSLabel(title, style: .title2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Button(action: onFavoriteTap) {
+                    DSIcon(
+                        isFavorite ? "heart.fill" : "heart",
+                        size: .large,
+                        color: isFavorite ? .error : .secondary
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-            .buttonStyle(PlainButtonStyle())
         }
-        .padding(Theme.Spacing.md)
     }
 }
 

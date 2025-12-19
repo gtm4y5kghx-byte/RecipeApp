@@ -5,15 +5,16 @@ struct RecipeDetailTags: View {
     
     var body: some View {
         if !tags.isEmpty {
-            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                FlowLayout(spacing: Theme.Spacing.xs) {
-                    ForEach(tags, id: \.self) { tag in
-                        DSTag(tag, style: .secondary, size: .medium)
+            DSSection {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    FlowLayout(spacing: Theme.Spacing.xs) {
+                        ForEach(tags, id: \.self) { tag in
+                            DSTag(tag, style: .secondary, size: .medium)
+                        }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Theme.Spacing.md)
         }
     }
 }

@@ -19,10 +19,12 @@ struct DSSection<Content: View>: View {
         VStack(spacing: spacing) {
             if let title {
                 DSLabel(title, style: .title3)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Theme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 }

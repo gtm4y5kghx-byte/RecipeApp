@@ -6,24 +6,17 @@ struct RecipeDetailInstructions: View {
     
     var body: some View {
         if !instructions.isEmpty {
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                DSLabel("Instructions", style: .title2)
-                    .padding(.horizontal, Theme.Spacing.md)
-                
-                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                    ForEach(Array(instructions.enumerated()), id: \.element.id) { index, step in
-                        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                            DSLabel("\(index + 1).", style: .headline, color: .accent)
-                                .frame(width: 32, alignment: .leading)
-                            
-                            DSLabel(step.instruction, style: .body, color: .primary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding(.horizontal, Theme.Spacing.md)
+            DSSection("Instructions") {
+                ForEach(Array(instructions.enumerated()), id: \.element.id) { index, step in
+                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
+                        DSLabel("\(index + 1).", style: .headline, color: .accent)
+                            .frame(width: 32, alignment: .leading)
+                        
+                        DSLabel(step.instruction, style: .body, color: .primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
             }
-            .padding(.vertical, Theme.Spacing.md)
         }
     }
 }
