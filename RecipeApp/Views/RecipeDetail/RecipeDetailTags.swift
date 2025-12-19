@@ -13,7 +13,6 @@ struct RecipeDetailTags: View {
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
