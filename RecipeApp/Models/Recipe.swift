@@ -139,6 +139,46 @@ class NutritionInfo {
         self.sodium = sodium
         self.sugar = sugar
     }
+
+    var displayItems: [(label: String, value: String)] {
+        var items: [(String, String)] = []
+
+        if let calories = calories {
+            items.append(("Calories", "\(calories)"))
+        }
+        if let protein = protein {
+            items.append(("Protein", formatGrams(protein)))
+        }
+        if let carbohydrates = carbohydrates {
+            items.append(("Carbs", formatGrams(carbohydrates)))
+        }
+        if let fat = fat {
+            items.append(("Fat", formatGrams(fat)))
+        }
+        if let fiber = fiber {
+            items.append(("Fiber", formatGrams(fiber)))
+        }
+        if let sugar = sugar {
+            items.append(("Sugar", formatGrams(sugar)))
+        }
+        if let sodium = sodium {
+            items.append(("Sodium", formatMilligrams(sodium)))
+        }
+
+        return items
+    }
+
+    private func formatGrams(_ value: Double) -> String {
+        value.truncatingRemainder(dividingBy: 1) == 0
+            ? "\(Int(value))g"
+            : String(format: "%.1fg", value)
+    }
+
+    private func formatMilligrams(_ value: Double) -> String {
+        value.truncatingRemainder(dividingBy: 1) == 0
+            ? "\(Int(value))mg"
+            : String(format: "%.1fmg", value)
+    }
 }
 
 enum SourceType: String, Codable {

@@ -35,7 +35,9 @@ struct RecipeDetailView: View {
                         sourceURL: viewModel.recipe.sourceURL
                     )
                     
-                    RecipeDetailTags(tags: viewModel.recipe.userTags)
+                    RecipeDetailTags(
+                        tags: viewModel.recipe.userTags
+                    )
                     
                     RecipeDetailIngredients(
                         ingredients: viewModel.recipe.ingredients
@@ -45,7 +47,13 @@ struct RecipeDetailView: View {
                         instructions: viewModel.recipe.instructions
                     )
                     
-                    RecipeDetailNotes(notes: viewModel.recipe.notes)
+                    RecipeDetailNotes(
+                        notes: viewModel.recipe.notes
+                    )
+                    
+                    RecipeDetailNutrition(
+                        nutrition: viewModel.recipe.nutrition
+                    )
                 } else {
                     DSLoadingSpinner(message: "Loading recipe...")
                 }
