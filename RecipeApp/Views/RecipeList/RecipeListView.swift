@@ -94,18 +94,6 @@ struct RecipeListView: View {
                 )
             }
             .background(Theme.Colors.background)
-            .onAppear {
-                handleViewAppear()
-            }
-            .onChange(of: recipes) { oldValue, newValue in
-                viewModel?.updateRecipes(newValue)
-            }
-            .onChange(of: searchText) { oldValue, newValue in
-                viewModel?.performSearch(query: newValue, scope: searchScope)
-            }
-            .onChange(of: searchScope) { oldValue, newValue in
-                viewModel?.performSearch(query: searchText, scope: newValue)
-            }
             .sheet(isPresented: $showingMenu) {
                 recipeMenuSheet()
             }
@@ -118,6 +106,18 @@ struct RecipeListView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .onChange(of: recipes) { oldValue, newValue in
+                viewModel?.updateRecipes(newValue)
+            }
+            .onChange(of: searchText) { oldValue, newValue in
+                viewModel?.performSearch(query: newValue, scope: searchScope)
+            }
+            .onChange(of: searchScope) { oldValue, newValue in
+                viewModel?.performSearch(query: searchText, scope: newValue)
+            }
+            .onAppear {
+                handleViewAppear()
             }
         }
     }

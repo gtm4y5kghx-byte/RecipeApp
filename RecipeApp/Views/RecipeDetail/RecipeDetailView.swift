@@ -48,7 +48,7 @@ struct RecipeDetailView: View {
                                     style: .secondary,
                                     size: .small,
                                     fullWidth: false
-                                    ) {
+                                ) {
                                     HapticFeedback.success.trigger()
                                     viewModel.markAsCooked()
                                 }
@@ -87,6 +87,20 @@ struct RecipeDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button("Add to Shopping List") {}
+                    Button("Edit") { showingEditSheet = true }
+                    Button("Delete", role: .destructive) { showingDeleteConfirmation = true }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            Text("RecipeFormView goes here")
+        }
         .onAppear {
             if viewModel == nil {
                 viewModel = RecipeDetailViewModel(
