@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import SwiftData
 @testable import RecipeApp
 
 @Suite("RecipeDetailViewModel Tests")
@@ -111,4 +112,99 @@ struct RecipeDetailViewModelTests {
 
         #expect(variations.isEmpty)
     }
+    
+    @Test("Get based on recipe returns parent when exists")
+    func testGetBasedOnRecipeReturnsParent() {
+        let parentRecipe = RecipeTestFixtures.createRecipe(title: "Parent Recipe")
+        let variation = RecipeTestFixtures.createRecipe(title: "Child Recipe")
+        variation.basedOnRecipeID = parentRecipe.id
+        
+        let allRecipes = [parentRecipe, variation]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeDetailViewModel(recipe: variation, modelContext: modelContext)
+        
+        let result = viewModel.getBasedOnRecipe(from: allRecipes)
+        
+        #expect(result?.id == parentRecipe.id)
+    }
+
+    @Test("Get based on recipe returns nil when not a variation")
+    func testGetBasedOnRecipeReturnsNilForNonVariation() {
+        let recipe = RecipeTestFixtures.createRecipe(title: "Original")
+        let allRecipes = [recipe]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+
+        let result = viewModel.getBasedOnRecipe(from: allRecipes)
+
+        #expect(result == nil)
+    }
+    
+    // MARK: CRUD Operations
+    
+    @Test("Delete recipe returns true on success")
+     func testDeleteRecipeSuccess() {
+         let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
+         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+         let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+         
+         let result = viewModel.deleteRecipe()
+         
+         #expect(result == true)
+     }
+
+     @Test("Delete recipe removes from context")
+     func testDeleteRecipeRemovesFromContext() {
+         let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
+         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+         modelContext.insert(recipe)
+         let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+         
+         _ = viewModel.deleteRecipe()
+         
+         let fetchDescriptor = FetchDescriptor<Recipe>()
+         let remainingRecipes = try? modelContext.fetch(fetchDescriptor)
+         #expect(remainingRecipes?.isEmpty == true)
+     }
+    
+    // MARK: Total Time formatting
+    
+    @Test("Formatted time shows minutes only when under 60")
+      func testFormattedTimeMinutesOnly() {
+          let recipe = RecipeTestFixtures.createRecipe(title: "Quick Recipe")
+          recipe.prepTime = 25
+          let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+          let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+
+          #expect(viewModel.formattedTotalTime == "25 min")
+      }
+
+      @Test("Formatted time shows hours only when exact hour")
+      func testFormattedTimeExactHour() {
+          let recipe = RecipeTestFixtures.createRecipe(title: "One Hour Recipe")
+          recipe.prepTime = 60
+          let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+          let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+
+          #expect(viewModel.formattedTotalTime == "1h")
+      }
+
+      @Test("Formatted time shows hours and minutes")
+      func testFormattedTimeHoursAndMinutes() {
+          let recipe = RecipeTestFixtures.createRecipe(title: "Long Recipe")
+          recipe.prepTime = 90
+          let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+          let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+
+          #expect(viewModel.formattedTotalTime == "1h 30m")
+      }
+
+      @Test("Formatted time returns nil when no time set")
+      func testFormattedTimeReturnsNil() {
+          let recipe = RecipeTestFixtures.createRecipe(title: "No Time Recipe")
+          let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+          let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
+
+          #expect(viewModel.formattedTotalTime == nil)
+      }
 }
