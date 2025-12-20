@@ -30,13 +30,32 @@ struct RecipeDetailView: View {
                         imageURL: viewModel.recipe.imageURL
                     )
                     
-                    RecipeDetailMetaData(
-                        totalTime: viewModel.formattedTotalTime,
-                        servings: viewModel.recipe.servings,
-                        cuisine: viewModel.recipe.cuisine,
-                        sourceURL: viewModel.recipe.sourceURL,
-                        basedOnRecipe: viewModel.getBasedOnRecipe(from: allRecipes)
-                    )
+                    DSSection {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            RecipeDetailMetaData(
+                                totalTime: viewModel.formattedTotalTime,
+                                servings: viewModel.recipe.servings,
+                                cuisine: viewModel.recipe.cuisine,
+                                sourceURL: viewModel.recipe.sourceURL,
+                                basedOnRecipe: viewModel.getBasedOnRecipe(from: allRecipes)
+                            )
+                            
+                            Spacer()
+                            
+                            VStack {
+                                DSButton(
+                                    title: "I Cooked This",
+                                    style: .secondary,
+                                    size: .small,
+                                    fullWidth: false
+                                    ) {
+                                    HapticFeedback.success.trigger()
+                                    viewModel.markAsCooked()
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
                     
                     RecipeDetailTags(
                         tags: viewModel.recipe.userTags

@@ -11,6 +11,7 @@ struct DSButton: View {
     let size: ButtonSize
     let icon: String?
     let action: () -> Void
+    let fullWidth: Bool
 
     @Environment(\.isEnabled) private var isEnabled
 
@@ -68,13 +69,15 @@ struct DSButton: View {
         style: ButtonStyle = .primary,
         size: ButtonSize = .medium,
         icon: String? = nil,
-        action: @escaping () -> Void
+        fullWidth: Bool = true,
+        action: @escaping () -> Void,
     ) {
         self.title = title
         self.style = style
         self.size = size
         self.icon = icon
         self.action = action
+        self.fullWidth = fullWidth
     }
 
     // MARK: - Body
@@ -92,7 +95,7 @@ struct DSButton: View {
             }
             .padding(.horizontal, size.horizontalPadding)
             .padding(.vertical, size.verticalPadding)
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: fullWidth ? .infinity : nil)
             .background(backgroundColor)
             .foregroundColor(foregroundColor)
             .cornerRadius(size.cornerRadius)
