@@ -21,7 +21,7 @@ class Recipe {
     var lastModified: Date
     var lastMade: Date?
     var isFavorite: Bool = false
-    var parentRecipeID: UUID?
+    var basedOnRecipeID: UUID?
     var variationNote: String?
     
     @Relationship(deleteRule: .cascade)
@@ -29,10 +29,6 @@ class Recipe {
     
     @Relationship(deleteRule: .cascade)
     var nutrition: NutritionInfo?
-    
-    var variations: [Recipe] {
-        return []
-    }
     
     @Relationship(deleteRule: .cascade)
     var instructions: [Step]
@@ -59,16 +55,20 @@ class Recipe {
     var canStartCooking: Bool {
         !ingredients.isEmpty && !instructions.isEmpty
     }
+    
+    var isVariation: Bool {
+        basedOnRecipeID != nil
+    }
 }
 
 @Model
 class Ingredient {
     var id: UUID
     var quantity: String
-    var unit: String?
-    var item: String
-    var preparation: String?
-    var section: String?
+    var unit: String? // cloves, cup, etc.
+    var item: String // the ingredient
+    var preparation: String? // minced, grated, etc
+    var section: String? // group ingredients, e.g. for the sauce, etc.
     var order: Int = 0
     
     init(quantity: String, unit: String?, item: String, preparation: String?, section: String?) {

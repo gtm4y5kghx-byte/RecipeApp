@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct RecipeDetailView: View {
+    @Query private var allRecipes: [Recipe]
+    
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
@@ -51,6 +53,11 @@ struct RecipeDetailView: View {
                         notes: viewModel.recipe.notes
                     )
                     
+                    RecipeDetailVariations(
+                        variations: viewModel.getVariations(from: allRecipes)
+
+                    )
+                    
                     RecipeDetailNutrition(
                         nutrition: viewModel.recipe.nutrition
                     )
@@ -72,14 +79,21 @@ struct RecipeDetailView: View {
 }
 
 #Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Recipe.self, configurations: config)
-    
-    SampleData.loadSampleRecipes(into: container.mainContext)
-    let recipes = try! container.mainContext.fetch(FetchDescriptor<Recipe>())
-    
+    let container = try! ModelContainer(
+        for: Recipe.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+
+    let applePie = SampleData.createApplePie()
+    let dutchApplePie = SampleData.createDutchApplePie()
+    dutchApplePie.basedOnRecipeID = applePie.id
+    dutchApplePie.variationNote = "Dutch-style with streusel topping"
+
+    container.mainContext.insert(applePie)
+    container.mainContext.insert(dutchApplePie)
+
     return NavigationStack {
-        RecipeDetailView(recipe: recipes[0])
+        RecipeDetailView(recipe: applePie)
     }
     .modelContainer(container)
 }

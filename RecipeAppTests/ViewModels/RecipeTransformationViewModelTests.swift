@@ -133,7 +133,7 @@ struct RecipeTransformationViewModelTests {
     // MARK: - Create Variation Tests
 
     @Test("Create variation sets parent recipe ID")
-    func testCreateVariationSetsParentRecipeID() async {
+    func testCreateVariationSetsbasedOnRecipeID() async {
         let recipe = RecipeTestFixtures.createRecipe(title: "Original Recipe")
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let mockService = MockRecipeTransformationService()
@@ -144,9 +144,9 @@ struct RecipeTransformationViewModelTests {
 
         let fetchDescriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(fetchDescriptor)
-        let variation = recipes?.first { $0.parentRecipeID != nil }
+        let variation = recipes?.first { $0.basedOnRecipeID != nil }
 
-        #expect(variation?.parentRecipeID == recipe.id)
+        #expect(variation?.basedOnRecipeID == recipe.id)
     }
 
     @Test("Create variation maps title correctly")
@@ -172,7 +172,7 @@ struct RecipeTransformationViewModelTests {
 
         let fetchDescriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(fetchDescriptor)
-        let variation = recipes?.first { $0.parentRecipeID != nil }
+        let variation = recipes?.first { $0.basedOnRecipeID != nil }
 
         #expect(variation?.title == "Vegan Original Recipe")
     }
@@ -200,7 +200,7 @@ struct RecipeTransformationViewModelTests {
 
         let fetchDescriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(fetchDescriptor)
-        let variation = recipes?.first { $0.parentRecipeID != nil }
+        let variation = recipes?.first { $0.basedOnRecipeID != nil }
 
         #expect(variation?.variationNote == "Made gluten-free and dairy-free")
     }
@@ -232,7 +232,7 @@ struct RecipeTransformationViewModelTests {
 
         let fetchDescriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(fetchDescriptor)
-        let variation = recipes?.first { $0.parentRecipeID != nil }
+        let variation = recipes?.first { $0.basedOnRecipeID != nil }
 
         let sortedIngredients = variation?.sortedIngredients ?? []
         #expect(sortedIngredients.count == 3)
@@ -271,7 +271,7 @@ struct RecipeTransformationViewModelTests {
 
         let fetchDescriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(fetchDescriptor)
-        let variation = recipes?.first { $0.parentRecipeID != nil }
+        let variation = recipes?.first { $0.basedOnRecipeID != nil }
 
         let sortedInstructions = variation?.sortedInstructions ?? []
         #expect(sortedInstructions.count == 3)
@@ -306,7 +306,7 @@ struct RecipeTransformationViewModelTests {
 
         let fetchDescriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(fetchDescriptor)
-        let variation = recipes?.first { $0.parentRecipeID != nil }
+        let variation = recipes?.first { $0.basedOnRecipeID != nil }
 
         #expect(variation?.notes == "Some notes about the transformation")
         #expect(variation?.prepTime == 15)
@@ -329,6 +329,6 @@ struct RecipeTransformationViewModelTests {
         let recipes = try? modelContext.fetch(fetchDescriptor)
 
         #expect(recipes?.count == 1)
-        #expect(recipes?.first?.parentRecipeID != nil)
+        #expect(recipes?.first?.basedOnRecipeID != nil)
     }
 }

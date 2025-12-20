@@ -37,7 +37,7 @@ class RecipeTransformationViewModel {
     private func createVariation(from transformation: RecipeTransformation) throws {
         let variation = Recipe(title: transformation.title, sourceType: recipe.sourceType)
 
-        variation.parentRecipeID = recipe.id
+        variation.basedOnRecipeID = recipe.id
         variation.variationNote = transformation.variationNote
 
         variation.servings = transformation.servings

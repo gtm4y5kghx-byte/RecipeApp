@@ -81,10 +81,10 @@ struct RecipeDetailViewModelTests {
         let parentRecipe = RecipeTestFixtures.createRecipe(title: "Original Recipe")
 
         let variation1 = RecipeTestFixtures.createRecipe(title: "Vegan Version")
-        variation1.parentRecipeID = parentRecipe.id
+        variation1.basedOnRecipeID = parentRecipe.id
 
         let variation2 = RecipeTestFixtures.createRecipe(title: "Gluten-Free Version")
-        variation2.parentRecipeID = parentRecipe.id
+        variation2.basedOnRecipeID = parentRecipe.id
 
         let unrelatedRecipe = RecipeTestFixtures.createRecipe(title: "Different Recipe")
 

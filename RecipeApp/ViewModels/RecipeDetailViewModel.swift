@@ -51,6 +51,6 @@ class RecipeDetailViewModel {
     }
     
     func getVariations(from allRecipes: [Recipe]) -> [Recipe] {
-        return allRecipes.filter { $0.parentRecipeID == recipe.id }
+        return allRecipes.filter { $0.basedOnRecipeID == recipe.id }
     }
 }

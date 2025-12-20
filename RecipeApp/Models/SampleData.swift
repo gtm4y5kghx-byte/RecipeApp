@@ -5,6 +5,7 @@ struct SampleData {
     static func loadSampleRecipes(into context: ModelContext) {
         let recipes = [
             createApplePie(),
+            createDutchApplePie(),
             createChocolateCake(),
             createGrilledCheese(),
             createTacos(),
@@ -25,14 +26,14 @@ struct SampleData {
             createSpicyRamen(),
             createLemonTart()
         ]
-
+        
         for recipe in recipes {
             context.insert(recipe)
         }
-
+        
         try? context.save()
     }
-
+    
     static func clearAllData(from context: ModelContext) {
         do {
             try context.delete(model: Recipe.self)
@@ -41,8 +42,57 @@ struct SampleData {
             print("Failed to clear data: \(error)")
         }
     }
-
-    private static func createApplePie() -> Recipe {
+    
+    static func createDutchApplePie() -> Recipe {
+        let recipe = Recipe(title: "Dutch Apple Pie", sourceType: .manual)
+        recipe.servings = 8
+        recipe.prepTime = 35
+        recipe.cookTime = 45
+        recipe.cuisine = "American"
+        recipe.notes = "The crumb topping adds extra crunch and sweetness!"
+        recipe.variationNote = "Crumb topping instead of pastry crust"
+        recipe.timesCooked = 2
+        recipe.lastMade = Calendar.current.date(byAdding: .day, value: -30, to: Date())
+        
+        let ingredients = [
+            Ingredient(quantity: "1 1/2", unit: "cups", item: "all-purpose flour", preparation: nil, section: "Crust"),
+            Ingredient(quantity: "1/2", unit: "cup", item: "butter", preparation: "cold, cubed", section: "Crust"),
+            Ingredient(quantity: "6", unit: nil, item: "Granny Smith apples", preparation: "peeled and sliced", section: "Filling"),
+            Ingredient(quantity: "3/4", unit: "cup", item: "sugar", preparation: nil, section: "Filling"),
+            Ingredient(quantity: "1", unit: "tsp", item: "cinnamon", preparation: nil, section: "Filling"),
+            Ingredient(quantity: "1/2", unit: "cup", item: "all-purpose flour", preparation: nil, section: "Crumb Topping"),
+            Ingredient(quantity: "1/3", unit: "cup", item: "brown sugar", preparation: "packed", section: "Crumb Topping"),
+            Ingredient(quantity: "1/4", unit: "cup", item: "butter", preparation: "softened", section: "Crumb Topping")
+        ]
+        
+        for (index, ingredient) in ingredients.enumerated() {
+            ingredient.order = index
+        }
+        recipe.ingredients = ingredients
+        
+        let steps = [
+            Step(instruction: "Preheat oven to 375°F"),
+            Step(instruction: "Mix flour and cold butter until crumbly, form into dough"),
+            Step(instruction: "Press dough into 9-inch pie pan"),
+            Step(instruction: "Toss apples with sugar and cinnamon, add to crust"),
+            Step(instruction: "Mix crumb topping ingredients until crumbly"),
+            Step(instruction: "Sprinkle crumb topping over apples"),
+            Step(instruction: "Bake for 45 minutes until golden and bubbly")
+        ]
+        
+        for (index, step) in steps.enumerated() {
+            step.order = index
+        }
+        recipe.instructions = steps
+        
+        recipe.userTags = ["Dessert", "Baking", "Pie"]
+        recipe.imageURL = "https://placehold.co/400x300"
+        recipe.nutrition = NutritionInfo(calories: 350, carbohydrates: 52, protein: 3, fat: 16, fiber: 2, sodium: 160, sugar: 32)
+        
+        return recipe
+    }
+    
+    static func createApplePie() -> Recipe {
         let recipe = Recipe(title: "Grandma's Apple Pie", sourceType: .manual)
         recipe.servings = 8
         recipe.prepTime = 30
@@ -52,7 +102,7 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 8
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -120, to: Date()) // 4 months ago
-
+        
         let ingredients = [
             Ingredient(quantity: "2", unit: "cups", item: "all-purpose flour", preparation: nil, section: "Crust"),
             Ingredient(quantity: "1", unit: "cup", item: "butter", preparation: "cold, cubed", section: "Crust"),
@@ -60,12 +110,12 @@ struct SampleData {
             Ingredient(quantity: "1", unit: "cup", item: "sugar", preparation: nil, section: "Filling"),
             Ingredient(quantity: "2", unit: "tsp", item: "cinnamon", preparation: nil, section: "Filling")
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Preheat oven to 375°F"),
             Step(instruction: "Mix flour and butter until crumbly, form into dough"),
@@ -75,19 +125,19 @@ struct SampleData {
             Step(instruction: "Cover with top crust, cut vents"),
             Step(instruction: "Bake for 50 minutes until golden brown")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Dessert", "Baking", "Pie"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 320, carbohydrates: 48, protein: 3, fat: 14, fiber: 2, sodium: 180, sugar: 28)
-
+        
         return recipe
     }
-
+    
     private static func createChocolateCake() -> Recipe {
         let recipe = Recipe(title: "Simple Chocolate Cake", sourceType: .manual)
         recipe.servings = 12
@@ -97,7 +147,7 @@ struct SampleData {
         recipe.notes = "Add a layer of chocolate ganache for extra richness!"
         recipe.timesCooked = 3
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -10, to: Date()) // 10 days ago
-
+        
         let ingredients = [
             Ingredient(quantity: "2", unit: "cups", item: "all-purpose flour", preparation: nil, section: nil),
             Ingredient(quantity: "2", unit: "cups", item: "sugar", preparation: nil, section: nil),
@@ -106,12 +156,12 @@ struct SampleData {
             Ingredient(quantity: "1", unit: "cup", item: "milk", preparation: nil, section: nil),
             Ingredient(quantity: "2", unit: nil, item: "eggs", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Preheat oven to 350°F and grease a 9x13 pan"),
             Step(instruction: "Mix all dry ingredients in a large bowl"),
@@ -120,19 +170,19 @@ struct SampleData {
             Step(instruction: "Bake for 35 minutes until toothpick comes out clean"),
             Step(instruction: "Cool completely before frosting")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Dessert", "Baking", "Chocolate"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 52, protein: 5, fat: 18, fiber: 2, sodium: 420, sugar: 36)
-
+        
         return recipe
     }
-
+    
     private static func createGrilledCheese() -> Recipe {
         let recipe = Recipe(title: "Classic Grilled Cheese", sourceType: .manual)
         recipe.servings = 1
@@ -143,18 +193,18 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 15
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -5, to: Date()) // 5 days ago
-
+        
         let ingredients = [
             Ingredient(quantity: "2", unit: "slices", item: "bread", preparation: nil, section: nil),
             Ingredient(quantity: "2", unit: "slices", item: "cheddar cheese", preparation: nil, section: nil),
             Ingredient(quantity: "1", unit: "tbsp", item: "butter", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Heat a skillet over medium heat"),
             Step(instruction: "Butter one side of each bread slice"),
@@ -162,19 +212,19 @@ struct SampleData {
             Step(instruction: "Add cheese and top with second slice, butter-side up"),
             Step(instruction: "Cook until golden brown, about 3-4 minutes per side")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Lunch", "Quick", "Sandwich"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 450, carbohydrates: 28, protein: 16, fat: 32, fiber: 1, sodium: 820, sugar: 3)
-
+        
         return recipe
     }
-
+    
     private static func createTacos() -> Recipe {
         let recipe = Recipe(title: "Easy Beef Tacos", sourceType: .manual)
         recipe.servings = 4
@@ -184,7 +234,7 @@ struct SampleData {
         recipe.notes = "Great for taco Tuesday!"
         recipe.timesCooked = 0
         // No lastMade - never cooked
-
+        
         let ingredients = [
             Ingredient(quantity: "1", unit: "lb", item: "ground beef", preparation: nil, section: nil),
             Ingredient(quantity: "1", unit: "packet", item: "taco seasoning", preparation: nil, section: nil),
@@ -193,12 +243,12 @@ struct SampleData {
             Ingredient(quantity: "1", unit: "cup", item: "cheese", preparation: "shredded", section: nil),
             Ingredient(quantity: "1", unit: nil, item: "tomato", preparation: "diced", section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Brown ground beef in a large skillet over medium-high heat"),
             Step(instruction: "Drain excess fat"),
@@ -207,19 +257,19 @@ struct SampleData {
             Step(instruction: "Warm taco shells according to package"),
             Step(instruction: "Fill shells with meat and desired toppings")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Dinner", "Mexican", "Beef"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 32, protein: 22, fat: 18, fiber: 4, sodium: 680, sugar: 4)
-
+        
         return recipe
     }
-
+    
     private static func createPasta() -> Recipe {
         let recipe = Recipe(title: "Garlic Butter Pasta", sourceType: .manual)
         recipe.servings = 4
@@ -229,7 +279,7 @@ struct SampleData {
         recipe.notes = "A simple weeknight staple. Add red pepper flakes for heat!"
         recipe.timesCooked = 0
         // No lastMade - never cooked
-
+        
         let ingredients = [
             Ingredient(quantity: "1", unit: "lb", item: "pasta", preparation: nil, section: nil),
             Ingredient(quantity: "4", unit: "cloves", item: "garlic", preparation: "minced", section: nil),
@@ -237,12 +287,12 @@ struct SampleData {
             Ingredient(quantity: "1/2", unit: "cup", item: "parmesan cheese", preparation: "grated", section: nil),
             Ingredient(quantity: "2", unit: "tbsp", item: "fresh parsley", preparation: "chopped", section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Cook pasta according to package directions"),
             Step(instruction: "While pasta cooks, melt butter in a large pan"),
@@ -251,21 +301,21 @@ struct SampleData {
             Step(instruction: "Toss pasta with garlic butter, adding pasta water to create sauce"),
             Step(instruction: "Top with parmesan and parsley before serving")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Dinner", "Pasta", "Italian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 520, carbohydrates: 65, protein: 14, fat: 22, fiber: 3, sodium: 380, sugar: 2)
-
+        
         return recipe
     }
-
+    
     // NEW RECIPES FOR TESTING VARIETY
-
+    
     private static func createChickenStirFry() -> Recipe {
         let recipe = Recipe(title: "Quick Chicken Stir Fry", sourceType: .manual)
         recipe.servings = 4
@@ -276,7 +326,7 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 12
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -20, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "1", unit: "lb", item: "chicken breast", preparation: "sliced thin", section: nil),
             Ingredient(quantity: "2", unit: "cups", item: "broccoli florets", preparation: nil, section: nil),
@@ -284,12 +334,12 @@ struct SampleData {
             Ingredient(quantity: "3", unit: "tbsp", item: "soy sauce", preparation: nil, section: nil),
             Ingredient(quantity: "2", unit: "tbsp", item: "vegetable oil", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Heat oil in a wok or large skillet over high heat"),
             Step(instruction: "Add chicken and stir-fry until cooked through, about 5 minutes"),
@@ -297,19 +347,19 @@ struct SampleData {
             Step(instruction: "Add soy sauce and toss to coat"),
             Step(instruction: "Serve over rice")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Dinner", "Chicken", "Chinese", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 280, carbohydrates: 12, protein: 32, fat: 12, fiber: 3, sodium: 720, sugar: 5)
-
+        
         return recipe
     }
-
+    
     private static func createTomSoup() -> Recipe {
         let recipe = Recipe(title: "Creamy Tomato Soup", sourceType: .web_imported)
         recipe.servings = 6
@@ -319,7 +369,7 @@ struct SampleData {
         recipe.notes = "Perfect with grilled cheese!"
         recipe.timesCooked = 5
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -45, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "2", unit: "cans", item: "crushed tomatoes", preparation: "28 oz each", section: nil),
             Ingredient(quantity: "1", unit: "cup", item: "heavy cream", preparation: nil, section: nil),
@@ -327,12 +377,12 @@ struct SampleData {
             Ingredient(quantity: "3", unit: "cloves", item: "garlic", preparation: "minced", section: nil),
             Ingredient(quantity: "2", unit: "cups", item: "vegetable broth", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Sauté onion and garlic in olive oil until soft"),
             Step(instruction: "Add crushed tomatoes and broth"),
@@ -340,19 +390,19 @@ struct SampleData {
             Step(instruction: "Blend until smooth"),
             Step(instruction: "Stir in heavy cream and season to taste")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Soup", "Vegetarian", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 220, carbohydrates: 18, protein: 4, fat: 14, fiber: 3, sodium: 580, sugar: 10)
-
+        
         return recipe
     }
-
+    
     private static func createQuickPickles() -> Recipe {
         let recipe = Recipe(title: "Quick Pickles", sourceType: .manual)
         recipe.servings = 4
@@ -361,7 +411,7 @@ struct SampleData {
         recipe.cuisine = "American"
         recipe.notes = "Refrigerate for 2 hours before serving"
         recipe.timesCooked = 0
-
+        
         let ingredients = [
             Ingredient(quantity: "2", unit: nil, item: "cucumbers", preparation: "sliced", section: nil),
             Ingredient(quantity: "1", unit: "cup", item: "white vinegar", preparation: nil, section: nil),
@@ -369,31 +419,31 @@ struct SampleData {
             Ingredient(quantity: "2", unit: "tbsp", item: "sugar", preparation: nil, section: nil),
             Ingredient(quantity: "1", unit: "tbsp", item: "salt", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Slice cucumbers thinly"),
             Step(instruction: "Heat vinegar, water, sugar, and salt until dissolved"),
             Step(instruction: "Pour hot liquid over cucumbers in jar"),
             Step(instruction: "Let cool, then refrigerate for at least 2 hours")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Side Dish", "Vegetarian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 15, carbohydrates: 3, protein: 0.5, fat: 0, fiber: 0.5, sodium: 580, sugar: 2)
-
+        
         return recipe
     }
-
+    
     private static func createBeefBurgers() -> Recipe {
         let recipe = Recipe(title: "Classic Beef Burgers", sourceType: .manual)
         recipe.servings = 4
@@ -404,38 +454,38 @@ struct SampleData {
         recipe.isFavorite = false
         recipe.timesCooked = 8
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -15, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "1.5", unit: "lb", item: "ground beef", preparation: "80/20", section: nil),
             Ingredient(quantity: "4", unit: nil, item: "burger buns", preparation: nil, section: nil),
             Ingredient(quantity: "1", unit: "tsp", item: "salt", preparation: nil, section: nil),
             Ingredient(quantity: "1/2", unit: "tsp", item: "black pepper", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Form beef into 4 equal patties"),
             Step(instruction: "Season both sides with salt and pepper"),
             Step(instruction: "Grill or pan-fry over high heat for 4-5 minutes per side"),
             Step(instruction: "Let rest for 2 minutes before serving")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Beef", "Grilling", "Sandwich"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 420, carbohydrates: 24, protein: 28, fat: 24, fiber: 1, sodium: 620, sugar: 4)
-
+        
         return recipe
     }
-
+    
     private static func createVegetarianChili() -> Recipe {
         let recipe = Recipe(title: "Hearty Vegetarian Chili", sourceType: .manual)
         recipe.servings = 8
@@ -446,7 +496,7 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 6
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -60, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "2", unit: "cans", item: "black beans", preparation: "drained", section: nil),
             Ingredient(quantity: "1", unit: "can", item: "kidney beans", preparation: "drained", section: nil),
@@ -454,31 +504,31 @@ struct SampleData {
             Ingredient(quantity: "1", unit: nil, item: "onion", preparation: "diced", section: nil),
             Ingredient(quantity: "2", unit: "tbsp", item: "chili powder", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Sauté onion until soft"),
             Step(instruction: "Add beans, tomatoes, and chili powder"),
             Step(instruction: "Simmer for 45 minutes"),
             Step(instruction: "Adjust seasonings to taste")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Vegetarian", "Mexican", "Comfort Food", "Vegan"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 260, carbohydrates: 42, protein: 14, fat: 4, fiber: 12, sodium: 480, sugar: 8)
-
+        
         return recipe
     }
-
+    
     private static func createPadThai() -> Recipe {
         let recipe = Recipe(title: "Pad Thai", sourceType: .web_imported)
         recipe.servings = 4
@@ -487,7 +537,7 @@ struct SampleData {
         recipe.cuisine = "Thai"
         recipe.notes = "Authentic Thai street food"
         recipe.timesCooked = 0
-
+        
         let ingredients = [
             Ingredient(quantity: "8", unit: "oz", item: "rice noodles", preparation: nil, section: nil),
             Ingredient(quantity: "1", unit: "lb", item: "shrimp", preparation: "peeled", section: nil),
@@ -495,12 +545,12 @@ struct SampleData {
             Ingredient(quantity: "2", unit: "tbsp", item: "tamarind paste", preparation: nil, section: nil),
             Ingredient(quantity: "1/4", unit: "cup", item: "peanuts", preparation: "crushed", section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Soak rice noodles in hot water for 30 minutes"),
             Step(instruction: "Stir-fry shrimp until pink"),
@@ -508,19 +558,19 @@ struct SampleData {
             Step(instruction: "Toss until well coated"),
             Step(instruction: "Top with peanuts and serve")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Thai", "Noodles", "Seafood"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 48, protein: 24, fat: 10, fiber: 2, sodium: 1200, sugar: 8)
-
+        
         return recipe
     }
-
+    
     private static func createFrenchOnionSoup() -> Recipe {
         let recipe = Recipe(title: "French Onion Soup", sourceType: .manual)
         recipe.servings = 6
@@ -531,7 +581,7 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 3
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -150, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "6", unit: nil, item: "onions", preparation: "thinly sliced", section: nil),
             Ingredient(quantity: "4", unit: "cups", item: "beef broth", preparation: nil, section: nil),
@@ -539,12 +589,12 @@ struct SampleData {
             Ingredient(quantity: "6", unit: "slices", item: "French bread", preparation: "toasted", section: nil),
             Ingredient(quantity: "1", unit: "cup", item: "Gruyère cheese", preparation: "grated", section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Caramelize onions slowly over low heat for 45 minutes"),
             Step(instruction: "Add wine and simmer until reduced"),
@@ -552,19 +602,19 @@ struct SampleData {
             Step(instruction: "Ladle into oven-safe bowls"),
             Step(instruction: "Top with bread and cheese, broil until golden")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Soup", "French", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 340, carbohydrates: 28, protein: 14, fat: 18, fiber: 2, sodium: 980, sugar: 8)
-
+        
         return recipe
     }
-
+    
     private static func createBakedSalmon() -> Recipe {
         let recipe = Recipe(title: "Simple Baked Salmon", sourceType: .manual)
         recipe.servings = 4
@@ -574,7 +624,7 @@ struct SampleData {
         recipe.notes = "Healthy and quick"
         recipe.timesCooked = 10
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -8, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "4", unit: nil, item: "salmon fillets", preparation: "6 oz each", section: nil),
             Ingredient(quantity: "2", unit: "tbsp", item: "olive oil", preparation: nil, section: nil),
@@ -582,12 +632,12 @@ struct SampleData {
             Ingredient(quantity: "1", unit: "tsp", item: "salt", preparation: nil, section: nil),
             Ingredient(quantity: "1/2", unit: "tsp", item: "black pepper", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Preheat oven to 400°F"),
             Step(instruction: "Place salmon on baking sheet"),
@@ -595,19 +645,19 @@ struct SampleData {
             Step(instruction: "Top with lemon slices"),
             Step(instruction: "Bake for 15-20 minutes until cooked through")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Seafood", "Healthy", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 320, carbohydrates: 2, protein: 34, fat: 18, fiber: 0, sodium: 520, sugar: 0)
-
+        
         return recipe
     }
-
+    
     private static func createChickenParmesan() -> Recipe {
         let recipe = Recipe(title: "Chicken Parmesan", sourceType: .web_imported)
         recipe.servings = 4
@@ -618,7 +668,7 @@ struct SampleData {
         recipe.isFavorite = false
         recipe.timesCooked = 4
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -35, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "4", unit: nil, item: "chicken breasts", preparation: "pounded thin", section: nil),
             Ingredient(quantity: "1", unit: "cup", item: "breadcrumbs", preparation: nil, section: nil),
@@ -626,31 +676,31 @@ struct SampleData {
             Ingredient(quantity: "1", unit: "cup", item: "mozzarella cheese", preparation: "shredded", section: nil),
             Ingredient(quantity: "1/2", unit: "cup", item: "parmesan cheese", preparation: "grated", section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Coat chicken in breadcrumbs"),
             Step(instruction: "Pan-fry until golden brown on both sides"),
             Step(instruction: "Top with marinara and cheeses"),
             Step(instruction: "Bake at 375°F for 15 minutes until cheese melts")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Chicken", "Italian", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 480, carbohydrates: 24, protein: 42, fat: 22, fiber: 2, sodium: 860, sugar: 6)
-
+        
         return recipe
     }
-
+    
     private static func createVeganCurry() -> Recipe {
         let recipe = Recipe(title: "Coconut Vegetable Curry", sourceType: .manual)
         recipe.servings = 6
@@ -659,7 +709,7 @@ struct SampleData {
         recipe.cuisine = "Thai"
         recipe.notes = "Vegan, gluten-free, can be made mild or spicy"
         recipe.timesCooked = 0
-
+        
         let ingredients = [
             Ingredient(quantity: "1", unit: "can", item: "coconut milk", preparation: nil, section: nil),
             Ingredient(quantity: "2", unit: "tbsp", item: "red curry paste", preparation: nil, section: nil),
@@ -667,12 +717,12 @@ struct SampleData {
             Ingredient(quantity: "1", unit: "cup", item: "chickpeas", preparation: "cooked", section: nil),
             Ingredient(quantity: "2", unit: "tbsp", item: "soy sauce", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Sauté curry paste in a little coconut milk"),
             Step(instruction: "Add vegetables and cook for 5 minutes"),
@@ -680,19 +730,19 @@ struct SampleData {
             Step(instruction: "Simmer for 20 minutes"),
             Step(instruction: "Stir in soy sauce and serve over rice")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Vegan", "Thai", "Healthy"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 320, carbohydrates: 28, protein: 12, fat: 18, fiber: 6, sodium: 620, sugar: 4)
-
+        
         return recipe
     }
-
+    
     private static func createQuickOmelette() -> Recipe {
         let recipe = Recipe(title: "Quick Cheese Omelette", sourceType: .manual)
         recipe.servings = 1
@@ -702,19 +752,19 @@ struct SampleData {
         recipe.notes = "Perfect breakfast!"
         recipe.timesCooked = 25
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -2, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "3", unit: nil, item: "eggs", preparation: nil, section: nil),
             Ingredient(quantity: "1/4", unit: "cup", item: "cheese", preparation: "shredded", section: nil),
             Ingredient(quantity: "1", unit: "tbsp", item: "butter", preparation: nil, section: nil),
             Ingredient(quantity: "1", unit: "pinch", item: "salt", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Beat eggs with salt"),
             Step(instruction: "Melt butter in non-stick pan over medium heat"),
@@ -722,19 +772,19 @@ struct SampleData {
             Step(instruction: "Add cheese to one half"),
             Step(instruction: "Fold omelette and serve immediately")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Breakfast", "Eggs", "Quick", "French"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 280, carbohydrates: 1, protein: 18, fat: 22, fiber: 0, sodium: 380, sugar: 1)
-
+        
         return recipe
     }
-
+    
     private static func createSlowCookerRoast() -> Recipe {
         let recipe = Recipe(title: "Slow Cooker Pot Roast", sourceType: .web_imported)
         recipe.servings = 8
@@ -745,7 +795,7 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 5
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -90, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "3", unit: "lb", item: "beef chuck roast", preparation: nil, section: nil),
             Ingredient(quantity: "4", unit: nil, item: "carrots", preparation: "cut into chunks", section: nil),
@@ -753,12 +803,12 @@ struct SampleData {
             Ingredient(quantity: "1", unit: nil, item: "onion", preparation: "quartered", section: nil),
             Ingredient(quantity: "2", unit: "cups", item: "beef broth", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Place roast in slow cooker"),
             Step(instruction: "Add vegetables around roast"),
@@ -766,19 +816,19 @@ struct SampleData {
             Step(instruction: "Cook on low for 8 hours or high for 4-5 hours"),
             Step(instruction: "Shred meat and serve with vegetables")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Beef", "Slow Cooker", "Comfort Food"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 380, carbohydrates: 22, protein: 38, fat: 14, fiber: 4, sodium: 680, sugar: 4)
-
+        
         return recipe
     }
-
+    
     private static func createCapreseSalad() -> Recipe {
         let recipe = Recipe(title: "Caprese Salad", sourceType: .manual)
         recipe.servings = 4
@@ -787,7 +837,7 @@ struct SampleData {
         recipe.cuisine = "Italian"
         recipe.notes = "Fresh summer salad, no cooking required"
         recipe.timesCooked = 0
-
+        
         let ingredients = [
             Ingredient(quantity: "4", unit: nil, item: "tomatoes", preparation: "sliced", section: nil),
             Ingredient(quantity: "8", unit: "oz", item: "fresh mozzarella", preparation: "sliced", section: nil),
@@ -795,12 +845,12 @@ struct SampleData {
             Ingredient(quantity: "2", unit: "tbsp", item: "olive oil", preparation: "extra virgin", section: nil),
             Ingredient(quantity: "1", unit: "tbsp", item: "balsamic vinegar", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Arrange tomato and mozzarella slices on a platter"),
             Step(instruction: "Tuck basil leaves between slices"),
@@ -808,19 +858,19 @@ struct SampleData {
             Step(instruction: "Season with salt and pepper"),
             Step(instruction: "Serve immediately")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Salad", "Italian", "Vegetarian", "Quick"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 280, carbohydrates: 6, protein: 14, fat: 22, fiber: 1, sodium: 420, sugar: 4)
-
+        
         return recipe
     }
-
+    
     private static func createSpicyRamen() -> Recipe {
         let recipe = Recipe(title: "Spicy Miso Ramen", sourceType: .manual)
         recipe.servings = 2
@@ -830,7 +880,7 @@ struct SampleData {
         recipe.notes = "Customize spice level to taste"
         recipe.timesCooked = 7
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -12, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "2", unit: "packs", item: "ramen noodles", preparation: nil, section: nil),
             Ingredient(quantity: "4", unit: "cups", item: "chicken broth", preparation: nil, section: nil),
@@ -838,12 +888,12 @@ struct SampleData {
             Ingredient(quantity: "1", unit: "tbsp", item: "chili oil", preparation: nil, section: nil),
             Ingredient(quantity: "2", unit: nil, item: "soft-boiled eggs", preparation: nil, section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Bring broth to a simmer"),
             Step(instruction: "Whisk in miso paste and chili oil"),
@@ -851,19 +901,19 @@ struct SampleData {
             Step(instruction: "Divide noodles into bowls"),
             Step(instruction: "Pour broth over noodles, top with soft-boiled eggs")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Japanese", "Noodles", "Spicy"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 420, carbohydrates: 52, protein: 18, fat: 14, fiber: 2, sodium: 1400, sugar: 2)
-
+        
         return recipe
     }
-
+    
     private static func createLemonTart() -> Recipe {
         let recipe = Recipe(title: "French Lemon Tart", sourceType: .web_imported)
         recipe.servings = 8
@@ -874,7 +924,7 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 2
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -180, to: Date())
-
+        
         let ingredients = [
             Ingredient(quantity: "1", unit: nil, item: "pre-made tart crust", preparation: nil, section: nil),
             Ingredient(quantity: "4", unit: nil, item: "eggs", preparation: nil, section: nil),
@@ -882,12 +932,12 @@ struct SampleData {
             Ingredient(quantity: "1/2", unit: "cup", item: "lemon juice", preparation: "fresh", section: nil),
             Ingredient(quantity: "1/4", unit: "cup", item: "butter", preparation: "melted", section: nil)
         ]
-
+        
         for (index, ingredient) in ingredients.enumerated() {
             ingredient.order = index
         }
         recipe.ingredients = ingredients
-
+        
         let steps = [
             Step(instruction: "Preheat oven to 350°F"),
             Step(instruction: "Blind bake tart crust for 15 minutes"),
@@ -896,16 +946,16 @@ struct SampleData {
             Step(instruction: "Bake for 30 minutes until set"),
             Step(instruction: "Chill for 2 hours before serving")
         ]
-
+        
         for (index, step) in steps.enumerated() {
             step.order = index
         }
         recipe.instructions = steps
-
+        
         recipe.userTags = ["Dessert", "French", "Baking"]
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 340, carbohydrates: 42, protein: 5, fat: 16, fiber: 1, sodium: 180, sugar: 28)
-
+        
         return recipe
     }
 }
