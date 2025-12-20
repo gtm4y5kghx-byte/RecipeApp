@@ -53,4 +53,22 @@ class RecipeDetailViewModel {
     func getVariations(from allRecipes: [Recipe]) -> [Recipe] {
         return allRecipes.filter { $0.basedOnRecipeID == recipe.id }
     }
+    
+    func getBasedOnRecipe(from allRecipes: [Recipe]) -> Recipe? {
+        guard let parentID = recipe.basedOnRecipeID else { return nil }
+        return allRecipes.first { $0.id == parentID }
+    }
+    
+    var formattedTotalTime: String? {
+        guard let totalTime = recipe.totalTime else { return nil }
+        if totalTime < 60 {
+            return "\(totalTime) min"
+        }
+        let hours = totalTime / 60
+        let minutes = totalTime % 60
+        if minutes == 0 {
+            return "\(hours)h"
+        }
+        return "\(hours)h \(minutes)m"
+    }
 }

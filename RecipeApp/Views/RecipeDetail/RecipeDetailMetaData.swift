@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct RecipeDetailMetaData: View {
-    let totalTime: Int?
+    let totalTime: String?
     let servings: Int?
     let cuisine: String?
     let sourceURL: String?
+    let basedOnRecipe: Recipe?
     
     var body: some View {
         DSSection {
@@ -12,7 +13,7 @@ struct RecipeDetailMetaData: View {
                 if let totalTime = totalTime {
                     HStack(spacing: Theme.Spacing.xs) {
                         DSIcon("clock", size: .small, color: .secondary)
-                        DSLabel("\(totalTime) min", style: .caption1, color: .secondary)
+                        DSLabel("\(totalTime)", style: .caption1, color: .secondary)
                     }
                 }
                 
@@ -31,9 +32,19 @@ struct RecipeDetailMetaData: View {
                 }
             }
             
+            if let basedOnRecipe = basedOnRecipe {
+                HStack(spacing: Theme.Spacing.xs) {
+                    DSLabel("Based on:", style: .footnote, color: .secondary)
+                    NavigationLink(value: basedOnRecipe) {
+                        DSLabel(basedOnRecipe.title, style: .footnote)
+                    }
+                }
+            }
+            
             if let sourceURL = sourceURL {
                 VStack(alignment: .leading) {
                     DSLabel(sourceURL, style: .subheadline, color: .secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }

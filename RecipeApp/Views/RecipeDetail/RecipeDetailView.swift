@@ -31,10 +31,11 @@ struct RecipeDetailView: View {
                     )
                     
                     RecipeDetailMetaData(
-                        totalTime: viewModel.recipe.totalTime,
+                        totalTime: viewModel.formattedTotalTime,
                         servings: viewModel.recipe.servings,
                         cuisine: viewModel.recipe.cuisine,
-                        sourceURL: viewModel.recipe.sourceURL
+                        sourceURL: viewModel.recipe.sourceURL,
+                        basedOnRecipe: viewModel.getBasedOnRecipe(from: allRecipes)
                     )
                     
                     RecipeDetailTags(
@@ -55,7 +56,7 @@ struct RecipeDetailView: View {
                     
                     RecipeDetailVariations(
                         variations: viewModel.getVariations(from: allRecipes)
-
+                        
                     )
                     
                     RecipeDetailNutrition(
@@ -83,17 +84,20 @@ struct RecipeDetailView: View {
         for: Recipe.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-
+    
     let applePie = SampleData.createApplePie()
     let dutchApplePie = SampleData.createDutchApplePie()
     dutchApplePie.basedOnRecipeID = applePie.id
     dutchApplePie.variationNote = "Dutch-style with streusel topping"
-
+    
     container.mainContext.insert(applePie)
     container.mainContext.insert(dutchApplePie)
-
+    
     return NavigationStack {
         RecipeDetailView(recipe: applePie)
+            .navigationDestination(for: Recipe.self) { recipe in
+                RecipeDetailView(recipe: recipe)
+            }
     }
     .modelContainer(container)
 }

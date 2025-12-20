@@ -7,8 +7,10 @@ struct RecipeDetailVariations: View {
         if !variations.isEmpty {
             DSSection("Variations") {
                 ForEach(variations) { variation in
-                    DSLabel(variation.title)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    NavigationLink(value: variation) {
+                        DSLabel(variation.title)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
