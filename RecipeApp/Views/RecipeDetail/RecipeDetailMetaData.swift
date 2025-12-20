@@ -4,8 +4,6 @@ struct RecipeDetailMetaData: View {
     let totalTime: String?
     let servings: Int?
     let cuisine: String?
-    let sourceURL: String?
-    let basedOnRecipe: Recipe?
     
     var body: some View {
         VStack {
@@ -29,23 +27,6 @@ struct RecipeDetailMetaData: View {
                         DSIcon("fork.knife", size: .small, color: .secondary)
                         DSLabel(cuisine, style: .caption1, color: .secondary)
                     }
-                }
-            }
-            
-            if let basedOnRecipe = basedOnRecipe {
-                HStack(spacing: Theme.Spacing.xs) {
-                    DSLabel("Based on:", style: .footnote, color: .secondary)
-                    NavigationLink(value: basedOnRecipe) {
-                        DSLabel(basedOnRecipe.title, style: .footnote)
-                    }
-                }
-                .padding(.top, Theme.Spacing.xs)
-            }
-            
-            if let sourceURL = sourceURL {
-                VStack(alignment: .leading) {
-                    DSLabel(sourceURL, style: .subheadline, color: .secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }

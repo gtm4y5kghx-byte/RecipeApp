@@ -38,8 +38,6 @@ struct RecipeDetailView: View {
                                 totalTime: viewModel.formattedTotalTime,
                                 servings: viewModel.recipe.servings,
                                 cuisine: viewModel.recipe.cuisine,
-                                sourceURL: viewModel.recipe.sourceURL,
-                                basedOnRecipe: viewModel.getBasedOnRecipe(from: allRecipes)
                             )
                             
                             Spacer()
@@ -61,6 +59,11 @@ struct RecipeDetailView: View {
                     
                     RecipeDetailTags(
                         tags: viewModel.recipe.userTags
+                    )
+                    
+                    RecipeDetailSources(
+                        basedOnRecipe: viewModel.getBasedOnRecipe(from: allRecipes),
+                        sourceURL: viewModel.recipe.sourceURL
                     )
                     
                     RecipeDetailIngredients(
