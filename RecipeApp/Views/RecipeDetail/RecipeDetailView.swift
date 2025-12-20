@@ -9,6 +9,8 @@ struct RecipeDetailView: View {
     
     @State private var viewModel: RecipeDetailViewModel?
     @State private var showingEditSheet = false
+    @State private var showingTransformSheet = false
+    @State private var showingCookingMode = false
     @State private var showingDeleteConfirmation = false
     @State private var error: Error?
     
@@ -62,7 +64,7 @@ struct RecipeDetailView: View {
                     )
                     
                     RecipeDetailIngredients(
-                        ingredients: viewModel.recipe.ingredients
+                        groupedIngredients: viewModel.groupedIngredients
                     )
                     
                     RecipeDetailInstructions(
@@ -90,6 +92,8 @@ struct RecipeDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button("Start Cooking") { showingCookingMode = true }
+                    Button("Transform Recipe") { showingTransformSheet = true }
                     Button("Add to Shopping List") {}
                     Button("Edit") { showingEditSheet = true }
                     Button("Delete", role: .destructive) { showingDeleteConfirmation = true }
@@ -100,6 +104,21 @@ struct RecipeDetailView: View {
         }
         .sheet(isPresented: $showingEditSheet) {
             Text("RecipeFormView goes here")
+        }
+        .sheet(isPresented: $showingCookingMode) {
+            Text("CookingView goes here")
+        }
+        .sheet(isPresented: $showingTransformSheet) {
+            Text("TransformView goes here")
+        }
+        .alert("Delete Recipe?", isPresented: $showingDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                guard let viewModel = viewModel else { return }
+                if viewModel.deleteRecipe() {
+                    dismiss()
+                }
+            }
+            Button("Cancel", role: .cancel) { }
         }
         .onAppear {
             if viewModel == nil {

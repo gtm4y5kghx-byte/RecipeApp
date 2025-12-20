@@ -71,4 +71,11 @@ class RecipeDetailViewModel {
         }
         return "\(hours)h \(minutes)m"
     }
+    
+    var groupedIngredients: [(section: String?, ingredients: [Ingredient])] {
+        let sorted = recipe.ingredients.sorted { $0.order < $1.order }
+        return Dictionary(grouping: sorted, by: \.section)
+            .map { (section: $0.key, ingredients: $0.value) }
+            .sorted { ($0.section ?? "") < ($1.section ?? "") }
+    }
 }

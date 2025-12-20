@@ -2,18 +2,21 @@ import SwiftUI
 import SwiftData
 
 struct RecipeDetailIngredients: View {
-    let ingredients: [Ingredient]
+    let groupedIngredients: [(section: String?, ingredients: [Ingredient])]
     
     var body: some View {
-        if !ingredients.isEmpty {
+        if !groupedIngredients.isEmpty {
             DSSection("Ingredients") {
-                ForEach(ingredients) { ingredient in
-                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                        DSIcon("circle.fill", size: .small, color: .secondary)
-                            .padding(.top, 4)
-                        
-                        DSLabel(ingredient.displayText, style: .body, color: .primary)
+                ForEach(groupedIngredients, id: \.section) { group in
+                    if let section = group.section {
+                        DSLabel(section, style: .headline)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    ForEach(Array(group.ingredients.enumerated()), id: \.element.id) { index, ingredient in
+                        HStack(alignment: .top) {
+                            DSLabel(ingredient.displayText, style: .body, color: .primary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                     }
                 }
             }
@@ -22,12 +25,12 @@ struct RecipeDetailIngredients: View {
 }
 
 #Preview {
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Recipe.self, configurations: config)
-    
-    SampleData.loadSampleRecipes(into: container.mainContext)
-    let recipes = try! container.mainContext.fetch(FetchDescriptor<Recipe>())
-    
-    return RecipeDetailIngredients(ingredients: recipes[0].ingredients)
-        .modelContainer(container)
+    RecipeDetailIngredients(groupedIngredients: [
+        (section: nil, ingredients: [
+            Ingredient(quantity: "2", unit: "cups", item: "flour", preparation: nil, section: nil)
+        ]),
+        (section: "Filling", ingredients: [
+            Ingredient(quantity: "3", unit: nil, item: "apples", preparation: "sliced", section: "Filling")
+        ])
+    ])
 }

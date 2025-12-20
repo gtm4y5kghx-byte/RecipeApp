@@ -8,13 +8,8 @@ struct RecipeDetailInstructions: View {
         if !instructions.isEmpty {
             DSSection("Instructions") {
                 ForEach(Array(instructions.enumerated()), id: \.element.id) { index, step in
-                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                        DSLabel("\(index + 1).", style: .headline, color: .accent)
-                            .frame(width: 32, alignment: .leading)
-                        
-                        DSLabel(step.instruction, style: .body, color: .primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    DSLabel(step.instruction, style: .body, color: .primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
