@@ -74,73 +74,8 @@ struct RecipeDetailViewModelTests {
         #expect(recipe.timesCooked == 1)
         #expect(recipe.lastMade != nil)
     }
-    
-    // MARK: - Recipe Variations Tests
-    
-    @Test("Get recipe variations filters by parent ID")
-    func testRecipeVariations() {
-        let parentRecipe = RecipeTestFixtures.createRecipe(title: "Original Recipe")
 
-        let variation1 = RecipeTestFixtures.createRecipe(title: "Vegan Version")
-        variation1.basedOnRecipeID = parentRecipe.id
-
-        let variation2 = RecipeTestFixtures.createRecipe(title: "Gluten-Free Version")
-        variation2.basedOnRecipeID = parentRecipe.id
-
-        let unrelatedRecipe = RecipeTestFixtures.createRecipe(title: "Different Recipe")
-
-        let allRecipes = [parentRecipe, variation1, variation2, unrelatedRecipe]
-        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
-        let viewModel = RecipeDetailViewModel(recipe: parentRecipe, modelContext: modelContext)
-
-        let variations = viewModel.getVariations(from: allRecipes)
-
-        #expect(variations.count == 2)
-        #expect(variations.contains { $0.id == variation1.id })
-        #expect(variations.contains { $0.id == variation2.id })
-        #expect(!variations.contains { $0.id == unrelatedRecipe.id })
-    }
-
-    @Test("Get recipe variations returns empty when no variations exist")
-    func testRecipeVariationsEmpty() {
-        let recipe = RecipeTestFixtures.createRecipe(title: "Original Recipe")
-        let allRecipes = [recipe]
-        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
-        let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
-
-        let variations = viewModel.getVariations(from: allRecipes)
-
-        #expect(variations.isEmpty)
-    }
-    
-    @Test("Get based on recipe returns parent when exists")
-    func testGetBasedOnRecipeReturnsParent() {
-        let parentRecipe = RecipeTestFixtures.createRecipe(title: "Parent Recipe")
-        let variation = RecipeTestFixtures.createRecipe(title: "Child Recipe")
-        variation.basedOnRecipeID = parentRecipe.id
-        
-        let allRecipes = [parentRecipe, variation]
-        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
-        let viewModel = RecipeDetailViewModel(recipe: variation, modelContext: modelContext)
-        
-        let result = viewModel.getBasedOnRecipe(from: allRecipes)
-        
-        #expect(result?.id == parentRecipe.id)
-    }
-
-    @Test("Get based on recipe returns nil when not a variation")
-    func testGetBasedOnRecipeReturnsNilForNonVariation() {
-        let recipe = RecipeTestFixtures.createRecipe(title: "Original")
-        let allRecipes = [recipe]
-        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
-        let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: modelContext)
-
-        let result = viewModel.getBasedOnRecipe(from: allRecipes)
-
-        #expect(result == nil)
-    }
-    
-    // MARK: CRUD Operations
+    // MARK: - CRUD Operations
     
     @Test("Delete recipe returns true on success")
      func testDeleteRecipeSuccess() {

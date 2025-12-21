@@ -21,8 +21,6 @@ class Recipe {
     var lastModified: Date
     var lastMade: Date?
     var isFavorite: Bool = false
-    var basedOnRecipeID: UUID?
-    var variationNote: String?
     
     @Relationship(deleteRule: .cascade)
     var ingredients: [Ingredient]
@@ -54,10 +52,6 @@ class Recipe {
     
     var canStartCooking: Bool {
         !ingredients.isEmpty && !instructions.isEmpty
-    }
-    
-    var isVariation: Bool {
-        basedOnRecipeID != nil
     }
 }
 

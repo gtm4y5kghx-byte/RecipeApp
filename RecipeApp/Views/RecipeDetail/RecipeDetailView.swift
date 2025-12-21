@@ -2,14 +2,11 @@ import SwiftUI
 import SwiftData
 
 struct RecipeDetailView: View {
-    @Query private var allRecipes: [Recipe]
-    
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
     @State private var viewModel: RecipeDetailViewModel?
     @State private var showingEditSheet = false
-    @State private var showingTransformSheet = false
     @State private var showingCookingMode = false
     @State private var showingDeleteConfirmation = false
     @State private var error: Error?
@@ -62,7 +59,6 @@ struct RecipeDetailView: View {
                     )
                     
                     RecipeDetailSources(
-                        basedOnRecipe: viewModel.getBasedOnRecipe(from: allRecipes),
                         sourceURL: viewModel.recipe.sourceURL
                     )
                     
@@ -77,12 +73,7 @@ struct RecipeDetailView: View {
                     RecipeDetailNotes(
                         notes: viewModel.recipe.notes
                     )
-                    
-                    RecipeDetailVariations(
-                        variations: viewModel.getVariations(from: allRecipes)
-                        
-                    )
-                    
+
                     RecipeDetailNutrition(
                         nutrition: viewModel.recipe.nutrition
                     )
@@ -96,7 +87,6 @@ struct RecipeDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button("Start Cooking") { showingCookingMode = true }
-                    Button("Transform Recipe") { showingTransformSheet = true }
                     Button("Add to Shopping List") {}
                     Button("Edit") { showingEditSheet = true }
                     Button("Delete", role: .destructive) { showingDeleteConfirmation = true }
@@ -110,9 +100,6 @@ struct RecipeDetailView: View {
         }
         .sheet(isPresented: $showingCookingMode) {
             Text("CookingView goes here")
-        }
-        .sheet(isPresented: $showingTransformSheet) {
-            Text("TransformView goes here")
         }
         .alert("Delete Recipe?", isPresented: $showingDeleteConfirmation) {
             Button("Delete", role: .destructive) {
@@ -135,24 +122,7 @@ struct RecipeDetailView: View {
 }
 
 #Preview {
-    let container = try! ModelContainer(
-        for: Recipe.self,
-        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
-    
-    let applePie = SampleData.createApplePie()
-    let dutchApplePie = SampleData.createDutchApplePie()
-    dutchApplePie.basedOnRecipeID = applePie.id
-    dutchApplePie.variationNote = "Dutch-style with streusel topping"
-    
-    container.mainContext.insert(applePie)
-    container.mainContext.insert(dutchApplePie)
-    
-    return NavigationStack {
-        RecipeDetailView(recipe: applePie)
-            .navigationDestination(for: Recipe.self) { recipe in
-                RecipeDetailView(recipe: recipe)
-            }
+    NavigationStack {
+        RecipeDetailView(recipe: SampleData.createApplePie())
     }
-    .modelContainer(container)
 }

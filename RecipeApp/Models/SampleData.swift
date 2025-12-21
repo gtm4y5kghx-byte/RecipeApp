@@ -50,7 +50,6 @@ struct SampleData {
         recipe.cookTime = 45
         recipe.cuisine = "American"
         recipe.notes = "The crumb topping adds extra crunch and sweetness!"
-        recipe.variationNote = "Crumb topping instead of pastry crust"
         recipe.timesCooked = 2
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -30, to: Date())
         

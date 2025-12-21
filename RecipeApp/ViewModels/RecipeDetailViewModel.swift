@@ -49,16 +49,7 @@ class RecipeDetailViewModel {
             return false
         }
     }
-    
-    func getVariations(from allRecipes: [Recipe]) -> [Recipe] {
-        return allRecipes.filter { $0.basedOnRecipeID == recipe.id }
-    }
-    
-    func getBasedOnRecipe(from allRecipes: [Recipe]) -> Recipe? {
-        guard let parentID = recipe.basedOnRecipeID else { return nil }
-        return allRecipes.first { $0.id == parentID }
-    }
-    
+
     var formattedTotalTime: String? {
         guard let totalTime = recipe.totalTime else { return nil }
         if totalTime < 60 {
