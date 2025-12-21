@@ -4,7 +4,6 @@ struct RecipeListSearchBar: View {
     @Binding var searchText: String
     @Binding var searchScope: SearchScope
     let onSubmit: () -> Void
-    let onAISearch: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -22,7 +21,6 @@ struct RecipeListSearchBar: View {
                 SearchBar(
                     text: $searchText,
                     onSubmit: onSubmit,
-                    onAISearch: onAISearch
                 )
             }
             

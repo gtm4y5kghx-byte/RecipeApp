@@ -96,7 +96,7 @@ struct RecipeDetailView: View {
             }
         }
         .sheet(isPresented: $showingEditSheet) {
-            Text("RecipeFormView goes here")
+            RecipeFormView(recipe: recipe)
         }
         .sheet(isPresented: $showingCookingMode) {
             Text("CookingView goes here")

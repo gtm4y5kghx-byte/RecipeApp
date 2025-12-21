@@ -12,8 +12,8 @@ struct RecipeListView: View {
     @State private var selectedRecipe: Recipe?
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
-    @State private var showAISearch = false
     @State private var showSettings = false
+    @State private var showingNewRecipe = false
     @State private var error: Error?
     
     init(previewViewModel: RecipeListViewModel? = nil) {
@@ -72,7 +72,7 @@ struct RecipeListView: View {
                                 searchText = ""
                             },
                             onAddRecipe: {
-                                // TODO: Navigate to new recipe
+                                showingNewRecipe = true
                             }
                         )
                     } else {
@@ -88,9 +88,6 @@ struct RecipeListView: View {
                     onSubmit: {
                         viewModel?.performSearch(query: searchText, scope: searchScope)
                     },
-                    onAISearch: {
-                        showAISearch = true
-                    }
                 )
             }
             .background(Theme.Colors.background)
@@ -104,8 +101,8 @@ struct RecipeListView: View {
                 // TODO: RecipeDetailView
                 Text("Recipe Detail View Coming Soon")
             }
-            .sheet(isPresented: $showAISearch) {
-                aiSearchSheet()
+            .sheet(isPresented: $showingNewRecipe) {
+                RecipeFormView(recipe: nil)
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
@@ -126,13 +123,6 @@ struct RecipeListView: View {
     }
     
     @ViewBuilder
-    private func aiSearchSheet() -> some View {
-        if let viewModel = viewModel {
-            AISearchSheet(viewModel: viewModel)
-        }
-    }
-    
-    @ViewBuilder
     private func recipeMenuSheet() -> some View {
         if let viewModel = viewModel {
             RecipesMenuSheet(
@@ -142,7 +132,7 @@ struct RecipeListView: View {
                     viewModel.selectMenuOption(optionId)
                 },
                 onNewRecipe: {
-                    // TODO: Navigate to recipe form
+                    showingNewRecipe = true
                 },
                 onSettings: {
                     showSettings = true

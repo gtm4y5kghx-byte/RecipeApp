@@ -6,6 +6,8 @@ import Foundation
 @MainActor
 struct RecipeFormViewModelTests {
 
+    // MARK: - Form Has Changes (New Recipe)
+
     @Test("Form has changes returns false for new recipe with no input")
     func testFormHasChangesNewRecipeEmpty() {
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
@@ -33,6 +35,8 @@ struct RecipeFormViewModelTests {
 
         #expect(viewModel.formHasChanges == true)
     }
+
+    // MARK: - Form Has Changes (Edit Recipe)
 
     @Test("Form has changes returns false for edit recipe with no changes")
     func testFormHasChangesEditRecipeNoChanges() {
@@ -84,6 +88,58 @@ struct RecipeFormViewModelTests {
 
         #expect(viewModel.formHasChanges == true)
     }
+
+    // MARK: - Ingredient Management
+
+    @Test("Add ingredient appends empty string")
+    func testAddIngredient() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        let initialCount = viewModel.ingredientFields.count
+        viewModel.addIngredient()
+
+        #expect(viewModel.ingredientFields.count == initialCount + 1)
+        #expect(viewModel.ingredientFields.last == "")
+    }
+
+    @Test("Remove ingredient removes at index")
+    func testRemoveIngredient() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.ingredientFields = ["flour", "sugar", "salt"]
+        viewModel.removeIngredient(at: 1)
+
+        #expect(viewModel.ingredientFields == ["flour", "salt"])
+    }
+
+    // MARK: - Instruction Management
+
+    @Test("Add instruction appends empty string")
+    func testAddInstruction() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        let initialCount = viewModel.instructionFields.count
+        viewModel.addInstruction()
+
+        #expect(viewModel.instructionFields.count == initialCount + 1)
+        #expect(viewModel.instructionFields.last == "")
+    }
+
+    @Test("Remove instruction removes at index")
+    func testRemoveInstruction() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.instructionFields = ["Step 1", "Step 2", "Step 3"]
+        viewModel.removeInstruction(at: 0)
+
+        #expect(viewModel.instructionFields == ["Step 2", "Step 3"])
+    }
+
+    // MARK: - Tag Suggestions
 
     @Test("Tag suggestions returns empty when no input")
     func testTagSuggestionsEmpty() {
@@ -169,5 +225,29 @@ struct RecipeFormViewModelTests {
 
         #expect(suggestions.count == 1)
         #expect(suggestions[0].0 == "italian")
+    }
+
+    // MARK: - Apply Tag Suggestion
+
+    @Test("Apply tag suggestion replaces partial tag")
+    func testApplyTagSuggestion() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.tagInput = "ita"
+        viewModel.applyTagSuggestion("italian")
+
+        #expect(viewModel.tagInput == "italian, ")
+    }
+
+    @Test("Apply tag suggestion with existing tags")
+    func testApplyTagSuggestionWithExistingTags() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.tagInput = "quick, ita"
+        viewModel.applyTagSuggestion("italian")
+
+        #expect(viewModel.tagInput == "quick, italian, ")
     }
 }

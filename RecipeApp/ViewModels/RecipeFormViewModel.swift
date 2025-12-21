@@ -5,6 +5,9 @@ import SwiftData
 @MainActor
 @Observable
 class RecipeFormViewModel {
+
+    // MARK: - Form Fields
+
     var title: String = ""
     var servings: String = ""
     var prepTime: String = ""
@@ -16,9 +19,13 @@ class RecipeFormViewModel {
     var tagInput: String = ""
     var error: Error?
 
+    // MARK: - Private Properties
+
     private let recipe: Recipe?
     private let modelContext: ModelContext
     private let importData: RecipeImportData?
+
+    // MARK: - Initialization
 
     init(recipe: Recipe?, importData: RecipeImportData?, modelContext: ModelContext) {
         self.recipe = recipe
@@ -31,6 +38,111 @@ class RecipeFormViewModel {
             populateFromImportData(importData)
         }
     }
+
+    // MARK: - Computed Properties
+
+    var formHasChanges: Bool {
+        if recipe == nil {
+            return !title.isEmpty ||
+                ingredientFields.contains(where: { !$0.isEmpty }) ||
+                instructionFields.contains(where: { !$0.isEmpty }) ||
+                !servings.isEmpty ||
+                !prepTime.isEmpty ||
+                !cookTime.isEmpty ||
+                !cuisine.isEmpty ||
+                !notes.isEmpty ||
+                !tagInput.isEmpty
+        }
+
+        guard let recipe = recipe else { return false }
+
+        let ingredientsChanged = ingredientFields != recipe.sortedIngredients.map { $0.item }
+        let instructionsChanged = instructionFields != recipe.sortedInstructions.map { $0.instruction }
+        let tagsChanged = tagInput != recipe.userTags.joined(separator: ", ")
+
+        return title != recipe.title ||
+            servings != (recipe.servings.map { String($0) } ?? "") ||
+            prepTime != (recipe.prepTime.map { String($0) } ?? "") ||
+            cookTime != (recipe.cookTime.map { String($0) } ?? "") ||
+            cuisine != (recipe.cuisine ?? "") ||
+            notes != (recipe.notes ?? "") ||
+            ingredientsChanged ||
+            instructionsChanged ||
+            tagsChanged
+    }
+
+    // MARK: - Ingredient Management
+
+    func addIngredient() {
+        ingredientFields.append("")
+    }
+
+    func removeIngredient(at index: Int) {
+        ingredientFields.remove(at: index)
+    }
+
+    // MARK: - Instruction Management
+
+    func addInstruction() {
+        instructionFields.append("")
+    }
+
+    func removeInstruction(at index: Int) {
+        instructionFields.remove(at: index)
+    }
+
+    // MARK: - Tag Management
+
+    func getTagSuggestions(allRecipes: [Recipe]) -> [(String, Int)] {
+        let currentTag = tagInput
+            .split(separator: ",")
+            .last?
+            .trimmingCharacters(in: .whitespaces)
+            .lowercased() ?? ""
+
+        guard !currentTag.isEmpty else { return [] }
+
+        let allTags = allRecipes.flatMap { $0.userTags }
+        let tagCounts = Dictionary(grouping: allTags, by: { $0.lowercased() })
+            .mapValues { $0.count }
+
+        let filtered = tagCounts.filter { tag, _ in
+            tag.contains(currentTag) && tag != currentTag
+        }
+
+        return filtered
+            .map { ($0.key, $0.value) }
+            .sorted { $0.1 > $1.1 }
+    }
+
+    func applyTagSuggestion(_ tag: String) {
+        var tags = tagInput.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) }
+        if !tags.isEmpty { tags.removeLast() }
+        tags.append(tag)
+        tagInput = tags.joined(separator: ", ") + ", "
+    }
+
+    // MARK: - Save Recipe
+
+    func saveRecipe() -> Bool {
+        let recipeToSave: Recipe
+
+        if let existingRecipe = recipe {
+            recipeToSave = existingRecipe
+        } else {
+            recipeToSave = createNewRecipe()
+            modelContext.insert(recipeToSave)
+        }
+
+        updateRecipeProperties(recipeToSave)
+        updateRecipeTags(recipeToSave)
+        updateRecipeIngredients(recipeToSave)
+        updateRecipeInstructions(recipeToSave)
+
+        return saveToContext()
+    }
+
+    // MARK: - Private Helpers (Population)
 
     private func populateFromRecipe(_ recipe: Recipe) {
         self.title = recipe.title
@@ -61,71 +173,7 @@ class RecipeFormViewModel {
         self.instructionFields = importData.instructions.isEmpty ? [""] : importData.instructions
     }
 
-    var formHasChanges: Bool {
-        if recipe == nil {
-            return !title.isEmpty ||
-            ingredientFields.contains(where: { !$0.isEmpty }) ||
-            instructionFields.contains(where: { !$0.isEmpty }) ||
-            !servings.isEmpty || !prepTime.isEmpty || !cookTime.isEmpty || !cuisine.isEmpty || !notes.isEmpty ||
-            !tagInput.isEmpty
-        }
-
-        guard let recipe = recipe else { return false }
-
-        let ingredientsChanged = ingredientFields != recipe.sortedIngredients.map { $0.item }
-        let instructionsChanged = instructionFields != recipe.sortedInstructions.map { $0.instruction }
-        let tagsChanged = tagInput != recipe.userTags.joined(separator: ", ")
-
-        return title != recipe.title ||
-        servings != (recipe.servings.map { String($0) } ?? "") ||
-        prepTime != (recipe.prepTime.map { String($0) } ?? "") ||
-        cookTime != (recipe.cookTime.map { String($0) } ?? "") ||
-        cuisine != (recipe.cuisine ?? "") ||
-        notes != (recipe.notes ?? "") ||
-        ingredientsChanged ||
-        instructionsChanged ||
-        tagsChanged
-    }
-
-    func getTagSuggestions(allRecipes: [Recipe]) -> [(String, Int)] {
-        let currentTag = tagInput
-            .split(separator: ",")
-            .last?
-            .trimmingCharacters(in: .whitespaces)
-            .lowercased() ?? ""
-
-        guard !currentTag.isEmpty else { return [] }
-
-        let allTags = allRecipes.flatMap { $0.userTags }
-        let tagCounts = Dictionary(grouping: allTags, by: { $0.lowercased() })
-            .mapValues { $0.count }
-
-        let filtered = tagCounts.filter { tag, _ in
-            tag.contains(currentTag) && tag != currentTag
-        }
-
-        return filtered
-            .map { ($0.key, $0.value) }
-            .sorted { $0.1 > $1.1 }
-    }
-
-    func saveRecipe() -> Bool {
-        let recipeToSave: Recipe
-
-        if let existingRecipe = recipe {
-            recipeToSave = existingRecipe
-        } else {
-            recipeToSave = createNewRecipe()
-            modelContext.insert(recipeToSave)
-        }
-
-        updateRecipeProperties(recipeToSave)
-        updateRecipeTags(recipeToSave)
-        updateRecipeIngredients(recipeToSave)
-        updateRecipeInstructions(recipeToSave)
-
-        return saveToContext()
-    }
+    // MARK: - Private Helpers (Save)
 
     private func createNewRecipe() -> Recipe {
         let newRecipe = Recipe(
