@@ -46,7 +46,7 @@ class Recipe {
         if let prep = prepTime, let cook = cookTime {
             return prep + cook
         }
-        // Fall back to either field if only one is set (e.g., Spoonacular recipes)
+        // Fall back to either field if only one is set
         return prepTime ?? cookTime
     }
     
@@ -178,5 +178,5 @@ class NutritionInfo {
 enum SourceType: String, Codable {
     case manual
     case web_imported
-    case spoonacular
+    case ai_generated
 }

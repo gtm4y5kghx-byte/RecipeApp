@@ -5,7 +5,7 @@ extension SourceType {
         switch self {
         case .manual: return "Manual Entry"
         case .web_imported: return "Web Import"
-        case .spoonacular: return "Spoonacular"
+        case .ai_generated: return "AI Generated"
         }
     }
 
@@ -13,7 +13,7 @@ extension SourceType {
         switch self {
         case .manual: return "pencil"
         case .web_imported: return "cloud.fill"
-        case .spoonacular: return "fork.knife.circle"
+        case .ai_generated: return "sparkles"
         }
     }
 }

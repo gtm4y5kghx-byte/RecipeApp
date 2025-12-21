@@ -28,26 +28,4 @@ enum Config {
         """)
     }
 
-    static var spoonacularAPIKey: String {
-        if isUITesting {
-            return "mock-spoonacular-api-key-for-testing"
-        }
-
-        if let key = ProcessInfo.processInfo.environment["SPOONACULAR_API_KEY"], !key.isEmpty {
-            return key
-        }
-
-        if let key = UserDefaults.standard.string(forKey: "spoonacular_api_key"), !key.isEmpty {
-            return key
-        }
-
-        fatalError("""
-        Spoonacular API key not configured.
-
-        To set the key, run this in your app:
-        UserDefaults.standard.set("your-api-key", forKey: "spoonacular_api_key")
-
-        Or set SPOONACULAR_API_KEY environment variable.
-        """)
-    }
 }
