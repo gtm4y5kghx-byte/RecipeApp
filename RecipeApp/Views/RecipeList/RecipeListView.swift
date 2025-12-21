@@ -94,6 +94,9 @@ struct RecipeListView: View {
                 )
             }
             .background(Theme.Colors.background)
+            .navigationDestination(item: $selectedRecipe) { recipe in
+                RecipeDetailView(recipe: recipe)
+            }
             .sheet(isPresented: $showingMenu) {
                 recipeMenuSheet()
             }
