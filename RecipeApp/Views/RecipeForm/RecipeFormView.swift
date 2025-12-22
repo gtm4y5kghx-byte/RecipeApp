@@ -18,6 +18,14 @@ struct RecipeFormView: View {
                 @Bindable var viewModel = viewModel
                 
                 Form {
+                    
+                    RecipeFormImage(
+                        selectedImageData: $viewModel.selectedImageData,
+                        hasImage: viewModel.hasImage,
+                        onRemove: { viewModel.removeImage() }
+                    )
+                    
+                    
                     RecipeFormBasicInfo(
                         title: $viewModel.title,
                         servings: $viewModel.servings,
