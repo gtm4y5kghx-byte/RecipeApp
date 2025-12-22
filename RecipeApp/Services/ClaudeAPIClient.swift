@@ -3,11 +3,21 @@ import Foundation
 class ClaudeAPIClient {
     private let apiKey: String
 
+    enum Model {
+        case sonnet
+        case haiku
+
+        var identifier: String {
+            switch self {
+            case .sonnet: return "claude-sonnet-4-5-20250929"
+            case .haiku: return "claude-3-5-haiku-20241022"
+            }
+        }
+    }
+
     private struct APIConstants {
         static let baseURL = "https://api.anthropic.com/v1"
         static let apiVersion = "2023-06-01"
-        static let sonnetModel = "claude-sonnet-4-5-20250929"
-        static let haikuModel = "claude-3-5-haiku-20241022"
         static let defaultMaxTokens = 1024
         static let screeningMaxTokens = 10
     }
@@ -29,9 +39,9 @@ class ClaudeAPIClient {
         self.apiKey = apiKey
     }
 
-    func sendMessage(prompt: String, systemPrompt: String) async throws -> String {
+    func sendMessage(prompt: String, systemPrompt: String, model: Model = .sonnet) async throws -> String {
         let request = try buildRequest(
-            model: APIConstants.sonnetModel,
+            model: model.identifier,
             maxTokens: APIConstants.defaultMaxTokens,
             prompt: prompt,
             systemPrompt: systemPrompt
@@ -53,7 +63,7 @@ class ClaudeAPIClient {
         """
 
         let request = try buildRequest(
-            model: APIConstants.haikuModel,
+            model: Model.haiku.identifier,
             maxTokens: APIConstants.screeningMaxTokens,
             prompt: query,
             systemPrompt: systemPrompt

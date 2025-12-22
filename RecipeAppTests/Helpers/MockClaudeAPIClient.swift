@@ -10,16 +10,18 @@ class MockClaudeAPIClient: ClaudeAPIClient {
     var screenUserInputCallCount = 0
     var lastPrompt: String?
     var lastSystemPrompt: String?
+    var lastModel: Model?
     var lastQuery: String?
 
     init() {
         super.init(apiKey: "mock-api-key-for-testing")
     }
 
-    override func sendMessage(prompt: String, systemPrompt: String) async throws -> String {
+    override func sendMessage(prompt: String, systemPrompt: String, model: Model = .sonnet) async throws -> String {
         sendMessageCallCount += 1
         lastPrompt = prompt
         lastSystemPrompt = systemPrompt
+        lastModel = model
 
         if shouldThrowError {
             throw ClaudeError.networkError(NSError(domain: "MockError", code: 1, userInfo: nil))
@@ -45,6 +47,7 @@ class MockClaudeAPIClient: ClaudeAPIClient {
         screenUserInputCallCount = 0
         lastPrompt = nil
         lastSystemPrompt = nil
+        lastModel = nil
         lastQuery = nil
     }
 }

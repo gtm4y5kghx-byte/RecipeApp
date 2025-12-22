@@ -17,6 +17,7 @@ class RecipeFormViewModel {
     var ingredientFields: [String] = [""]
     var instructionFields: [String] = [""]
     var tagInput: String = ""
+    var selectedImageData: Data?
     var error: Error?
 
     // MARK: - Private Properties
@@ -24,6 +25,8 @@ class RecipeFormViewModel {
     private let recipe: Recipe?
     private let modelContext: ModelContext
     private let importData: RecipeImportData?
+    private var imageRemoved: Bool = false
+    private var originalHasImage: Bool = false
 
     // MARK: - Initialization
 
@@ -41,6 +44,10 @@ class RecipeFormViewModel {
 
     // MARK: - Computed Properties
 
+    var hasImage: Bool {
+        selectedImageData != nil || (originalHasImage && !imageRemoved)
+    }
+
     var formHasChanges: Bool {
         if recipe == nil {
             return !title.isEmpty ||
@@ -51,7 +58,8 @@ class RecipeFormViewModel {
                 !cookTime.isEmpty ||
                 !cuisine.isEmpty ||
                 !notes.isEmpty ||
-                !tagInput.isEmpty
+                !tagInput.isEmpty ||
+                selectedImageData != nil
         }
 
         guard let recipe = recipe else { return false }
@@ -59,6 +67,7 @@ class RecipeFormViewModel {
         let ingredientsChanged = ingredientFields != recipe.sortedIngredients.map { $0.item }
         let instructionsChanged = instructionFields != recipe.sortedInstructions.map { $0.instruction }
         let tagsChanged = tagInput != recipe.userTags.joined(separator: ", ")
+        let imageChanged = selectedImageData != nil || imageRemoved
 
         return title != recipe.title ||
             servings != (recipe.servings.map { String($0) } ?? "") ||
@@ -68,7 +77,8 @@ class RecipeFormViewModel {
             notes != (recipe.notes ?? "") ||
             ingredientsChanged ||
             instructionsChanged ||
-            tagsChanged
+            tagsChanged ||
+            imageChanged
     }
 
     // MARK: - Ingredient Management
@@ -122,6 +132,18 @@ class RecipeFormViewModel {
         tagInput = tags.joined(separator: ", ") + ", "
     }
 
+    // MARK: - Image Management
+
+    func setImage(_ data: Data?) {
+        selectedImageData = data
+        imageRemoved = false
+    }
+
+    func removeImage() {
+        selectedImageData = nil
+        imageRemoved = true
+    }
+
     // MARK: - Save Recipe
 
     func saveRecipe() -> Bool {
@@ -159,6 +181,7 @@ class RecipeFormViewModel {
         self.instructionFields = instructionTexts.isEmpty ? [""] : instructionTexts
 
         self.tagInput = recipe.userTags.joined(separator: ", ")
+        self.originalHasImage = recipe.imageURL != nil
     }
 
     private func populateFromImportData(_ importData: RecipeImportData) {

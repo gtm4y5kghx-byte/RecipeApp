@@ -250,4 +250,74 @@ struct RecipeFormViewModelTests {
 
         #expect(viewModel.tagInput == "quick, italian, ")
     }
+
+    // MARK: - Image Management
+
+    @Test("Set image stores image data")
+    func testSetImageStoresData() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+        let imageData = Data([0x00, 0x01, 0x02])
+
+        viewModel.setImage(imageData)
+
+        #expect(viewModel.selectedImageData == imageData)
+    }
+
+    @Test("Remove image clears image data")
+    func testRemoveImageClearsData() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+        let imageData = Data([0x00, 0x01, 0x02])
+
+        viewModel.setImage(imageData)
+        viewModel.removeImage()
+
+        #expect(viewModel.selectedImageData == nil)
+    }
+
+    @Test("Has image returns true when image is set")
+    func testHasImageReturnsTrue() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.setImage(Data([0x00, 0x01, 0x02]))
+
+        #expect(viewModel.hasImage == true)
+    }
+
+    @Test("Has image returns false when no image")
+    func testHasImageReturnsFalse() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        #expect(viewModel.hasImage == false)
+    }
+
+    @Test("Form has changes returns true for new recipe with image")
+    func testFormHasChangesNewRecipeWithImage() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.setImage(Data([0x00, 0x01, 0x02]))
+
+        #expect(viewModel.formHasChanges == true)
+    }
+
+    @Test("Form has changes returns true when image removed from existing recipe")
+    func testFormHasChangesEditRecipeImageRemoved() {
+        let recipe = RecipeTestFixtures.createRecipe(
+            title: "Recipe with Image",
+            ingredients: [("", nil, "flour")],
+            instructions: ["Mix"]
+        )
+        recipe.imageURL = "file:///existing/image.jpg"
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
+
+        viewModel.removeImage()
+
+        #expect(viewModel.formHasChanges == true)
+    }
 }

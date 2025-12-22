@@ -35,7 +35,8 @@ class AISuggestionEngineService {
         
         let jsonResponse = try await claudeClient.sendMessage(
             prompt: userPrompt,
-            systemPrompt: systemPrompt
+            systemPrompt: systemPrompt,
+            model: .haiku
         )
         
         return try parseSuggestions(from: jsonResponse, recipes: recipes)
