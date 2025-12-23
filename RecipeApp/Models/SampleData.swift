@@ -137,7 +137,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createChocolateCake() -> Recipe {
+    static func createChocolateCake() -> Recipe {
         let recipe = Recipe(title: "Simple Chocolate Cake", sourceType: .manual)
         recipe.servings = 12
         recipe.prepTime = 20
@@ -182,7 +182,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createGrilledCheese() -> Recipe {
+    static func createGrilledCheese() -> Recipe {
         let recipe = Recipe(title: "Classic Grilled Cheese", sourceType: .manual)
         recipe.servings = 1
         recipe.prepTime = 5
@@ -224,7 +224,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createTacos() -> Recipe {
+    static func createTacos() -> Recipe {
         let recipe = Recipe(title: "Easy Beef Tacos", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 10
@@ -269,7 +269,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createPasta() -> Recipe {
+    static func createPasta() -> Recipe {
         let recipe = Recipe(title: "Garlic Butter Pasta", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 5
@@ -315,7 +315,7 @@ struct SampleData {
     
     // NEW RECIPES FOR TESTING VARIETY
     
-    private static func createChickenStirFry() -> Recipe {
+    static func createChickenStirFry() -> Recipe {
         let recipe = Recipe(title: "Quick Chicken Stir Fry", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 15
@@ -359,7 +359,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createTomSoup() -> Recipe {
+    static func createTomSoup() -> Recipe {
         let recipe = Recipe(title: "Creamy Tomato Soup", sourceType: .web_imported)
         recipe.servings = 6
         recipe.prepTime = 10
@@ -402,7 +402,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createQuickPickles() -> Recipe {
+    static func createQuickPickles() -> Recipe {
         let recipe = Recipe(title: "Quick Pickles", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 10
@@ -443,7 +443,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createBeefBurgers() -> Recipe {
+    static func createBeefBurgers() -> Recipe {
         let recipe = Recipe(title: "Classic Beef Burgers", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 10
@@ -485,7 +485,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createVegetarianChili() -> Recipe {
+    static func createVegetarianChili() -> Recipe {
         let recipe = Recipe(title: "Hearty Vegetarian Chili", sourceType: .manual)
         recipe.servings = 8
         recipe.prepTime = 15
@@ -528,7 +528,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createPadThai() -> Recipe {
+    static func createPadThai() -> Recipe {
         let recipe = Recipe(title: "Pad Thai", sourceType: .web_imported)
         recipe.servings = 4
         recipe.prepTime = 20
@@ -570,7 +570,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createFrenchOnionSoup() -> Recipe {
+    static func createFrenchOnionSoup() -> Recipe {
         let recipe = Recipe(title: "French Onion Soup", sourceType: .manual)
         recipe.servings = 6
         recipe.prepTime = 20
@@ -614,7 +614,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createBakedSalmon() -> Recipe {
+    static func createBakedSalmon() -> Recipe {
         let recipe = Recipe(title: "Simple Baked Salmon", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 5
@@ -657,7 +657,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createChickenParmesan() -> Recipe {
+    static func createChickenParmesan() -> Recipe {
         let recipe = Recipe(title: "Chicken Parmesan", sourceType: .web_imported)
         recipe.servings = 4
         recipe.prepTime = 20
@@ -700,7 +700,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createVeganCurry() -> Recipe {
+    static func createVeganCurry() -> Recipe {
         let recipe = Recipe(title: "Coconut Vegetable Curry", sourceType: .manual)
         recipe.servings = 6
         recipe.prepTime = 15
@@ -742,7 +742,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createQuickOmelette() -> Recipe {
+    static func createQuickOmelette() -> Recipe {
         let recipe = Recipe(title: "Quick Cheese Omelette", sourceType: .manual)
         recipe.servings = 1
         recipe.prepTime = 2
@@ -784,7 +784,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createSlowCookerRoast() -> Recipe {
+    static func createSlowCookerRoast() -> Recipe {
         let recipe = Recipe(title: "Slow Cooker Pot Roast", sourceType: .web_imported)
         recipe.servings = 8
         recipe.prepTime = 15
@@ -828,7 +828,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createCapreseSalad() -> Recipe {
+    static func createCapreseSalad() -> Recipe {
         let recipe = Recipe(title: "Caprese Salad", sourceType: .manual)
         recipe.servings = 4
         recipe.prepTime = 10
@@ -870,7 +870,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createSpicyRamen() -> Recipe {
+    static func createSpicyRamen() -> Recipe {
         let recipe = Recipe(title: "Spicy Miso Ramen", sourceType: .manual)
         recipe.servings = 2
         recipe.prepTime = 10
@@ -913,7 +913,7 @@ struct SampleData {
         return recipe
     }
     
-    private static func createLemonTart() -> Recipe {
+    static func createLemonTart() -> Recipe {
         let recipe = Recipe(title: "French Lemon Tart", sourceType: .web_imported)
         recipe.servings = 8
         recipe.prepTime = 30

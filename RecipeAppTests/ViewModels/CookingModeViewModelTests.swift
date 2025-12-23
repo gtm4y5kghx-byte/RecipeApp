@@ -72,6 +72,26 @@ struct CookingModeViewModelTests {
         #expect(viewModel.currentStepIndex == 2)
     }
     
+    // MARK: - Step Items
+    
+    @Test("stepItems returns indexed steps with labels")
+    func testStepItems() {
+        let recipe = RecipeTestFixtures.createRecipe(
+            title: "Test Recipe",
+            instructions: ["Mix flour", "Add eggs", "Bake"]
+        )
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = CookingModeViewModel(recipe: recipe, modelContext: modelContext)
+        
+        let items = viewModel.stepItems
+        
+        #expect(items.count == 3)
+        #expect(items[0].id == 0)
+        #expect(items[0].step.instruction == "Mix flour")
+        #expect(items[0].label == "Step 1 of 3")
+        #expect(items[2].label == "Step 3 of 3")
+    }
+    
     // MARK: - State Tests
     
     @Test("isOnFinalStep returns true for last step")

@@ -14,9 +14,16 @@ class CookingModeViewModel {
         self.recipe = recipe
         self.modelContext = modelContext
     }
+    
+    struct StepItem: Identifiable {
+        let id: Int
+        let step: Step
+        var label: String { "Step \(id + 1) of \(totalSteps)" }
+        let totalSteps: Int
+    }
 
     // MARK: - Computed Properties
-
+    
     var currentStep: Step {
         sortedSteps[currentStepIndex]
     }
@@ -28,6 +35,13 @@ class CookingModeViewModel {
     var progressText: String {
         "Step \(currentStepIndex + 1) of \(sortedSteps.count)"
     }
+    
+    var stepItems: [StepItem] {
+        sortedSteps.enumerated().map { index, step in
+            StepItem(id: index, step: step, totalSteps: sortedSteps.count)
+        }
+    }
+
 
     var isOnFinalStep: Bool {
         currentStepIndex == sortedSteps.count - 1
