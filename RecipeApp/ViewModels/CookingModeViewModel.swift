@@ -6,7 +6,6 @@ import SwiftData
 @Observable
 class CookingModeViewModel {
     var currentStepIndex: Int = 0
-    var showReference: Bool = false
 
     private let recipe: Recipe
     private let modelContext: ModelContext
@@ -33,25 +32,19 @@ class CookingModeViewModel {
     var isOnFinalStep: Bool {
         currentStepIndex == sortedSteps.count - 1
     }
+    
+    var ingredients: [Ingredient] {
+         recipe.sortedIngredients
+     }
 
-    var canGoToPrevious: Bool {
-        currentStepIndex > 0
-    }
-
-    var canGoToNext: Bool {
-        currentStepIndex < sortedSteps.count - 1
-    }
+     var recipeTitle: String {
+         recipe.title
+     }
 
     // MARK: - Navigation Actions
 
-    func goToNextStep() {
-        guard canGoToNext else { return }
-        currentStepIndex += 1
-    }
-
-    func goToPreviousStep() {
-        guard canGoToPrevious else { return }
-        currentStepIndex -= 1
+    func jumpToStep(_ index: Int) {
+        currentStepIndex = max(0, min(index, sortedSteps.count - 1))
     }
 
     // MARK: - Mark as Cooked
