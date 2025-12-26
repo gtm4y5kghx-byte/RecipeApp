@@ -73,7 +73,7 @@ struct RecipeDetailView: View {
                     RecipeDetailNotes(
                         notes: viewModel.recipe.notes
                     )
-
+                    
                     RecipeDetailNutrition(
                         nutrition: viewModel.recipe.nutrition
                     )
@@ -99,7 +99,7 @@ struct RecipeDetailView: View {
             RecipeFormView(recipe: recipe)
         }
         .sheet(isPresented: $showingCookingMode) {
-            Text("CookingView goes here")
+            CookingModeView(recipe: recipe)
         }
         .alert("Delete Recipe?", isPresented: $showingDeleteConfirmation) {
             Button("Delete", role: .destructive) {
@@ -117,6 +117,13 @@ struct RecipeDetailView: View {
                     modelContext: modelContext
                 )
             }
+            
+            if UserDefaults.standard.bool(forKey: "keepScreenOnWhileViewingRecipes") {
+                UIApplication.shared.isIdleTimerDisabled = true
+            }
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
         }
     }
 }
