@@ -9,6 +9,9 @@ struct CookingModeView: View {
     @State private var showingIngredients = false
     @State private var showingSteps = false
     
+    @State private var showingCookedConfirmation = false
+    @State private var error: RecipeError?
+    
     let recipe: Recipe
     
     var body: some View {
@@ -23,6 +26,14 @@ struct CookingModeView: View {
                         )
                     )
                     .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                dismiss()
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
+                        }
+                        
                         ToolbarItem(placement: .topBarTrailing) {
                             Menu {
                                 Button {
@@ -35,6 +46,18 @@ struct CookingModeView: View {
                                     showingIngredients = true
                                 } label: {
                                     Label("Ingredients", systemImage: "list.bullet")
+                                }
+                                
+                                Divider()
+                                
+                                Button {
+                                    if viewModel.markAsCooked() {
+                                        showingCookedConfirmation = true
+                                    } else {
+                                        error = .saveFailed
+                                    }
+                                } label: {
+                                    Label("Mark as Cooked", systemImage: "checkmark.circle")
                                 }
                             } label: {
                                 Image(systemName: "ellipsis.circle")
@@ -63,9 +86,24 @@ struct CookingModeView: View {
                 }
             }
         }
+        .alert("Marked as Cooked!", isPresented: $showingCookedConfirmation) {
+            Button("OK", role: .cancel) { }
+        }
+        
+        .alert(error?.title ?? "", isPresented: Binding(
+            get: { error != nil },
+            set: { if !$0 { error = nil } }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(error?.message ?? "")
+        }
         .onAppear {
             if viewModel == nil {
-                viewModel = CookingModeViewModel(recipe: recipe, modelContext: modelContext)
+                viewModel = CookingModeViewModel(
+                    recipe: recipe,
+                    modelContext: modelContext
+                )
             }
         }
     }
