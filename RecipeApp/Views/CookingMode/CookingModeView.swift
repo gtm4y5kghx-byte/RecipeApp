@@ -105,6 +105,13 @@ struct CookingModeView: View {
                     modelContext: modelContext
                 )
             }
+            
+            if UserDefaults.standard.object(forKey: "keepScreenOnInCookingMode") as? Bool ?? true {
+                UIApplication.shared.isIdleTimerDisabled = true
+            }
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
         }
     }
 }
