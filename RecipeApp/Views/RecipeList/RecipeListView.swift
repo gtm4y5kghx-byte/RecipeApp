@@ -146,10 +146,10 @@ struct RecipeListView: View {
                 }
                 viewModel?.justImportedRecipe = false
             }
-            
-            Task {
-                await viewModel?.loadSuggestions()
-            }
+        }
+        
+        Task {
+            await viewModel?.loadSuggestionsIfEligible()
         }
     }
 }

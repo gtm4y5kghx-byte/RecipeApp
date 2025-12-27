@@ -5,7 +5,7 @@ class AISuggestionEngineService {
     
     private let claudeClient: ClaudeAPIClient
     private let cacheKey = "suggestion_cache"
-    private let minimumRecipeCount = 20
+    private let minimumRecipeCount = 10
     
     init() {
         self.claudeClient = ClaudeAPIClient(apiKey: Config.claudeAPIKey)

@@ -471,4 +471,51 @@ struct RecipeListViewModelTests {
         #expect(displayed[0].id == recipes[0].id)
         #expect(displayed[1].id == recipes[1].id)
     }
+
+    @Test("Should trigger suggestions when crossing 10 recipe threshold")
+    func testShouldTriggerSuggestionsAtThreshold() async throws {
+        UserDefaults.standard.removeObject(forKey: "suggestions_threshold_met")
+        
+        let recipes = Array(0..<10).map { i in
+            RecipeTestFixtures.createRecipe(title: "Recipe \(i)")
+        }
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        
+        let shouldTrigger = viewModel.shouldTriggerSuggestionGeneration()
+        
+        #expect(shouldTrigger == true)
+    }
+
+    @Test("Should not trigger suggestions when already met threshold")
+    func testShouldNotTriggerSuggestionsWhenAlreadyMet() async throws {
+        UserDefaults.standard.set(true, forKey: "suggestions_threshold_met")
+        
+        let recipes = Array(0..<15).map { i in
+            RecipeTestFixtures.createRecipe(title: "Recipe \(i)")
+        }
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        
+        let shouldTrigger = viewModel.shouldTriggerSuggestionGeneration()
+        
+        #expect(shouldTrigger == false)
+        
+        UserDefaults.standard.removeObject(forKey: "suggestions_threshold_met")
+    }
+
+    @Test("Should not trigger suggestions below threshold")
+    func testShouldNotTriggerSuggestionsBelowThreshold() async throws {
+        UserDefaults.standard.removeObject(forKey: "suggestions_threshold_met")
+        
+        let recipes = Array(0..<5).map { i in
+            RecipeTestFixtures.createRecipe(title: "Recipe \(i)")
+        }
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        
+        let shouldTrigger = viewModel.shouldTriggerSuggestionGeneration()
+        
+        #expect(shouldTrigger == false)
+    }
 }

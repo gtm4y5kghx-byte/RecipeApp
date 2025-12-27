@@ -238,6 +238,54 @@ class RecipeListViewModel {
         hasAISearched = false
     }
     
+    // MARK: - Suggestion Banner Methods
+
+    func showSuggestions() {
+        showSuggestionsInList = true
+    }
+
+    func hideSuggestions() {
+        showSuggestionsInList = false
+    }
+
+    func dismissSuggestionsBanner() {
+        hasDismissedSuggestionsBanner = true
+    }
+
+    func isSuggested(_ recipe: Recipe) -> Bool {
+        suggestedRecipeIDs.contains(recipe.id)
+    }
+    
+    func checkSuggestionThreshold() {
+        if shouldTriggerSuggestionGeneration() {
+            markThresholdAsMet()
+            Task {
+                await loadSuggestions()
+            }
+        }
+    }
+
+    // MARK: - Testable Threshold Helpers
+    
+    func shouldTriggerSuggestionGeneration() -> Bool {
+        let currentCount = recipes.count
+        let thresholdMet = currentCount >= 10
+        let previouslyMetThreshold = UserDefaults.standard.bool(forKey: "suggestions_threshold_met")
+        
+        return thresholdMet && !previouslyMetThreshold
+    }
+    
+    private func markThresholdAsMet() {
+        UserDefaults.standard.set(true, forKey: "suggestions_threshold_met")
+    }
+
+    func loadSuggestionsIfEligible() async {
+        let hasMetThreshold = UserDefaults.standard.bool(forKey: "suggestions_threshold_met")
+        guard hasMetThreshold && recipes.count >= 10 else { return }
+        
+        await loadSuggestions()
+    }
+    
     // MARK: - Private Helpers
     
     private func matchesAnyField(recipe: Recipe, query: String) -> Bool {
@@ -415,6 +463,7 @@ class RecipeListViewModel {
         
         modelContext.insert(recipe)
         try modelContext.save()
+        checkSuggestionThreshold()
     }
 }
 
