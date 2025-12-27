@@ -17,6 +17,8 @@ class RecipeListViewModel {
     var suggestionError: AIError?
     var selectedSection: MenuSection = .all
     var justImportedRecipe: Bool = false
+    var showSuggestionsInList: Bool = false
+    var hasDismissedSuggestionsBanner: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext
     private let aiSearchService = AISearchService()
@@ -111,38 +113,24 @@ class RecipeListViewModel {
         }
     }
     
-    var suggestionDisplayData: [SuggestionDisplayData] {
-        suggestions.compactMap { suggestion in
-            guard let recipe = recipes.first(where: { $0.id == suggestion.recipeID }) else {
-                return nil
-            }
-            
-            return SuggestionDisplayData(
-                id: suggestion.id,
-                recipe: recipe,
-                reason: suggestion.aiGeneratedReason
-            )
-        }
+
+    var shouldShowSuggestionsBanner: Bool {
+        suggestions.count > 0 &&
+        !showSuggestionsInList &&
+        !hasDismissedSuggestionsBanner
     }
     
-    var shouldShowForYou: Bool {
-        recipes.count >= 20 && !suggestionDisplayData.isEmpty
+    var suggestedRecipeIDs: Set<UUID> {
+        Set(suggestions.map { $0.recipeID })
+    }
+
+    var suggestionReasons: [UUID: String] {
+        Dictionary(uniqueKeysWithValues: suggestions.map {
+            ($0.recipeID, $0.aiGeneratedReason)
+        })
     }
     
-    var forYouEmptyMessage: String? {
-        guard recipes.count >= 20 else { return nil }
-        
-        if let _ = suggestionError {
-            return "Unable to load suggestions. Pull to refresh to try again."
-        }
-        
-        if suggestions.isEmpty {
-            return "Keep cooking! We need more data to personalize suggestions for you."
-        }
-        
-        return nil
-    }
-    
+
     // MARK: - Methods
     
     func toggleFavorite(_ recipe: Recipe) {

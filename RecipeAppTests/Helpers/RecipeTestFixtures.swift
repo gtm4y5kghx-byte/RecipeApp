@@ -148,4 +148,27 @@ struct RecipeTestFixtures {
             ),
         ]
     }
+    
+    static func createRecipeSuggestion(
+        recipeID: UUID,
+        reason: String = "You haven't cooked this in a while"
+    ) -> RecipeSuggestion {
+        return RecipeSuggestion(recipeID: recipeID, aiGeneratedReason: reason)
+    }
+    
+    static func createViewModelWithSuggestions(
+        recipeCount: Int = 15,
+        suggestionCount: Int = 3
+    ) -> (RecipeListViewModel, [Recipe]) {
+        let recipes = createSampleRecipes()
+        let modelContext = createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        
+        let suggestions = recipes.prefix(suggestionCount).map { recipe in
+            createRecipeSuggestion(recipeID: recipe.id, reason: "Try this again!")
+        }
+        
+        viewModel.suggestions = Array(suggestions)
+        return (viewModel, recipes)
+    }
 }

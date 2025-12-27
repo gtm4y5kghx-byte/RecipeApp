@@ -40,22 +40,6 @@ struct RecipeListView: View {
                             onClearFilter: { viewModel.selectedSection = .all }
                         )
                         
-                        if viewModel.shouldShowForYou {
-                            ForYouSection(
-                                suggestions: viewModel.suggestionDisplayData,
-                                emptyStateMessage: viewModel.forYouEmptyMessage,
-                                onRecipeTap: { recipe in
-                                    selectedRecipe = recipe
-                                },
-                                onFavoriteTap: { recipe in
-                                    viewModel.toggleFavorite(recipe)
-                                },
-                                onLearnMore: {
-                                    // TODO: Show info about AI suggestions
-                                }
-                            )
-                        }
-                        
                         RecipeListContent(
                             recipes: viewModel.displayedRecipes,
                             isSearching: viewModel.isSearching,
