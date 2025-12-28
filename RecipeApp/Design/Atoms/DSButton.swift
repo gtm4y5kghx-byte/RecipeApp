@@ -12,6 +12,8 @@ struct DSButton: View {
     let icon: String?
     let action: () -> Void
     let fullWidth: Bool
+    let customHorizontalPadding: CGFloat?
+    let customVerticalPadding: CGFloat?
 
     @Environment(\.isEnabled) private var isEnabled
 
@@ -70,7 +72,9 @@ struct DSButton: View {
         size: ButtonSize = .medium,
         icon: String? = nil,
         fullWidth: Bool = true,
-        action: @escaping () -> Void,
+        horizontalPadding: CGFloat? = nil,
+        verticalPadding: CGFloat? = nil,
+        action: @escaping () -> Void
     ) {
         self.title = title
         self.style = style
@@ -78,6 +82,8 @@ struct DSButton: View {
         self.icon = icon
         self.action = action
         self.fullWidth = fullWidth
+        self.customHorizontalPadding = horizontalPadding
+        self.customVerticalPadding = verticalPadding
     }
 
     // MARK: - Body
@@ -93,8 +99,8 @@ struct DSButton: View {
                 Text(title)
                     .font(size.fontSize)
             }
-            .padding(.horizontal, size.horizontalPadding)
-            .padding(.vertical, size.verticalPadding)
+            .padding(.horizontal, customHorizontalPadding ?? size.horizontalPadding)
+            .padding(.vertical, customVerticalPadding ?? size.verticalPadding)
             .frame(maxWidth: fullWidth ? .infinity : nil)
             .background(backgroundColor)
             .foregroundColor(foregroundColor)

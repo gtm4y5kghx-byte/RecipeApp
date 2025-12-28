@@ -4,6 +4,7 @@ import SwiftData
 struct RecipeGrid: View {
     
     let recipes: [Recipe]
+    let suggestionReasons: [UUID: String]
     let onRecipeTap: (Recipe) -> Void
     let onFavoriteTap: (Recipe) -> Void
     
@@ -26,7 +27,8 @@ struct RecipeGrid: View {
                             },
                             onFavoriteTap: {
                                 onFavoriteTap(recipe)
-                            }
+                            },
+                            suggestionReason: suggestionReasons[recipe.id],
                         )
                     }
                 }

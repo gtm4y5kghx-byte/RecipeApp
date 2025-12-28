@@ -119,15 +119,15 @@ struct AISearchSheet: View {
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.top, Theme.Spacing.md)
                 
-                RecipeGrid(
-                    recipes: viewModel.aiSearchResults,
-                    onRecipeTap: { recipe in
-                        // TODO: Navigate to recipe detail
-                    },
-                    onFavoriteTap: { recipe in
-                        viewModel.toggleFavorite(recipe)
-                    }
-                )
+//                RecipeGrid(
+//                    recipes: viewModel.aiSearchResults,
+//                    onRecipeTap: { recipe in
+//                        // TODO: Navigate to recipe detail
+//                    },
+//                    onFavoriteTap: { recipe in
+//                        viewModel.toggleFavorite(recipe)
+//                    }
+//                )
             }
         }
     }

@@ -16,6 +16,7 @@ struct DSRecipeCard: View {
     let imageURL: String?
     let onTap: () -> Void
     let onFavoriteTap: () -> Void
+    let suggestionReason: String?
 
     // MARK: - Computed Properties
 
@@ -38,7 +39,8 @@ struct DSRecipeCard: View {
         tags: [String] = [],
         imageURL: String? = nil,
         onTap: @escaping () -> Void,
-        onFavoriteTap: @escaping () -> Void
+        onFavoriteTap: @escaping () -> Void,
+        suggestionReason: String? = nil
     ) {
         self.title = title
         self.cuisine = cuisine
@@ -50,6 +52,7 @@ struct DSRecipeCard: View {
         self.imageURL = imageURL
         self.onTap = onTap
         self.onFavoriteTap = onFavoriteTap
+        self.suggestionReason = suggestionReason
     }
 
     // MARK: - Body
@@ -76,6 +79,19 @@ struct DSRecipeCard: View {
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
+                }
+                
+                // MARK: - Suggested Recipe
+                if let suggestionReason = suggestionReason {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            DSIcon("sparkles", size: .small, color: .accent)
+                            DSLabel("Suggested", style: .caption1, color: .accent)
+                        }
+                        
+                        DSLabel(suggestionReason, style: .caption2, color: .secondary)
+                            .lineLimit(2)
+                    }
                 }
 
                 // MARK: - Metadata
@@ -290,5 +306,38 @@ struct DSRecipeCard: View {
         }
         .padding()
     }
+    .background(Theme.Colors.background)
+}
+
+#Preview("Recipe Card with Suggestions") {
+    VStack(spacing: Theme.Spacing.md) {
+        DSRecipeCard(
+            title: "Spaghetti Carbonara",
+            cuisine: "Italian",
+            prepTime: 10,
+            cookTime: 20,
+            servings: 4,
+            isFavorite: false,
+            tags: ["Pasta", "Quick", "Dinner"],
+            imageURL: "https://placehold.co/400x300",
+            onTap: {},
+            onFavoriteTap: {},
+            suggestionReason: "You haven't cooked this in a while"
+        )
+
+        DSRecipeCard(
+            title: "Regular Recipe",
+            cuisine: "American",
+            prepTime: 15,
+            cookTime: 25,
+            servings: 4,
+            isFavorite: false,
+            tags: ["Easy"],
+            imageURL: "https://placehold.co/400x300",
+            onTap: {},
+            onFavoriteTap: {}
+        )
+    }
+    .padding()
     .background(Theme.Colors.background)
 }

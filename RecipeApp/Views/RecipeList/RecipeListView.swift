@@ -29,37 +29,10 @@ struct RecipeListView: View {
                     }
                 }
                 
+                headerSection
+                
                 ScrollView {
-                    if let viewModel = viewModel {
-                        RecipeListHeader(
-                            title: "Recipes",
-                            hasFilter: viewModel.hasActiveFilter,
-                            filterIcon: viewModel.filterIcon,
-                            filterTitle: viewModel.filterTitle,
-                            onMenuTap: { showingMenu = true },
-                            onClearFilter: { viewModel.selectedSection = .all }
-                        )
-                        
-                        RecipeListContent(
-                            recipes: viewModel.displayedRecipes,
-                            isSearching: viewModel.isSearching,
-                            searchText: searchText,
-                            selectedSectionTitle: viewModel.filterTitle,
-                            selectedSectionIcon: viewModel.filterIcon,
-                            onRecipeTap: { recipe in
-                                selectedRecipe = recipe
-                            },
-                            onFavoriteTap: { recipe in
-                                viewModel.toggleFavorite(recipe)
-                            },
-                            onClearSearch: {
-                                searchText = ""
-                            },
-                            onAddRecipe: {
-                                showingNewRecipe = true
-                            }
-                        )
-                    } else {
+                    if let _ = viewModel { recipeContent } else {
                         DSLoadingSpinner(message: "Loading recipes...")
                     }
                 }
@@ -103,6 +76,48 @@ struct RecipeListView: View {
             .onAppear {
                 handleViewAppear()
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var headerSection: some View {
+        if let viewModel = viewModel {
+            RecipeListHeader(
+                title: "Recipes",
+                hasFilter: viewModel.hasActiveFilter,
+                filterIcon: viewModel.filterIcon,
+                filterTitle: viewModel.filterTitle,
+                onMenuTap: { showingMenu = true },
+                onClearFilter: { viewModel.selectedSection = .all }
+            )
+        }
+    }
+    
+    @ViewBuilder
+    private var recipeContent: some View {
+        if let viewModel = viewModel {
+            RecipeListContent(
+                recipes: viewModel.displayedRecipes,
+                isSearching: viewModel.isSearching,
+                searchText: searchText,
+                selectedSectionTitle: viewModel.filterTitle,
+                selectedSectionIcon: viewModel.filterIcon,
+                suggestionReasons: viewModel.suggestionReasons,
+                onRecipeTap: { recipe in
+                    selectedRecipe = recipe
+                },
+                onFavoriteTap: { recipe in
+                    viewModel.toggleFavorite(recipe)
+                },
+                onClearSearch: {
+                    searchText = ""
+                },
+                onAddRecipe: {
+                    showingNewRecipe = true
+                }
+            )
+        } else {
+            DSLoadingSpinner(message: "Loading recipes...")
         }
     }
     

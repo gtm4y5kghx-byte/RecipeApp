@@ -17,8 +17,6 @@ class RecipeListViewModel {
     var suggestionError: AIError?
     var selectedSection: MenuSection = .all
     var justImportedRecipe: Bool = false
-    var showSuggestionsInList: Bool = false
-    var hasDismissedSuggestionsBanner: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext
     private let aiSearchService = AISearchService()
@@ -49,25 +47,32 @@ class RecipeListViewModel {
     var displayedRecipes: [Recipe] {
         let filtered = isSearching ? filteredResults : recipes
         
+        let sectionFiltered: [Recipe]
         switch selectedSection {
         case .all:
-            return filtered
+            sectionFiltered = filtered
         case .recentlyAdded:
-            return filtered.sorted { $0.dateAdded > $1.dateAdded }
+            sectionFiltered = filtered.sorted { $0.dateAdded > $1.dateAdded }
         case .recentlyCooked:
-            return filtered
+            sectionFiltered = filtered
                 .filter { recipe in
                     guard let lastMade = recipe.lastMade else { return false }
                     return lastMade.isWithinDays(TimeConstants.recentlyCookedThreshold)
                 }
                 .sorted { ($0.lastMade ?? .distantPast) > ($1.lastMade ?? .distantPast) }
         case .favorites:
-            return filtered.filter { $0.isFavorite }
+            sectionFiltered = filtered.filter { $0.isFavorite }
         case .uncategorized:
-            return filtered.filter { $0.userTags.isEmpty }
+            sectionFiltered = filtered.filter { $0.userTags.isEmpty }
         case .tag(let tagName):
-            return filtered.filter { $0.userTags.contains(tagName) }
+            sectionFiltered = filtered.filter { $0.userTags.contains(tagName) }
         }
+        
+        // Always prioritize suggested recipes at top when available
+        let suggested = sectionFiltered.filter { suggestedRecipeIDs.contains($0.id) }
+        let regular = sectionFiltered.filter { !suggestedRecipeIDs.contains($0.id) }
+        
+        return suggested + regular
     }
     
     var sortedTags: [(String, Int)] {
@@ -114,12 +119,7 @@ class RecipeListViewModel {
     }
     
 
-    var shouldShowSuggestionsBanner: Bool {
-        suggestions.count > 0 &&
-        !showSuggestionsInList &&
-        !hasDismissedSuggestionsBanner
-    }
-    
+
     var suggestedRecipeIDs: Set<UUID> {
         Set(suggestions.map { $0.recipeID })
     }
@@ -236,24 +236,6 @@ class RecipeListViewModel {
         isAISearching = false
         aiSearchError = nil
         hasAISearched = false
-    }
-    
-    // MARK: - Suggestion Banner Methods
-
-    func showSuggestions() {
-        showSuggestionsInList = true
-    }
-
-    func hideSuggestions() {
-        showSuggestionsInList = false
-    }
-
-    func dismissSuggestionsBanner() {
-        hasDismissedSuggestionsBanner = true
-    }
-
-    func isSuggested(_ recipe: Recipe) -> Bool {
-        suggestedRecipeIDs.contains(recipe.id)
     }
     
     func checkSuggestionThreshold() {

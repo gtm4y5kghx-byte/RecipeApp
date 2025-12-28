@@ -6,6 +6,7 @@ struct RecipeListContent: View {
     let searchText: String
     let selectedSectionTitle: String?
     let selectedSectionIcon: String?
+    let suggestionReasons: [UUID: String]
     let onRecipeTap: (Recipe) -> Void
     let onFavoriteTap: (Recipe) -> Void
     let onClearSearch: () -> Void
@@ -17,6 +18,7 @@ struct RecipeListContent: View {
         } else {
             RecipeGrid(
                 recipes: recipes,
+                suggestionReasons: suggestionReasons,
                 onRecipeTap: onRecipeTap,
                 onFavoriteTap: onFavoriteTap
             )
@@ -58,6 +60,7 @@ struct RecipeListContent: View {
         searchText: "",
         selectedSectionTitle: nil,
         selectedSectionIcon: nil,
+        suggestionReasons: [:],
         onRecipeTap: { _ in },
         onFavoriteTap: { _ in },
         onClearSearch: {},

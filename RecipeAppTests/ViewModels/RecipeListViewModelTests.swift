@@ -427,26 +427,18 @@ struct RecipeListViewModelTests {
     
     // MARK: - Suggested Recipes
     
-    @Test("Shows suggestion banner when suggestions available and not dismissed")
-    func testSuggestionBannerVisibility() async throws {
-        let (viewModel, _) = RecipeTestFixtures.createViewModelWithSuggestions()
-        viewModel.showSuggestionsInList = false
-        viewModel.hasDismissedSuggestionsBanner = false
+    @Test("Suggestions are always prioritized at top of displayed recipes")
+    func testSuggestionsAlwaysPrioritized() async throws {
+        // Given: ViewModel with suggestions for first 2 recipes
+        let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
         
-        let shouldShow = viewModel.shouldShowSuggestionsBanner
+        // When: Getting displayed recipes
+        let displayed = viewModel.displayedRecipes
         
-        #expect(shouldShow == true)
-    }
-
-    @Test("Hides suggestion banner when already showing suggestions")
-    func testSuggestionBannerHidesWhenShowingList() async throws {
-        let (viewModel, _) = RecipeTestFixtures.createViewModelWithSuggestions()
-        viewModel.showSuggestionsInList = true
-        viewModel.hasDismissedSuggestionsBanner = false
-
-        let shouldShow = viewModel.shouldShowSuggestionsBanner
-        
-        #expect(shouldShow == false)
+        // Then: First 2 recipes should be the suggested ones
+        #expect(displayed.count == recipes.count) // Same total count
+        #expect(displayed[0].id == recipes[0].id)  // First suggested recipe first
+        #expect(displayed[1].id == recipes[1].id)  // Second suggested recipe second
     }
     
     @Test("Tracks suggested recipe IDs from suggestions")
@@ -460,16 +452,18 @@ struct RecipeListViewModelTests {
         #expect(suggestedIDs.contains(recipes[1].id))
     }
     
-    @Test("Prioritizes suggested recipes when showing suggestions")
-    func testDisplayedRecipesPrioritizesSuggestions() async throws {
+    @Test("Suggestion reasons are accessible by recipe ID") 
+    func testSuggestionReasonsMapping() async throws {
+        // Given: ViewModel with loaded suggestions
         let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
-        viewModel.showSuggestionsInList = true
         
-        let displayed = viewModel.displayedRecipes
-
-        #expect(displayed.count == recipes.count)
-        #expect(displayed[0].id == recipes[0].id)
-        #expect(displayed[1].id == recipes[1].id)
+        // When: Looking up reason for suggested recipe
+        let firstRecipeReason = viewModel.suggestionReasons[recipes[0].id]
+        let nonSuggestedReason = viewModel.suggestionReasons[recipes[2].id]
+        
+        // Then: Should return correct AI-generated reason for suggested recipes only
+        #expect(firstRecipeReason == "Try this again!")
+        #expect(nonSuggestedReason == nil)
     }
 
     @Test("Should trigger suggestions when crossing 10 recipe threshold")
