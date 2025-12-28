@@ -11,17 +11,19 @@ class MockClaudeAPIClient: ClaudeAPIClient {
     var lastPrompt: String?
     var lastSystemPrompt: String?
     var lastModel: Model?
+    var lastMaxTokens: Int?
     var lastQuery: String?
 
     init() {
         super.init(apiKey: "mock-api-key-for-testing")
     }
 
-    override func sendMessage(prompt: String, systemPrompt: String, model: Model = .sonnet) async throws -> String {
+    override func sendMessage(prompt: String, systemPrompt: String, model: Model = .sonnet, maxTokens: Int = 1024) async throws -> String {
         sendMessageCallCount += 1
         lastPrompt = prompt
         lastSystemPrompt = systemPrompt
         lastModel = model
+        lastMaxTokens = maxTokens
 
         if shouldThrowError {
             throw ClaudeError.networkError(NSError(domain: "MockError", code: 1, userInfo: nil))
@@ -48,6 +50,7 @@ class MockClaudeAPIClient: ClaudeAPIClient {
         lastPrompt = nil
         lastSystemPrompt = nil
         lastModel = nil
+        lastMaxTokens = nil
         lastQuery = nil
     }
 }
