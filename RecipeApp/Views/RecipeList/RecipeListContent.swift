@@ -9,6 +9,7 @@ struct RecipeListContent: View {
     let suggestionReasons: [UUID: String]
     let onRecipeTap: (Recipe) -> Void
     let onFavoriteTap: (Recipe) -> Void
+    let onDeleteTap: (Recipe) -> Void
     let onClearSearch: () -> Void
     let onAddRecipe: () -> Void
 
@@ -20,7 +21,8 @@ struct RecipeListContent: View {
                 recipes: recipes,
                 suggestionReasons: suggestionReasons,
                 onRecipeTap: onRecipeTap,
-                onFavoriteTap: onFavoriteTap
+                onFavoriteTap: onFavoriteTap,
+                onDeleteTap: onDeleteTap 
             )
         }
     }
@@ -63,6 +65,7 @@ struct RecipeListContent: View {
         suggestionReasons: [:],
         onRecipeTap: { _ in },
         onFavoriteTap: { _ in },
+        onDeleteTap: { _ in },
         onClearSearch: {},
         onAddRecipe: {}
     )

@@ -7,6 +7,31 @@ import SwiftData
 @MainActor
 struct RecipeListViewModelTests {
     
+    // MARK: - Delete Test
+    
+    @Test("Delete single recipe removes it from collection")
+    func testDeleteSingleRecipe() throws {
+        let recipes = RecipeTestFixtures.createSampleRecipes()
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        
+        for recipe in recipes {
+            modelContext.insert(recipe)
+        }
+        try modelContext.save()
+        
+        let initialCount = recipes.count
+        let recipeToDelete = recipes[0]
+        
+        viewModel.deleteRecipe(recipeToDelete)
+        
+        let descriptor = FetchDescriptor<Recipe>()
+        let remainingRecipes = try modelContext.fetch(descriptor)
+        
+        #expect(remainingRecipes.count == initialCount - 1)
+        #expect(!remainingRecipes.contains { $0.id == recipeToDelete.id })
+    }
+    
     // MARK: - Search Tests
     
     @Test("Search filters recipes by title substring")

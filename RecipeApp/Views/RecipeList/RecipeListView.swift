@@ -31,13 +31,9 @@ struct RecipeListView: View {
                 
                 headerSection
                 
-                ScrollView {
-                    if let _ = viewModel { recipeContent } else {
-                        DSLoadingSpinner(message: "Loading recipes...")
-                    }
+                if let _ = viewModel { recipeContent } else {
+                    DSLoadingSpinner(message: "Loading recipes...")
                 }
-                
-                Spacer()
                 
                 RecipeListSearchBar(
                     searchText: $searchText,
@@ -108,6 +104,9 @@ struct RecipeListView: View {
                 },
                 onFavoriteTap: { recipe in
                     viewModel.toggleFavorite(recipe)
+                },
+                onDeleteTap: { recipe in
+                    viewModel.deleteRecipe(recipe)
                 },
                 onClearSearch: {
                     searchText = ""

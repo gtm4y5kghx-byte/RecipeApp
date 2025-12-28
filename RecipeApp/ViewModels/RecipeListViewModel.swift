@@ -366,12 +366,13 @@ class RecipeListViewModel {
         }
     }
     
-    func deleteRecipes(at offsets: IndexSet) throws {
-        for index in offsets {
-            let recipe = displayedRecipes[index]
-            modelContext.delete(recipe)
+    func deleteRecipe(_ recipe: Recipe) {
+        modelContext.delete(recipe)
+        do {
+            try modelContext.save()
+        } catch {
+            self.error = error
         }
-        try modelContext.save()
     }
     
     func selectMenuOption(_ optionId: String) {

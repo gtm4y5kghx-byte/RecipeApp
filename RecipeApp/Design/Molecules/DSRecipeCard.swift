@@ -17,6 +17,7 @@ struct DSRecipeCard: View {
     let onTap: () -> Void
     let onFavoriteTap: () -> Void
     let suggestionReason: String?
+    let onDeleteTap: () -> Void
 
     // MARK: - Computed Properties
 
@@ -40,7 +41,8 @@ struct DSRecipeCard: View {
         imageURL: String? = nil,
         onTap: @escaping () -> Void,
         onFavoriteTap: @escaping () -> Void,
-        suggestionReason: String? = nil
+        suggestionReason: String? = nil,
+        onDeleteTap: @escaping () -> Void
     ) {
         self.title = title
         self.cuisine = cuisine
@@ -53,96 +55,98 @@ struct DSRecipeCard: View {
         self.onTap = onTap
         self.onFavoriteTap = onFavoriteTap
         self.suggestionReason = suggestionReason
+        self.onDeleteTap = onDeleteTap
     }
 
     // MARK: - Body
 
     var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                // MARK: - Image
-                if let imageURL = imageURL {
-                    DSImage(url: imageURL, height: 160)
-                        .cornerRadius(Theme.CornerRadius.md)
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            // MARK: - Image
+            if let imageURL = imageURL {
+                DSImage(url: imageURL, height: 160)
+                    .cornerRadius(Theme.CornerRadius.md)
+            }
+            // MARK: - Body
+            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
+                DSLabel(title, style: .headline, color: .primary)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Button(action: onFavoriteTap) {
+                    DSIcon(
+                        isFavorite ? "heart.fill" : "heart",
+                        size: .medium,
+                        color: isFavorite ? .error : .secondary
+                    )
                 }
-                // MARK: - Body
-                HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                    DSLabel(title, style: .headline, color: .primary)
-                        .lineLimit(2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Button(action: onFavoriteTap) {
-                        DSIcon(
-                            isFavorite ? "heart.fill" : "heart",
-                            size: .medium,
-                            color: isFavorite ? .error : .secondary
-                        )
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                
-                // MARK: - Suggested Recipe
-                if let suggestionReason = suggestionReason {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                        HStack(spacing: Theme.Spacing.xs) {
-                            DSIcon("sparkles", size: .small, color: .accent)
-                            DSLabel("Suggested", style: .caption1, color: .accent)
-                        }
-                        
-                        DSLabel(suggestionReason, style: .caption2, color: .secondary)
-                            .lineLimit(2)
-                    }
-                }
-
-                // MARK: - Metadata
-                if totalTime != nil || servings != nil || cuisine != nil {
-                    HStack(spacing: Theme.Spacing.md) {
-                        if let time = totalTime {
-                            HStack(spacing: Theme.Spacing.xs) {
-                                DSIcon("clock", size: .small, color: .secondary)
-                                DSLabel("\(time) min", style: .caption1, color: .secondary)
-                            }
-                        }
-
-                        if let servings = servings {
-                            HStack(spacing: Theme.Spacing.xs) {
-                                DSIcon("person.2", size: .small, color: .secondary)
-                                DSLabel("\(servings)", style: .caption1, color: .secondary)
-                            }
-                        }
-
-                        if let cuisine = cuisine {
-                            HStack(spacing: Theme.Spacing.xs) {
-                                DSIcon("fork.knife", size: .small, color: .secondary)
-                                DSLabel(cuisine, style: .caption1, color: .secondary)
-                            }
-                        }
-                    }
-                }
-
-                // MARK: - Tags
-                if !tags.isEmpty {
+                .buttonStyle(PlainButtonStyle())
+            }
+            
+            // MARK: - Suggested Recipe
+            if let suggestionReason = suggestionReason {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     HStack(spacing: Theme.Spacing.xs) {
-                        ForEach(tags.prefix(3), id: \.self) { tag in
-                            DSTag(tag, style: .secondary, size: .small)
-                        }
+                        DSIcon("sparkles", size: .small, color: .accent)
+                        DSLabel("Suggested", style: .caption1, color: .accent)
+                    }
+                    
+                    DSLabel(suggestionReason, style: .caption2, color: .secondary)
+                        .lineLimit(2)
+                }
+            }
 
-                        if tags.count > 3 {
-                            DSLabel("+\(tags.count - 3)", style: .caption2, color: .tertiary)
+            // MARK: - Metadata
+            if totalTime != nil || servings != nil || cuisine != nil {
+                HStack(spacing: Theme.Spacing.md) {
+                    if let time = totalTime {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            DSIcon("clock", size: .small, color: .secondary)
+                            DSLabel("\(time) min", style: .caption1, color: .secondary)
+                        }
+                    }
+
+                    if let servings = servings {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            DSIcon("person.2", size: .small, color: .secondary)
+                            DSLabel("\(servings)", style: .caption1, color: .secondary)
+                        }
+                    }
+
+                    if let cuisine = cuisine {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            DSIcon("fork.knife", size: .small, color: .secondary)
+                            DSLabel(cuisine, style: .caption1, color: .secondary)
                         }
                     }
                 }
             }
-            .padding(Theme.Spacing.md)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.Colors.backgroundLight)
-            .cornerRadius(Theme.CornerRadius.md)
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
-                    .stroke(Theme.Colors.border, lineWidth: 1)
-            )
+
+            // MARK: - Tags
+            if !tags.isEmpty {
+                HStack(spacing: Theme.Spacing.xs) {
+                    ForEach(tags.prefix(3), id: \.self) { tag in
+                        DSTag(tag, style: .secondary, size: .small)
+                    }
+
+                    if tags.count > 3 {
+                        DSLabel("+\(tags.count - 3)", style: .caption2, color: .tertiary)
+                    }
+                }
+            }
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(Theme.Spacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.Colors.backgroundLight)
+        .cornerRadius(Theme.CornerRadius.md)
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                .stroke(Theme.Colors.border, lineWidth: 1)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onTap()
+        }
     }
 }
 
@@ -160,7 +164,8 @@ struct DSRecipeCard: View {
             tags: ["Pasta", "Quick", "Dinner"],
             imageURL: "https://placehold.co/400x300",
             onTap: {},
-            onFavoriteTap: {}
+            onFavoriteTap: {},
+            onDeleteTap: {}
         )
 
         DSRecipeCard(
@@ -173,7 +178,8 @@ struct DSRecipeCard: View {
             tags: ["Spicy", "Comfort Food", "Main Course"],
             imageURL: "https://placehold.co/400x300",
             onTap: {},
-            onFavoriteTap: {}
+            onFavoriteTap: {},
+            onDeleteTap: {}
         )
     }
     .padding()
@@ -186,7 +192,8 @@ struct DSRecipeCard: View {
             title: "Simple Pasta",
             isFavorite: false,
             onTap: {},
-            onFavoriteTap: {}
+            onFavoriteTap: {},
+            onDeleteTap: {}
         )
 
         DSRecipeCard(
@@ -197,7 +204,8 @@ struct DSRecipeCard: View {
             tags: ["Breakfast", "Quick", "Easy", "Protein", "Vegetarian"],
             imageURL: "https://placehold.co/400x300",
             onTap: {},
-            onFavoriteTap: {}
+            onFavoriteTap: {},
+            onDeleteTap: {}
         )
 
         DSRecipeCard(
@@ -210,7 +218,8 @@ struct DSRecipeCard: View {
             tags: ["Complex"],
             imageURL: "https://placehold.co/400x300",
             onTap: {},
-            onFavoriteTap: {}
+            onFavoriteTap: {},
+            onDeleteTap: {}
         )
     }
     .padding()
@@ -235,7 +244,8 @@ struct DSRecipeCard: View {
                     tags: index % 2 == 0 ? ["Pasta", "Quick"] : ["Spicy", "Comfort Food"],
                     imageURL: "https://placehold.co/400x300",
                     onTap: {},
-                    onFavoriteTap: {}
+                    onFavoriteTap: {},
+                    onDeleteTap: {}
                 )
             }
         }
@@ -265,6 +275,9 @@ struct DSRecipeCard: View {
             },
             onFavoriteTap: {
                 isFavorite.toggle()
+            },
+            onDeleteTap: {
+                print("Delete tapped!")
             }
         )
 
@@ -299,7 +312,8 @@ struct DSRecipeCard: View {
                         tags: ["Quick"],
                         imageURL: "https://placehold.co/400x300",
                         onTap: {},
-                        onFavoriteTap: {}
+                        onFavoriteTap: {},
+                        onDeleteTap: {}
                     )
                 }
             }
@@ -322,7 +336,8 @@ struct DSRecipeCard: View {
             imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {},
-            suggestionReason: "You haven't cooked this in a while"
+            suggestionReason: "You haven't cooked this in a while",
+            onDeleteTap: {}
         )
 
         DSRecipeCard(
@@ -335,7 +350,8 @@ struct DSRecipeCard: View {
             tags: ["Easy"],
             imageURL: "https://placehold.co/400x300",
             onTap: {},
-            onFavoriteTap: {}
+            onFavoriteTap: {},
+            onDeleteTap: {}
         )
     }
     .padding()
