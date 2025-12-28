@@ -18,7 +18,6 @@ class ClaudeAPIClient {
     private struct APIConstants {
         static let baseURL = "https://api.anthropic.com/v1"
         static let apiVersion = "2023-06-01"
-        static let defaultMaxTokens = 1024
         static let screeningMaxTokens = 10
     }
 
@@ -39,10 +38,15 @@ class ClaudeAPIClient {
         self.apiKey = apiKey
     }
 
-    func sendMessage(prompt: String, systemPrompt: String, model: Model = .sonnet) async throws -> String {
+    func sendMessage(
+        prompt: String,
+        systemPrompt: String,
+        model: Model = .sonnet,
+        maxTokens: Int = 1024
+    ) async throws -> String {
         let request = try buildRequest(
             model: model.identifier,
-            maxTokens: APIConstants.defaultMaxTokens,
+            maxTokens: maxTokens,
             prompt: prompt,
             systemPrompt: systemPrompt
         )
