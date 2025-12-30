@@ -1,7 +1,12 @@
 import Foundation
 
 @MainActor
-class RecipeGenerationService {
+protocol RecipeGenerating {
+    func getGeneratedRecipes(recipes: [Recipe]) async throws -> [GeneratedRecipe]
+}
+
+@MainActor
+class RecipeGenerationService: RecipeGenerating {
     
     private let claudeClient: ClaudeAPIClient
     private let cacheKey = "generated_recipe_cache"
@@ -12,8 +17,12 @@ class RecipeGenerationService {
     }
     
     // MARK: - Public API
-    
-    func getGeneratedRecipes(recipes: [Recipe], forceRefresh: Bool = false) async throws -> [GeneratedRecipe] {
+
+    func getGeneratedRecipes(recipes: [Recipe]) async throws -> [GeneratedRecipe] {
+        try await getGeneratedRecipes(recipes: recipes, forceRefresh: false)
+    }
+
+    func getGeneratedRecipes(recipes: [Recipe], forceRefresh: Bool) async throws -> [GeneratedRecipe] {
         guard recipes.count >= minimumRecipeCount else {
             return []
         }

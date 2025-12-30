@@ -2,11 +2,13 @@ import Foundation
 
 @MainActor
 class UserSubscriptionService {
+    static let shared = UserSubscriptionService()
+
     enum SubscriptionTier {
         case free
         case premium
     }
-    
+
     static var mockIsPremium: Bool = true
     
     var currentTier: SubscriptionTier {

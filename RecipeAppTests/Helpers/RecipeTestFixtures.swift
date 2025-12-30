@@ -155,6 +155,52 @@ struct RecipeTestFixtures {
     ) -> RecipeSuggestion {
         return RecipeSuggestion(recipeID: recipeID, aiGeneratedReason: reason)
     }
+
+    static func createGeneratedRecipe(
+        title: String = "Generated Recipe",
+        description: String = "A test generated recipe",
+        ingredients: [(quantity: String, unit: String?, item: String, preparation: String?)] = [
+            ("1 cup", "cups", "flour", nil),
+            ("2", nil, "eggs", "beaten")
+        ],
+        instructions: [String] = ["Step 1", "Step 2"],
+        prepTime: Int? = 15,
+        cookTime: Int? = 30,
+        servings: Int? = 4,
+        cuisine: String? = "Italian",
+        tags: [String] = ["quick"],
+        nutrition: (calories: Int, protein: Double)? = (450, 25.0)
+    ) -> GeneratedRecipe {
+        let ingredientsJSON = ingredients.map { ing in
+            """
+            {"quantity": "\(ing.0)", "unit": \(ing.1.map { "\"\($0)\"" } ?? "null"), "item": "\(ing.2)", "preparation": \(ing.3.map { "\"\($0)\"" } ?? "null")}
+            """
+        }.joined(separator: ", ")
+
+        let instructionsJSON = instructions.map { "\"\($0)\"" }.joined(separator: ", ")
+        let tagsJSON = tags.map { "\"\($0)\"" }.joined(separator: ", ")
+
+        var json = """
+        {
+            "title": "\(title)",
+            "description": "\(description)",
+            "ingredients": [\(ingredientsJSON)],
+            "instructions": [\(instructionsJSON)],
+            "tags": [\(tagsJSON)]
+        """
+
+        if let prep = prepTime { json += ", \"prepTime\": \(prep)" }
+        if let cook = cookTime { json += ", \"cookTime\": \(cook)" }
+        if let serv = servings { json += ", \"servings\": \(serv)" }
+        if let cuis = cuisine { json += ", \"cuisine\": \"\(cuis)\"" }
+        if let nutr = nutrition {
+            json += ", \"nutrition\": {\"calories\": \(nutr.calories), \"protein\": \(nutr.protein)}"
+        }
+        json += "}"
+
+        let data = json.data(using: .utf8)!
+        return try! JSONDecoder().decode(GeneratedRecipe.self, from: data)
+    }
     
     static func createViewModelWithSuggestions(
         recipeCount: Int = 15,
