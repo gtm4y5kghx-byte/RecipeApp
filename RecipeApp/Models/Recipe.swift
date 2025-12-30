@@ -21,6 +21,7 @@ class Recipe {
     var lastModified: Date
     var lastMade: Date?
     var isFavorite: Bool = false
+    var summary: String?
     
     @Relationship(deleteRule: .cascade)
     var ingredients: [Ingredient]
