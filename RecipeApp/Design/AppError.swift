@@ -15,7 +15,7 @@ enum RecipeError: AppError {
     case deleteFailed
     case importFailed(reason: String)
     case invalidData
-
+    
     var title: String {
         switch self {
         case .saveFailed: return "Save Failed"
@@ -24,7 +24,7 @@ enum RecipeError: AppError {
         case .invalidData: return "Invalid Recipe Data"
         }
     }
-
+    
     var message: String {
         switch self {
         case .saveFailed:
@@ -37,7 +37,7 @@ enum RecipeError: AppError {
             return "The recipe data is incomplete or invalid."
         }
     }
-
+    
     var suggestion: String? {
         switch self {
         case .saveFailed:
@@ -50,7 +50,7 @@ enum RecipeError: AppError {
             return "Ensure the recipe has a title and at least one ingredient or instruction."
         }
     }
-
+    
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
@@ -62,7 +62,7 @@ enum SearchError: AppError {
     case noResults
     case searchFailed
     case outOfScope(String)
-
+    
     var title: String {
         switch self {
         case .noResults: return "No Results"
@@ -70,7 +70,7 @@ enum SearchError: AppError {
         case .outOfScope: return "Out of Scope"
         }
     }
-
+    
     var message: String {
         switch self {
         case .noResults:
@@ -81,7 +81,7 @@ enum SearchError: AppError {
             return details
         }
     }
-
+    
     var suggestion: String? {
         switch self {
         case .noResults:
@@ -92,7 +92,7 @@ enum SearchError: AppError {
             return "This service only handles recipe and cooking-related questions."
         }
     }
-
+    
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
@@ -102,23 +102,28 @@ enum SearchError: AppError {
 
 enum AIError: AppError {
     case suggestionsFailed
+    case generationFailed
     case apiError(String)
     case networkError
     case premiumRequired
-
+    
     var title: String {
         switch self {
         case .suggestionsFailed: return "Suggestions Unavailable"
+        case .generationFailed: return "Generation Failed"
         case .apiError: return "AI Error"
         case .networkError: return "Network Error"
         case .premiumRequired: return "Premium Feature"
         }
     }
-
+    
     var message: String {
         switch self {
         case .suggestionsFailed:
             return "We couldn't generate recipe suggestions at this time."
+        case .generationFailed:
+            return "We couldn't generate new recipes at this time."
+            
         case .apiError(let details):
             return "AI service error: \(details)"
         case .networkError:
@@ -127,11 +132,13 @@ enum AIError: AppError {
             return "AI-powered features require a premium subscription."
         }
     }
-
+    
     var suggestion: String? {
         switch self {
         case .suggestionsFailed:
             return "Try again later or browse your recipes manually."
+        case .generationFailed:
+            return "Try again later. Your recipe collection helps us personalize suggestions."
         case .apiError:
             return "Please try again. If the problem persists, contact support."
         case .networkError:
@@ -140,7 +147,7 @@ enum AIError: AppError {
             return "Upgrade to premium to unlock AI features."
         }
     }
-
+    
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
@@ -153,7 +160,7 @@ enum ImportError: AppError {
     case parsingFailed
     case networkTimeout
     case invalidURL
-
+    
     var title: String {
         switch self {
         case .unsupportedWebsite: return "Unsupported Website"
@@ -162,7 +169,7 @@ enum ImportError: AppError {
         case .invalidURL: return "Invalid URL"
         }
     }
-
+    
     var message: String {
         switch self {
         case .unsupportedWebsite:
@@ -175,7 +182,7 @@ enum ImportError: AppError {
             return "The URL you entered is not valid."
         }
     }
-
+    
     var suggestion: String? {
         switch self {
         case .unsupportedWebsite:
@@ -188,7 +195,7 @@ enum ImportError: AppError {
             return "Please enter a valid URL starting with http:// or https://"
         }
     }
-
+    
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
@@ -199,28 +206,28 @@ enum ImportError: AppError {
 enum GenericError: AppError {
     case unknown
     case custom(title: String, message: String, suggestion: String?)
-
+    
     var title: String {
         switch self {
         case .unknown: return "Something Went Wrong"
         case .custom(let title, _, _): return title
         }
     }
-
+    
     var message: String {
         switch self {
         case .unknown: return "An unexpected error occurred."
         case .custom(_, let message, _): return message
         }
     }
-
+    
     var suggestion: String? {
         switch self {
         case .unknown: return "Please try again."
         case .custom(_, _, let suggestion): return suggestion
         }
     }
-
+    
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
