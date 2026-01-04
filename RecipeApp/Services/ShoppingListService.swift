@@ -1,82 +1,99 @@
 import Foundation
-import EventKit
+import SwiftData
 
+@MainActor
 class ShoppingListService {
-    private let eventStore: EKEventStore
-    private let userDefaults: UserDefaults
+    private let modelContext: ModelContext
 
-    var targetListName: String {
-        userDefaults.string(forKey: "shoppingListTargetName") ?? "RecipeApp Shopping List"
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
 
-    init(userDefaults: UserDefaults = .standard, eventStore: EKEventStore = EKEventStore()) {
-        self.userDefaults = userDefaults
-        self.eventStore = eventStore
-    }
+    func getOrCreateList() throws -> ShoppingList {
+        let descriptor = FetchDescriptor<ShoppingList>()
+        let existingLists = try modelContext.fetch(descriptor)
 
-    func requestAccess() async -> Bool {
-        do {
-            if #available(iOS 17.0, *) {
-                return try await eventStore.requestFullAccessToReminders()
-            } else {
-                return try await eventStore.requestAccess(to: .reminder)
-            }
-        } catch {
-            return false
-        }
-    }
-
-    func addIngredientsToList(from recipe: Recipe) async throws {
-        guard await requestAccess() else {
-            throw ShoppingListError.permissionDenied
-        }
-
-        let list = try getOrCreateList()
-
-        for ingredient in recipe.sortedIngredients {
-            let reminder = EKReminder(eventStore: eventStore)
-            reminder.title = formatIngredient(ingredient)
-            reminder.notes = "From: \(recipe.title)"
-            reminder.calendar = list
-
-            try eventStore.save(reminder, commit: false)
-        }
-
-        try eventStore.commit()
-    }
-
-    func getOrCreateList() throws -> EKCalendar {
-        let calendars = eventStore.calendars(for: .reminder)
-
-        if let existing = calendars.first(where: { $0.title == targetListName }) {
+        if let existing = existingLists.first {
             return existing
         }
 
-        let newList = EKCalendar(for: .reminder, eventStore: eventStore)
-        newList.title = targetListName
-        newList.source = eventStore.defaultCalendarForNewReminders()?.source
-        try eventStore.saveCalendar(newList, commit: true)
+        let newList = ShoppingList()
+        modelContext.insert(newList)
+        try modelContext.save()
         return newList
     }
 
-    func getAvailableLists() -> [EKCalendar] {
-        eventStore.calendars(for: .reminder)
+    func addIngredientsFromRecipe(_ recipe: Recipe) throws {
+        let list = try getOrCreateList()
+
+        for ingredient in recipe.ingredients {
+            let item = ShoppingListItem(
+                item: ingredient.item,
+                quantity: ingredient.quantity.isEmpty ? nil : ingredient.quantity,
+                unit: ingredient.unit,
+                preparation: ingredient.preparation
+            )
+            item.sourceRecipeIDs = [recipe.id]
+            item.order = list.items.count
+            list.items.append(item)
+        }
+
+        list.dateModified = Date()
+        try modelContext.save()
     }
 
-    private func formatIngredient(_ ingredient: Ingredient) -> String {
-        var parts: [String] = []
+    func addManualItem(item: String, quantity: String? = nil, unit: String? = nil) throws {
+        let list = try getOrCreateList()
 
-        let quantity = ingredient.quantity.trimmingCharacters(in: .whitespaces)
-        if !quantity.isEmpty {
-            parts.append(quantity)
+        let shoppingItem = ShoppingListItem(
+            item: item,
+            quantity: quantity,
+            unit: unit
+        )
+        shoppingItem.order = list.items.count
+        list.items.append(shoppingItem)
+
+        list.dateModified = Date()
+        try modelContext.save()
+    }
+
+    func toggleChecked(_ item: ShoppingListItem) {
+        item.isChecked.toggle()
+        try? modelContext.save()
+    }
+
+    func removeItem(_ item: ShoppingListItem) throws {
+        let list = try getOrCreateList()
+        list.items.removeAll { $0.id == item.id }
+        modelContext.delete(item)
+        list.dateModified = Date()
+        try modelContext.save()
+    }
+
+    func clearCheckedItems() throws {
+        let list = try getOrCreateList()
+        let checkedItems = list.checkedItems
+
+        for item in checkedItems {
+            list.items.removeAll { $0.id == item.id }
+            modelContext.delete(item)
         }
 
-        if let unit = ingredient.unit?.trimmingCharacters(in: .whitespaces), !unit.isEmpty {
-            parts.append(unit)
+        if !checkedItems.isEmpty {
+            list.dateModified = Date()
+            try modelContext.save()
         }
+    }
 
-        parts.append(ingredient.item)
+    func clearAllItems() throws {
+        let list = try getOrCreateList()
 
-        return parts.joined(separator: " ")
+        for item in list.items {
+            modelContext.delete(item)
+        }
+        list.items.removeAll()
+
+        list.dateModified = Date()
+        try modelContext.save()
     }
 }

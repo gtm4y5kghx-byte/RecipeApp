@@ -9,7 +9,9 @@ class TestModelContainer {
             Recipe.self,
             Ingredient.self,
             Step.self,
-            NutritionInfo.self
+            NutritionInfo.self,
+            ShoppingList.self,
+            ShoppingListItem.self,
         ])
         
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)

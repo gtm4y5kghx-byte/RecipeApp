@@ -14,6 +14,8 @@ struct RecipeAppApp: App {
             Recipe.self,
             Ingredient.self,
             Step.self,
+            ShoppingList.self,
+            ShoppingListItem.self,
         ])
         
         let isUITesting = ProcessInfo.processInfo.arguments.contains("UI-TESTING")
