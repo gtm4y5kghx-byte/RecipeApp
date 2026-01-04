@@ -87,7 +87,9 @@ struct RecipeDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button("Start Cooking") { showingCookingMode = true }
-                    Button("Add to Shopping List") {}
+                    Button("Add to Shopping List") {
+                        viewModel?.addToShoppingList()
+                    }
                     Button("Edit") { showingEditSheet = true }
                     Button("Delete", role: .destructive) { showingDeleteConfirmation = true }
                 } label: {

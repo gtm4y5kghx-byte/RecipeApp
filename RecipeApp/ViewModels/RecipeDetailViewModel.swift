@@ -49,6 +49,15 @@ class RecipeDetailViewModel {
             return false
         }
     }
+    
+    func addToShoppingList() {
+        do {
+            let service = ShoppingListService(modelContext: modelContext)
+            try service.addIngredientsFromRecipe(recipe)
+        } catch {
+            self.error = error
+        }
+    }
 
     var formattedTotalTime: String? {
         guard let totalTime = recipe.totalTime else { return nil }
