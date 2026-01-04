@@ -7,6 +7,7 @@ struct RecipeListContent: View {
     let selectedSectionTitle: String?
     let selectedSectionIcon: String?
     let suggestionReasons: [UUID: String]
+    let scrollToTopTrigger: Int
     let onRecipeTap: (Recipe) -> Void
     let onFavoriteTap: (Recipe) -> Void
     let onDeleteTap: (Recipe) -> Void
@@ -20,9 +21,10 @@ struct RecipeListContent: View {
             RecipeGrid(
                 recipes: recipes,
                 suggestionReasons: suggestionReasons,
+                scrollToTopTrigger: scrollToTopTrigger,
                 onRecipeTap: onRecipeTap,
                 onFavoriteTap: onFavoriteTap,
-                onDeleteTap: onDeleteTap 
+                onDeleteTap: onDeleteTap
             )
         }
     }
@@ -63,6 +65,7 @@ struct RecipeListContent: View {
         selectedSectionTitle: nil,
         selectedSectionIcon: nil,
         suggestionReasons: [:],
+        scrollToTopTrigger: 0,
         onRecipeTap: { _ in },
         onFavoriteTap: { _ in },
         onDeleteTap: { _ in },

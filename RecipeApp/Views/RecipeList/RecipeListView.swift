@@ -13,6 +13,7 @@ struct RecipeListView: View {
     @State private var selectedRecipe: Recipe?
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
+    @State private var scrollToTopTrigger = 0
     @State private var error: Error?
 
     init(menuState: AppMenuState? = nil, previewViewModel: RecipeListViewModel? = nil) {
@@ -52,7 +53,7 @@ struct RecipeListView: View {
                         } label: {
                             HStack(spacing: Theme.Spacing.xs) {
                                 Image(systemName: "chevron.left")
-                                Text("All")
+                                Text("Recipes")
                             }
                         }
                         .accessibilityIdentifier("clear-filter-button")
@@ -84,6 +85,9 @@ struct RecipeListView: View {
         .onChange(of: searchScope) { oldValue, newValue in
             viewModel?.performSearch(query: searchText, scope: newValue)
         }
+        .onChange(of: viewModel?.selectedSection) { _, _ in
+            scrollToTopTrigger += 1
+        }
         .onAppear {
             handleViewAppear()
         }
@@ -99,6 +103,7 @@ struct RecipeListView: View {
                 selectedSectionTitle: viewModel.filterTitle,
                 selectedSectionIcon: viewModel.filterIcon,
                 suggestionReasons: viewModel.suggestionReasons,
+                scrollToTopTrigger: scrollToTopTrigger,
                 onRecipeTap: { recipe in
                     selectedRecipe = recipe
                 },
