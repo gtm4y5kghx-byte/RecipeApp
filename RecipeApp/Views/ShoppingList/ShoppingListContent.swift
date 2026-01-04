@@ -4,6 +4,7 @@ import SwiftData
 struct ShoppingListContent: View {
     @Bindable var viewModel: ShoppingListViewModel
     @State private var newItemText = ""
+    @State private var showingClearAllConfirmation = false
     
     var body: some View {
         ScrollView {
@@ -27,12 +28,28 @@ struct ShoppingListContent: View {
         .background(Theme.Colors.background)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                if viewModel.hasCheckedItems {
-                    Button("Clear Checked") {
-                        viewModel.clearCheckedItems()
+                Menu {
+                    if viewModel.hasCheckedItems {
+                        Button("Clear Checked") {
+                            viewModel.clearCheckedItems()
+                        }
                     }
+                    Button("Clear All", role: .destructive) {
+                        showingClearAllConfirmation = true
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
+                .disabled(!viewModel.hasItems)
             }
+        }
+        .alert("Clear Shopping List?", isPresented: $showingClearAllConfirmation) {
+            Button("Clear All", role: .destructive) {
+                viewModel.clearAllItems()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will remove all items from your shopping list.")
         }
     }
     
@@ -40,15 +57,16 @@ struct ShoppingListContent: View {
     
     private var commonIngredientsSection: some View {
         DSSection("Common Ingredients") {
-            ForEach(viewModel.commonIngredientGroups.sorted(by: { $0.key < $1.key }), id: \.key) { _, items in
-                ForEach(items) { item in
-                    ShoppingListItemRow(
-                        item: item,
-                        onToggle: { viewModel.toggleChecked(item) },
-                        onDelete: { viewModel.removeItem(item) }
-                    )
+            ForEach(viewModel.commonIngredientGroups.sorted(
+                by: { $0.key < $1.key }), id: \.key) { _, items in
+                    ForEach(items) { item in
+                        ShoppingListItemRow(
+                            item: item,
+                            onToggle: { viewModel.toggleChecked(item) },
+                            onDelete: { viewModel.removeItem(item) }
+                        )
+                    }
                 }
-            }
         }
     }
     
