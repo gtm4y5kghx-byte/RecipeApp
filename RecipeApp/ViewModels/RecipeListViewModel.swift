@@ -23,10 +23,22 @@ class RecipeListViewModel {
     private let suggestionEngine = AISuggestionEngineService()
     
     var error: Error?
-    
-    init(recipes: [Recipe], modelContext: ModelContext) {
+
+    private var menuState: AppMenuState?
+
+    init(recipes: [Recipe], modelContext: ModelContext, menuState: AppMenuState? = nil) {
         self.recipes = recipes
         self.modelContext = modelContext
+        self.menuState = menuState
+        updateMenuState()
+    }
+
+    func updateMenuState() {
+        menuState?.filterOptions = filterMenuOptions
+        menuState?.tagOptions = tagMenuOptions
+        menuState?.onSelectOption = { [weak self] optionId in
+            self?.selectMenuOption(optionId)
+        }
     }
     
     static let filterSections: [MenuSection] = [
@@ -39,6 +51,7 @@ class RecipeListViewModel {
     
     func updateRecipes(_ recipes: [Recipe]) {
         self.recipes = recipes
+        updateMenuState()
     }
     
     

@@ -4,24 +4,21 @@ import SwiftData
 struct DiscoverView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
-    
+
     @State private var viewModel: DiscoverViewModel?
-    
+
     init(previewViewModel: DiscoverViewModel? = nil) {
         _viewModel = State(initialValue: previewViewModel)
     }
-    
+
     var body: some View {
-        NavigationStack {
-            Group {
-                if let viewModel = viewModel {
-                    content(viewModel: viewModel)
-                }
+        Group {
+            if let viewModel = viewModel {
+                content(viewModel: viewModel)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationTitle("Discover")
-            .background(Theme.Colors.background)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.Colors.background)
         .onAppear {
             if viewModel == nil {
                 viewModel = DiscoverViewModel(
