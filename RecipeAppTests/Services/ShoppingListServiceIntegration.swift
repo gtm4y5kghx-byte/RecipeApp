@@ -46,40 +46,45 @@ struct ShoppingListServiceIntegration {
         try service.addManualItem(item: "dish soap")
 
         let list = try service.getOrCreateList()
+        let recipes = [cookies, cake, salad]
+        let recipeNames = Dictionary(uniqueKeysWithValues: recipes.map { ($0.id, $0.title) })
 
         print("\n" + String(repeating: "=", count: 50))
         print("SHOPPING LIST")
         print(String(repeating: "=", count: 50))
 
-        let commonItems = list.items.filter { $0.isCommonIngredient }
-        let recipeItems = list.items.filter { $0.sourceRecipeIDs.count == 1 }
+        let itemsByName = Dictionary(grouping: list.items.filter { !$0.isManualItem }) { $0.item.lowercased() }
+        let commonItemNames = itemsByName.filter { $0.value.count > 1 }.keys
+        let commonItems = list.items.filter { commonItemNames.contains($0.item.lowercased()) }
+        let uniqueRecipeItems = list.items.filter { !$0.isManualItem && !commonItemNames.contains($0.item.lowercased()) }
         let manualItems = list.items.filter { $0.isManualItem }
 
         if !commonItems.isEmpty {
             print("\n--- Common Ingredients ---")
-            for item in commonItems {
-                let checkbox = item.isChecked ? "[x]" : "[ ]"
-                print("\(checkbox) \(item.displayText) (from \(item.sourceRecipeIDs.count) recipes)")
+            let groupedByName = Dictionary(grouping: commonItems) { $0.item.lowercased() }
+            for (_, items) in groupedByName.sorted(by: { $0.key < $1.key }) {
+                let itemName = items.first?.item.capitalized ?? ""
+                let quantities = items.map { item in
+                    [item.quantity, item.unit, item.preparation].compactMap { $0 }.joined(separator: " ")
+                }.joined(separator: ", ")
+                print("  [ ] \(itemName) - \(quantities)")
             }
         }
 
-        if !recipeItems.isEmpty {
+        if !uniqueRecipeItems.isEmpty {
             var recipeGroups: [UUID: [ShoppingListItem]] = [:]
-            for item in recipeItems {
+            for item in uniqueRecipeItems {
                 if let recipeID = item.sourceRecipeIDs.first {
                     recipeGroups[recipeID, default: []].append(item)
                 }
             }
-
-            let recipes = [cookies, cake, salad]
-            let recipeNames = Dictionary(uniqueKeysWithValues: recipes.map { ($0.id, $0.title) })
 
             for (recipeID, items) in recipeGroups {
                 let recipeName = recipeNames[recipeID] ?? "Unknown Recipe"
                 print("\n--- \(recipeName) ---")
                 for item in items {
                     let checkbox = item.isChecked ? "[x]" : "[ ]"
-                    print("\(checkbox) \(item.displayText)")
+                    print("  \(checkbox) \(item.displayText)")
                 }
             }
         }
@@ -88,7 +93,7 @@ struct ShoppingListServiceIntegration {
             print("\n--- Other ---")
             for item in manualItems {
                 let checkbox = item.isChecked ? "[x]" : "[ ]"
-                print("\(checkbox) \(item.displayText)")
+                print("  \(checkbox) \(item.displayText)")
             }
         }
 
