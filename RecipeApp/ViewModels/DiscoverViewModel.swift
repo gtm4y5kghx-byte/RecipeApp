@@ -12,8 +12,6 @@ class DiscoverViewModel {
     private let modelContext: ModelContext
     private let generationService: RecipeGenerating
 
-    private let minimumRecipeCount = 10
-
     init(
         recipes: [Recipe],
         modelContext: ModelContext,
@@ -31,7 +29,7 @@ class DiscoverViewModel {
     }
 
     var canGenerate: Bool {
-        isPremium && recipes.count >= minimumRecipeCount
+        isPremium
     }
 
     // MARK: - Methods

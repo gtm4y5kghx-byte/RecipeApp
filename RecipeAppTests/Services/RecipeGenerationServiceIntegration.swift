@@ -34,20 +34,6 @@ struct RecipeGenerationServiceIntegration {
         #expect(generatedRecipes.allSatisfy { !$0.instructions.isEmpty })
     }
 
-    @Test("Returns empty when below minimum recipe count")
-    func validateMinimumRecipeCount() async throws {
-        let recipes = Array(createTestRecipeCollection().prefix(5))
-
-        let result = try await service.getGeneratedRecipes(recipes: recipes)
-
-        print("\n========== MINIMUM COUNT TEST ==========")
-        print("Collection size: \(recipes.count) recipes")
-        print("Result: \(result.count) recipes (expected: 0)")
-        print("=========================================\n")
-
-        #expect(result.isEmpty)
-    }
-
     // MARK: - Test Helpers
 
     private func createTestRecipeCollection() -> [Recipe] {

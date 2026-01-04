@@ -27,7 +27,7 @@ struct DiscoverViewModelTests {
         #expect(viewModel.error == nil)
     }
 
-    // MARK: - Premium & Threshold Tests
+    // MARK: - Premium Tests
 
     @Test("isPremium reflects subscription service")
     func isPremiumReflectsService() {
@@ -40,11 +40,10 @@ struct DiscoverViewModelTests {
         #expect(viewModel2.isPremium == false)
     }
 
-    @Test("canGenerate is true when premium and has 10+ recipes")
-    func canGenerateWhenEligible() {
+    @Test("canGenerate is true when premium")
+    func canGenerateWhenPremium() {
         setPremium(true)
-        let recipes = createRecipes(count: 10)
-        let viewModel = createViewModel(recipes: recipes)
+        let viewModel = createViewModel()
 
         #expect(viewModel.canGenerate == true)
     }
@@ -52,17 +51,7 @@ struct DiscoverViewModelTests {
     @Test("canGenerate is false when not premium")
     func canGenerateFalseWhenNotPremium() {
         setPremium(false)
-        let recipes = createRecipes(count: 15)
-        let viewModel = createViewModel(recipes: recipes)
-
-        #expect(viewModel.canGenerate == false)
-    }
-
-    @Test("canGenerate is false when below threshold")
-    func canGenerateFalseBelowThreshold() {
-        setPremium(true)
-        let recipes = createRecipes(count: 5)
-        let viewModel = createViewModel(recipes: recipes)
+        let viewModel = createViewModel()
 
         #expect(viewModel.canGenerate == false)
     }
@@ -78,8 +67,7 @@ struct DiscoverViewModelTests {
             RecipeTestFixtures.createGeneratedRecipe(title: "Recipe 2")
         ]
 
-        let recipes = createRecipes(count: 10)
-        let viewModel = createViewModel(recipes: recipes, generationService: mockService)
+        let viewModel = createViewModel(generationService: mockService)
 
         await viewModel.loadGeneratedRecipes()
 
@@ -93,8 +81,7 @@ struct DiscoverViewModelTests {
         let mockService = MockRecipeGenerationService()
         mockService.mockGeneratedRecipes = [RecipeTestFixtures.createGeneratedRecipe()]
 
-        let recipes = createRecipes(count: 10)
-        let viewModel = createViewModel(recipes: recipes, generationService: mockService)
+        let viewModel = createViewModel(generationService: mockService)
 
         #expect(viewModel.isLoading == false)
 
@@ -109,8 +96,7 @@ struct DiscoverViewModelTests {
         let mockService = MockRecipeGenerationService()
         mockService.shouldThrowError = true
 
-        let recipes = createRecipes(count: 10)
-        let viewModel = createViewModel(recipes: recipes, generationService: mockService)
+        let viewModel = createViewModel(generationService: mockService)
 
         await viewModel.loadGeneratedRecipes()
 
@@ -124,23 +110,7 @@ struct DiscoverViewModelTests {
         let mockService = MockRecipeGenerationService()
         mockService.mockGeneratedRecipes = [RecipeTestFixtures.createGeneratedRecipe()]
 
-        let recipes = createRecipes(count: 10)
-        let viewModel = createViewModel(recipes: recipes, generationService: mockService)
-
-        await viewModel.loadGeneratedRecipes()
-
-        #expect(mockService.getGeneratedRecipesCallCount == 0)
-        #expect(viewModel.generatedRecipes.isEmpty)
-    }
-
-    @Test("loadGeneratedRecipes does nothing below threshold")
-    func loadDoesNothingBelowThreshold() async {
-        setPremium(true)
-        let mockService = MockRecipeGenerationService()
-        mockService.mockGeneratedRecipes = [RecipeTestFixtures.createGeneratedRecipe()]
-
-        let recipes = createRecipes(count: 5)
-        let viewModel = createViewModel(recipes: recipes, generationService: mockService)
+        let viewModel = createViewModel(generationService: mockService)
 
         await viewModel.loadGeneratedRecipes()
 
@@ -201,11 +171,5 @@ struct DiscoverViewModelTests {
 
     private func setPremium(_ value: Bool) {
         UserSubscriptionService.mockIsPremium = value
-    }
-
-    private func createRecipes(count: Int) -> [Recipe] {
-        (0..<count).map { i in
-            RecipeTestFixtures.createRecipe(title: "Recipe \(i)")
-        }
     }
 }

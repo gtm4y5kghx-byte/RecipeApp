@@ -7,10 +7,9 @@ protocol RecipeGenerating {
 
 @MainActor
 class RecipeGenerationService: RecipeGenerating {
-    
+
     private let claudeClient: ClaudeAPIClient
     private let cacheKey = "generated_recipe_cache"
-    private let minimumRecipeCount = 10
     
     init() {
         self.claudeClient = ClaudeAPIClient(apiKey: Config.claudeAPIKey)
@@ -23,10 +22,6 @@ class RecipeGenerationService: RecipeGenerating {
     }
 
     func getGeneratedRecipes(recipes: [Recipe], forceRefresh: Bool) async throws -> [GeneratedRecipe] {
-        guard recipes.count >= minimumRecipeCount else {
-            return []
-        }
-        
         if !forceRefresh, let cache = loadCache(), !cache.isStale {
             return cache.recipes
         }
@@ -76,6 +71,7 @@ class RecipeGenerationService: RecipeGenerating {
                {"quantity": "2 cups", "unit": "cups", "item": "all-purpose flour", "preparation": null},
                {"quantity": "1 lb", "unit": "lb", "item": "chicken breast", "preparation": "boneless and skinless"}
              ],
+            "instructions": ["Preheat oven to 350°F", "Mix dry ingredients", "Bake for 25 minutes"],
             "prepTime": 15,
             "cookTime": 30,
             "servings": 4,
