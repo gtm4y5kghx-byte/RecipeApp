@@ -5,42 +5,65 @@ import Foundation
 @Suite("Recipe Generation Service Integration - Manual Validation")
 @MainActor
 struct RecipeGenerationServiceIntegration {
-
+    
     private let service = RecipeGenerationService()
-
+    
     @Test("Generate recipes with real Claude API")
     func validateGenerateRecipes() async throws {
         let recipes = createTestRecipeCollection()
-
+        
         print("\n========== RECIPE GENERATION TEST ==========")
         print("Collection size: \(recipes.count) recipes")
         printCollectionSummary(recipes)
-
+        
         let startTime = Date()
         let generatedRecipes = try await service.generateRecipes(recipes: recipes, count: 3)
         let duration = Date().timeIntervalSince(startTime)
-
+        
         print("\nGeneration completed in \(String(format: "%.2f", duration))s")
         print("Generated \(generatedRecipes.count) recipes")
-
+        
         for (index, recipe) in generatedRecipes.enumerated() {
             printGeneratedRecipe(recipe, index: index + 1)
         }
         print("=============================================\n")
-
+        
         #expect(generatedRecipes.count == 3)
         #expect(generatedRecipes.allSatisfy { !$0.title.isEmpty })
         #expect(generatedRecipes.allSatisfy { !$0.ingredients.isEmpty })
         #expect(generatedRecipes.allSatisfy { !$0.instructions.isEmpty })
     }
+    
+    @Test("Generate recipes with empty catalog")
+    func validateGenerateRecipesWithEmptyCatalog() async throws {
+        print("\n========== EMPTY CATALOG GENERATION TEST ==========")
+        print("Testing new user experience with variety-focused generation")
 
+        let startTime = Date()
+        let generatedRecipes = try await service.generateRecipes(recipes: [], count: 5)
+        let duration = Date().timeIntervalSince(startTime)
+
+        print("Generation completed in \(String(format: "%.2f", duration))s")
+        print("Generated \(generatedRecipes.count) recipes")
+
+        for (index, recipe) in generatedRecipes.enumerated() {
+            printGeneratedRecipe(recipe, index: index + 1)
+        }
+        print("================================================\n")
+
+        #expect(generatedRecipes.count == 5)
+        #expect(generatedRecipes.allSatisfy { !$0.title.isEmpty })
+        #expect(generatedRecipes.allSatisfy { !$0.ingredients.isEmpty })
+        #expect(generatedRecipes.allSatisfy { !$0.instructions.isEmpty })
+    }
+    
     // MARK: - Test Helpers
-
+    
     private func createTestRecipeCollection() -> [Recipe] {
         let today = Date()
         let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: today)!
         let sixtyDaysAgo = Calendar.current.date(byAdding: .day, value: -60, to: today)!
-
+        
         return [
             RecipeTestFixtures.createRecipe(
                 title: "Pasta Carbonara",
@@ -184,28 +207,28 @@ struct RecipeGenerationServiceIntegration {
             )
         ]
     }
-
+    
     private func printCollectionSummary(_ recipes: [Recipe]) {
         let cuisines = Dictionary(grouping: recipes.compactMap { $0.cuisine }, by: { $0 })
             .mapValues { $0.count }
             .sorted { $0.value > $1.value }
-
+        
         let cookTimes = recipes.compactMap { $0.totalTime }
         let avgCookTime = cookTimes.isEmpty ? 0 : cookTimes.reduce(0, +) / cookTimes.count
         let favoriteCount = recipes.filter { $0.isFavorite }.count
-
+        
         print("Cuisines: \(cuisines.map { "\($0.key)(\($0.value))" }.joined(separator: ", "))")
         print("Average cook time: \(avgCookTime) minutes")
         print("Favorites: \(favoriteCount)/\(recipes.count)")
     }
-
+    
     private func printGeneratedRecipe(_ recipe: GeneratedRecipe, index: Int) {
         print("\n--- Recipe \(index): \(recipe.title) ---")
         print("Description: \(recipe.description)")
         print("Cuisine: \(recipe.cuisine ?? "Not specified")")
         print("Time: \(recipe.prepTime ?? 0)min prep + \(recipe.cookTime ?? 0)min cook")
         print("Servings: \(recipe.servings ?? 0)")
-
+        
         print("Ingredients (\(recipe.ingredients.count)):")
         for ingredient in recipe.ingredients.prefix(5) {
             print("  • \(ingredient)")
@@ -213,9 +236,9 @@ struct RecipeGenerationServiceIntegration {
         if recipe.ingredients.count > 5 {
             print("  • ... and \(recipe.ingredients.count - 5) more")
         }
-
+        
         print("Instructions (\(recipe.instructions.count) steps)")
-
+        
         if let nutrition = recipe.nutrition {
             print("Nutrition: \(nutrition.calories ?? 0) cal, \(nutrition.protein ?? 0)g protein")
         }

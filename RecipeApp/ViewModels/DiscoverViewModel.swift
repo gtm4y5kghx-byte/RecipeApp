@@ -28,14 +28,10 @@ class DiscoverViewModel {
         UserSubscriptionService.shared.isPremium
     }
 
-    var canGenerate: Bool {
-        isPremium
-    }
-
     // MARK: - Methods
 
     func loadGeneratedRecipes() async {
-        guard canGenerate else { return }
+        guard isPremium else { return }
 
         isLoading = true
         error = nil

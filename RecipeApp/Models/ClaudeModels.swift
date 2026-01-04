@@ -112,7 +112,33 @@ struct GeneratedRecipe: Codable, Identifiable, Equatable {
         try container.encode(tags, forKey: .tags)
         try container.encodeIfPresent(nutrition, forKey: .nutrition)
     }
-    
+
+    init(
+        id: UUID = UUID(),
+        title: String,
+        description: String,
+        ingredients: [GeneratedIngredient] = [],
+        instructions: [String] = [],
+        prepTime: Int? = nil,
+        cookTime: Int? = nil,
+        servings: Int? = nil,
+        cuisine: String? = nil,
+        tags: [String] = [],
+        nutrition: GeneratedNutrition? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.ingredients = ingredients
+        self.instructions = instructions
+        self.prepTime = prepTime
+        self.cookTime = cookTime
+        self.servings = servings
+        self.cuisine = cuisine
+        self.tags = tags
+        self.nutrition = nutrition
+    }
+
     func toRecipe() -> Recipe {
           let recipe = Recipe(title: title, sourceType: .ai_generated)
 

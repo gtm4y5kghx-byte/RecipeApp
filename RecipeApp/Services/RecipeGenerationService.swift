@@ -97,17 +97,43 @@ class RecipeGenerationService: RecipeGenerating {
     }
     
     private func buildUserPrompt(recipes: [Recipe], count: Int) -> String {
+        if recipes.isEmpty {
+            return buildNewUserPrompt(count: count)
+        }
+        return buildPersonalizedPrompt(recipes: recipes, count: count)
+    }
+
+    private func buildNewUserPrompt(count: Int) -> String {
+        """
+        Current time: \(formatCurrentTime())
+
+        This is a new user with no recipes yet. Generate \(count) beginner-friendly,
+        crowd-pleasing recipes to help them get started with their collection.
+
+        Focus on variety:
+        - Mix of cuisines (Italian, Mexican, Asian, American, etc.)
+        - Mix of proteins (chicken, beef, seafood, plant-based)
+        - At least one vegetarian option
+        - Range of cooking times (some quick weeknight meals, some more involved)
+        - All should be popular, widely-loved dishes with broad appeal
+        - Use common, easy-to-find ingredients
+
+        Return ONLY the JSON array, nothing else.
+        """
+    }
+
+    private func buildPersonalizedPrompt(recipes: [Recipe], count: Int) -> String {
         let analysisContext = analyzeUserCookingPatterns(recipes)
-        
+
         return """
         Current time: \(formatCurrentTime())
-        
+
         User's Recipe Collection Analysis:
         \(analysisContext)
-        
+
         Generate \(count) NEW recipes that match this user's cooking style and preferences.
         These should be recipes they don't already have but would enjoy based on their patterns.
-        
+
         Return ONLY the JSON array, nothing else.
         """
     }

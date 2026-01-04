@@ -40,22 +40,6 @@ struct DiscoverViewModelTests {
         #expect(viewModel2.isPremium == false)
     }
 
-    @Test("canGenerate is true when premium")
-    func canGenerateWhenPremium() {
-        setPremium(true)
-        let viewModel = createViewModel()
-
-        #expect(viewModel.canGenerate == true)
-    }
-
-    @Test("canGenerate is false when not premium")
-    func canGenerateFalseWhenNotPremium() {
-        setPremium(false)
-        let viewModel = createViewModel()
-
-        #expect(viewModel.canGenerate == false)
-    }
-
     // MARK: - Load Generated Recipes Tests
 
     @Test("loadGeneratedRecipes populates recipes on success")

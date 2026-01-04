@@ -7,15 +7,18 @@ struct DiscoverView: View {
     
     @State private var viewModel: DiscoverViewModel?
     
+    init(previewViewModel: DiscoverViewModel? = nil) {
+        _viewModel = State(initialValue: previewViewModel)
+    }
+    
     var body: some View {
         NavigationStack {
             Group {
                 if let viewModel = viewModel {
                     content(viewModel: viewModel)
-                } else {
-                    DSLoadingSpinner(message: "Loading...")
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("Discover")
             .background(Theme.Colors.background)
         }
@@ -33,19 +36,20 @@ struct DiscoverView: View {
     
     @ViewBuilder
     private func content(viewModel: DiscoverViewModel) -> some View {
-        if !viewModel.isPremium {
-            premiumUpgradeState
-        } else if !viewModel.canGenerate {
-            needMoreRecipesState
-        } else if viewModel.isLoading {
-            DSLoadingSpinner(message: "Generating recipes...")
-        } else if viewModel.error != nil {
-            errorState
-        } else if viewModel.generatedRecipes.isEmpty {
-            emptyState(viewModel: viewModel)
-        } else {
-            generatedRecipesContent(viewModel: viewModel)
+        Group {
+            if !viewModel.isPremium {
+                premiumUpgradeState
+            } else if viewModel.isLoading {
+                DSLoadingSpinner(message: "Generating recipes...")
+            } else if viewModel.error != nil {
+                errorState
+            } else if viewModel.generatedRecipes.isEmpty {
+                emptyState(viewModel: viewModel)
+            } else {
+                generatedRecipesContent(viewModel: viewModel)
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var premiumUpgradeState: some View {
@@ -55,16 +59,6 @@ struct DiscoverView: View {
             message: "Get personalized recipe suggestions based on your cooking style and preferences.",
             actionTitle: "Upgrade to Premium",
             action: { /* TODO: Show paywall */ }
-        )
-    }
-    
-    private var needMoreRecipesState: some View {
-        DSEmptyState(
-            icon: "book",
-            title: "Build Your Collection",
-            message: "Add at least 10 recipes so we can learn your taste and generate personalized suggestions.",
-            actionTitle: nil,
-            action: nil
         )
     }
     
@@ -114,4 +108,101 @@ struct DiscoverView: View {
             .padding(.vertical, Theme.Spacing.md)
         }
     }
+}
+
+// MARK: - Previews
+
+#Preview("Non-Premium") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Recipe.self, configurations: config)
+    
+    UserSubscriptionService.mockIsPremium = false
+    
+    let viewModel = DiscoverViewModel(
+        recipes: [],
+        modelContext: container.mainContext,
+        generationService: RecipeGenerationService()
+    )
+    
+    return DiscoverView(previewViewModel: viewModel)
+        .modelContainer(container)
+}
+
+#Preview("Loading") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Recipe.self, configurations: config)
+    
+    UserSubscriptionService.mockIsPremium = true
+    
+    let viewModel = DiscoverViewModel(
+        recipes: [],
+        modelContext: container.mainContext,
+        generationService: RecipeGenerationService()
+    )
+    viewModel.isLoading = true
+    
+    return DiscoverView(previewViewModel: viewModel)
+        .modelContainer(container)
+}
+
+#Preview("Generated Recipes") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Recipe.self, configurations: config)
+    
+    UserSubscriptionService.mockIsPremium = true
+    
+    let viewModel = DiscoverViewModel(
+        recipes: [],
+        modelContext: container.mainContext,
+        generationService: RecipeGenerationService()
+    )
+    viewModel.generatedRecipes = [
+        GeneratedRecipe(
+            title: "Mediterranean Chickpea Bowl",
+            description: "A healthy grain bowl with roasted chickpeas, fresh vegetables, and tahini dressing.",
+            prepTime: 15,
+            cookTime: 20,
+            servings: 4,
+            cuisine: "Mediterranean",
+            tags: ["Healthy", "Vegetarian", "Quick"]
+        ),
+        GeneratedRecipe(
+            title: "Spicy Korean Beef Tacos",
+            description: "Fusion tacos with gochujang-marinated beef, pickled vegetables, and sriracha mayo.",
+            prepTime: 20,
+            cookTime: 25,
+            servings: 6,
+            cuisine: "Korean-Mexican",
+            tags: ["Spicy", "Fusion"]
+        ),
+        GeneratedRecipe(
+            title: "Lemon Herb Roasted Chicken",
+            description: "Classic roasted chicken with garlic, rosemary, and a bright lemon finish.",
+            prepTime: 15,
+            cookTime: 60,
+            servings: 4,
+            cuisine: "American",
+            tags: ["Classic", "Sunday Dinner"]
+        )
+    ]
+    
+    return DiscoverView(previewViewModel: viewModel)
+        .modelContainer(container)
+}
+
+#Preview("Error") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Recipe.self, configurations: config)
+    
+    UserSubscriptionService.mockIsPremium = true
+    
+    let viewModel = DiscoverViewModel(
+        recipes: [],
+        modelContext: container.mainContext,
+        generationService: RecipeGenerationService()
+    )
+    viewModel.error = AIError.generationFailed
+    
+    return DiscoverView(previewViewModel: viewModel)
+        .modelContainer(container)
 }
