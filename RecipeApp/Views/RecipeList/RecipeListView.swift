@@ -21,30 +21,43 @@ struct RecipeListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            if showImportBanner {
-                RecipeImportBanner {
-                    importedRecipe = recipes.first
+        NavigationStack {
+            VStack(spacing: 0) {
+                if showImportBanner {
+                    RecipeImportBanner {
+                        importedRecipe = recipes.first
+                    }
+                }
+
+                filterIndicator
+
+                if let _ = viewModel { recipeContent } else {
+                    DSLoadingSpinner(message: "Loading recipes...")
+                }
+
+                RecipeListSearchBar(
+                    searchText: $searchText,
+                    searchScope: $searchScope,
+                    onSubmit: {
+                        viewModel?.performSearch(query: searchText, scope: searchScope)
+                    }
+                )
+            }
+            .background(Theme.Colors.background)
+            .navigationTitle("Recipes")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        menuState?.showingMenu = true
+                    } label: {
+                        Image(systemName: "line.3.horizontal")
+                    }
                 }
             }
-
-            filterIndicator
-
-            if let _ = viewModel { recipeContent } else {
-                DSLoadingSpinner(message: "Loading recipes...")
+            .navigationDestination(item: $selectedRecipe) { recipe in
+                RecipeDetailView(recipe: recipe)
             }
-
-            RecipeListSearchBar(
-                searchText: $searchText,
-                searchScope: $searchScope,
-                onSubmit: {
-                    viewModel?.performSearch(query: searchText, scope: searchScope)
-                }
-            )
-        }
-        .background(Theme.Colors.background)
-        .navigationDestination(item: $selectedRecipe) { recipe in
-            RecipeDetailView(recipe: recipe)
         }
         .sheet(item: $importedRecipe) { recipe in
             // TODO: RecipeDetailView

@@ -5,20 +5,36 @@ struct DiscoverView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
 
+    var menuState: AppMenuState?
+
     @State private var viewModel: DiscoverViewModel?
 
-    init(previewViewModel: DiscoverViewModel? = nil) {
+    init(menuState: AppMenuState? = nil, previewViewModel: DiscoverViewModel? = nil) {
+        self.menuState = menuState
         _viewModel = State(initialValue: previewViewModel)
     }
 
     var body: some View {
-        Group {
-            if let viewModel = viewModel {
-                content(viewModel: viewModel)
+        NavigationStack {
+            Group {
+                if let viewModel = viewModel {
+                    content(viewModel: viewModel)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.Colors.background)
+            .navigationTitle("Discover")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        menuState?.showingMenu = true
+                    } label: {
+                        Image(systemName: "line.3.horizontal")
+                    }
+                }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Theme.Colors.background)
         .onAppear {
             if viewModel == nil {
                 viewModel = DiscoverViewModel(
