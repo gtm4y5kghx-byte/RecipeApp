@@ -3,10 +3,11 @@ import SwiftData
 
 struct ShoppingListContent: View {
     @Bindable var viewModel: ShoppingListViewModel
+    @State private var newItemText = ""
     
     var body: some View {
         ScrollView {
-            VStack(spacing: Theme.Spacing.lg) {
+            LazyVStack(spacing: Theme.Spacing.lg) {
                 if !viewModel.commonIngredientGroups.isEmpty {
                     commonIngredientsSection
                 }
@@ -14,10 +15,12 @@ struct ShoppingListContent: View {
                 ForEach(viewModel.recipeGroups) { group in
                     recipeSection(group)
                 }
-
+                
                 if !viewModel.manualItems.isEmpty {
                     otherSection
                 }
+                
+                addItemField
             }
             .padding(Theme.Spacing.md)
         }
@@ -71,5 +74,23 @@ struct ShoppingListContent: View {
                 )
             }
         }
+    }
+    
+    // MARK: - Add Item
+    
+    private var addItemField: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            DSIcon("plus.circle", size: .medium, color: .tertiary)
+            
+            TextField("Add item", text: $newItemText)
+                .submitLabel(.done)
+                .onSubmit {
+                    guard !newItemText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                    viewModel.addManualItem(item: newItemText)
+                    newItemText = ""
+                }
+        }
+        .padding(.vertical, Theme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.md)
     }
 }
