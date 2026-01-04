@@ -29,8 +29,6 @@ struct RecipeListView: View {
                     }
                 }
 
-                filterIndicator
-
                 if let _ = viewModel { recipeContent } else {
                     DSLoadingSpinner(message: "Loading recipes...")
                 }
@@ -44,9 +42,23 @@ struct RecipeListView: View {
                 )
             }
             .background(Theme.Colors.background)
-            .navigationTitle("Recipes")
+            .navigationTitle(viewModel?.filterTitle ?? "Recipes")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                if viewModel?.hasActiveFilter == true {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            viewModel?.selectedSection = .all
+                        } label: {
+                            HStack(spacing: Theme.Spacing.xs) {
+                                Image(systemName: "chevron.left")
+                                Text("All")
+                            }
+                        }
+                        .accessibilityIdentifier("clear-filter-button")
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         menuState?.showingMenu = true
@@ -74,32 +86,6 @@ struct RecipeListView: View {
         }
         .onAppear {
             handleViewAppear()
-        }
-    }
-    
-    @ViewBuilder
-    private var filterIndicator: some View {
-        if let viewModel = viewModel, viewModel.hasActiveFilter,
-           let filterIcon = viewModel.filterIcon, let filterTitle = viewModel.filterTitle {
-            HStack(spacing: Theme.Spacing.xs) {
-                DSIcon(filterIcon, size: .small, color: .secondary)
-                DSLabel(filterTitle, style: .caption1, color: .secondary)
-
-                Button {
-                    viewModel.selectedSection = .all
-                } label: {
-                    DSIcon("xmark.circle.fill", size: .small, color: .tertiary)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .accessibilityIdentifier("clear-filter-button")
-            }
-            .padding(.horizontal, Theme.Spacing.sm)
-            .padding(.vertical, Theme.Spacing.xs)
-            .background(Theme.Colors.backgroundDark)
-            .cornerRadius(Theme.CornerRadius.sm)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Theme.Spacing.md)
-            .padding(.top, Theme.Spacing.sm)
         }
     }
     
