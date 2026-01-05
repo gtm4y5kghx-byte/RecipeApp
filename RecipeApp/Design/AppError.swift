@@ -201,6 +201,44 @@ enum ImportError: AppError {
     var recoverySuggestion: String? { suggestion }
 }
 
+// MARK: - Meal Plan Errors
+
+enum MealPlanError: AppError {
+    case saveFailed
+    case deleteFailed
+    case loadFailed
+
+    var title: String {
+        switch self {
+        case .saveFailed: return "Save Failed"
+        case .deleteFailed: return "Delete Failed"
+        case .loadFailed: return "Load Failed"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .saveFailed:
+            return "We couldn't save this meal plan entry."
+        case .deleteFailed:
+            return "We couldn't remove this meal plan entry."
+        case .loadFailed:
+            return "We couldn't load your meal plan."
+        }
+    }
+
+    var suggestion: String? {
+        switch self {
+        case .saveFailed, .deleteFailed, .loadFailed:
+            return "Please try again."
+        }
+    }
+
+    var errorDescription: String? { message }
+    var failureReason: String? { message }
+    var recoverySuggestion: String? { suggestion }
+}
+
 // MARK: - Generic App Error
 
 enum GenericError: AppError {
