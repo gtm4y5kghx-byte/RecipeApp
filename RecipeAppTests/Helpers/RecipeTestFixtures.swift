@@ -13,6 +13,7 @@ struct RecipeTestFixtures {
             NutritionInfo.self,
             ShoppingList.self,
             ShoppingListItem.self,
+            MealPlanEntry.self,
         ])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: config)
