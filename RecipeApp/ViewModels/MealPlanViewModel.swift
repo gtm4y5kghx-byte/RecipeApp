@@ -13,15 +13,22 @@ class MealPlanViewModel {
         self.service = MealPlanService(modelContext: modelContext)
     }
     
-    // MARK: - Computed Properties
-    
+    // MARK: - Date Range
+
     var dateRange: [Date] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let year = calendar.component(.year, from: Date())
 
-        return (-14...90).compactMap { offset in
-            calendar.date(byAdding: .day, value: offset, to: today)
+        let start = calendar.date(from: DateComponents(year: year, month: 1, day: 1))!
+        let end = calendar.date(from: DateComponents(year: year, month: 12, day: 31))!
+
+        var dates: [Date] = []
+        var current = start
+        while current <= end {
+            dates.append(current)
+            current = calendar.date(byAdding: .day, value: 1, to: current)!
         }
+        return dates
     }
 
     var today: Date {

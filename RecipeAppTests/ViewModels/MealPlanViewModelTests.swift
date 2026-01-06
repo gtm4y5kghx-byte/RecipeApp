@@ -124,6 +124,63 @@ struct MealPlanViewModelTests {
         #expect(viewModel.entries.isEmpty)
     }
 
+    // MARK: - Date Range
+
+    @Test("dateRange starts on Jan 1 of current year")
+    func dateRangeStartsJanuary1() throws {
+        let viewModel = try createViewModel()
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+
+        let firstDate = viewModel.dateRange.first!
+        #expect(calendar.component(.year, from: firstDate) == currentYear)
+        #expect(calendar.component(.month, from: firstDate) == 1)
+        #expect(calendar.component(.day, from: firstDate) == 1)
+    }
+
+    @Test("dateRange ends on Dec 31 of current year")
+    func dateRangeEndsDecember31() throws {
+        let viewModel = try createViewModel()
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+
+        let lastDate = viewModel.dateRange.last!
+        #expect(calendar.component(.year, from: lastDate) == currentYear)
+        #expect(calendar.component(.month, from: lastDate) == 12)
+        #expect(calendar.component(.day, from: lastDate) == 31)
+    }
+
+    @Test("dateRange contains correct number of days for year")
+    func dateRangeContainsFullYear() throws {
+        let viewModel = try createViewModel()
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+
+        let isLeapYear = (currentYear % 4 == 0 && currentYear % 100 != 0) || (currentYear % 400 == 0)
+        let expectedDays = isLeapYear ? 366 : 365
+
+        #expect(viewModel.dateRange.count == expectedDays)
+    }
+
+    @Test("dateRange contains today")
+    func dateRangeContainsToday() throws {
+        let viewModel = try createViewModel()
+        let today = Calendar.current.startOfDay(for: Date())
+
+        #expect(viewModel.dateRange.contains(today))
+    }
+
+    @Test("today returns start of current day")
+    func todayReturnsStartOfDay() throws {
+        let viewModel = try createViewModel()
+        let calendar = Calendar.current
+
+        let today = viewModel.today
+        #expect(calendar.component(.hour, from: today) == 0)
+        #expect(calendar.component(.minute, from: today) == 0)
+        #expect(calendar.component(.second, from: today) == 0)
+    }
+
     // MARK: - Helpers
 
     private func createViewModel(context: ModelContext? = nil) throws -> MealPlanViewModel {
