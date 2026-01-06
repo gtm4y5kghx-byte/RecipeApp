@@ -463,15 +463,6 @@ class RecipeListViewModel {
     }
 }
 
-enum SearchScope: String, CaseIterable {
-    case all = "All"
-    case title = "Title"
-    case cuisine = "Cuisine"
-    case ingredients = "Ingredients"
-    case instructions = "Instructions"
-    case notes = "Notes"
-}
-
 enum MenuSection: Hashable, Identifiable {
     case all
     case recentlyAdded

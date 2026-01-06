@@ -1,10 +1,10 @@
 import SwiftUI
 
-struct RecipeListSearchBar: View {
+struct ScopedSearchBar: View {
     @Binding var searchText: String
     @Binding var searchScope: SearchScope
     let onSubmit: () -> Void
-    
+
     var body: some View {
         VStack(spacing: 0) {
             DSSection {
@@ -17,13 +17,12 @@ struct RecipeListSearchBar: View {
                     .pickerStyle(.segmented)
                     .accessibilityIdentifier("search-scope-picker")
                 }
-                
-                SearchBar(
+
+                DSSearchBar(
                     text: $searchText,
-                    onSubmit: onSubmit,
+                    onSubmit: onSubmit
                 )
             }
-            
         }
     }
 }

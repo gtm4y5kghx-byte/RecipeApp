@@ -8,12 +8,14 @@ struct MainTabView: View {
     enum Tab: Hashable {
         case recipes
         case discover
+        case mealPlan
         case shoppingList
-        
+
         var title: String {
             switch self {
             case .recipes: return "Recipes"
             case .discover: return "Discover"
+            case .mealPlan: return "Meal Plan"
             case .shoppingList: return "Shopping List"
             }
         }
@@ -31,6 +33,11 @@ struct MainTabView: View {
                 .tag(Tab.discover)
                 .tabItem {
                     Label("Discover", systemImage: "sparkles")
+                }
+            MealPlanView()
+                .tag(Tab.mealPlan)
+                .tabItem {
+                    Label("Meal Plan", systemImage: "calendar")
                 }
             ShoppingListView()
                 .tag(Tab.shoppingList)
@@ -65,7 +72,7 @@ struct MainTabView: View {
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: Recipe.self, configurations: config)
+    let container = try! ModelContainer(for: Recipe.self, MealPlanEntry.self, ShoppingList.self, configurations: config)
     
     SampleData.loadSampleRecipes(into: container.mainContext)
     

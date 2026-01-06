@@ -34,7 +34,7 @@ struct RecipeListView: View {
                     DSLoadingSpinner(message: "Loading recipes...")
                 }
 
-                RecipeListSearchBar(
+                ScopedSearchBar(
                     searchText: $searchText,
                     searchScope: $searchScope,
                     onSubmit: {
