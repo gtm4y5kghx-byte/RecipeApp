@@ -50,7 +50,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Includes all favorites when under favorites cap")
     func includesAllFavorites() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         let favoriteIndices = [0, 10, 20, 30, 40]
         for index in favoriteIndices {
             recipes[index].isFavorite = true
@@ -64,7 +64,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Caps favorites at 15")
     func capsFavoritesAt15() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         for i in 0..<25 {
             recipes[i].isFavorite = true
         }
@@ -80,7 +80,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Prioritizes recipes with matching meal type tags")
     func prioritizesMealTypeTags() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         for i in 0..<10 {
             recipes[i].userTags = ["breakfast", "quick"]
         }
@@ -93,7 +93,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Does not filter by tags when mealType is nil")
     func noTagFilteringWithoutMealType() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         for i in 0..<10 {
             recipes[i].userTags = ["dinner"]
         }
@@ -105,7 +105,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Matches tags case-insensitively")
     func caseInsensitiveTagMatching() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         recipes[0].userTags = ["DINNER"]
         recipes[1].userTags = ["Dinner"]
         recipes[2].userTags = ["dinner"]
@@ -122,7 +122,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Prioritizes recipes never made")
     func prioritizesNeverMadeRecipes() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         let recentDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
 
         for i in 0..<50 {
@@ -137,7 +137,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Prioritizes recipes made over 30 days ago")
     func prioritizesStaleRecipes() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         let recentDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
         let staleDate = Calendar.current.date(byAdding: .day, value: -45, to: Date())!
 
@@ -161,7 +161,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Never returns duplicate recipes")
     func noDuplicates() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         recipes[0].isFavorite = true
         recipes[0].userTags = ["dinner"]
         recipes[0].lastMade = nil
@@ -176,7 +176,7 @@ struct RecipeCandidateSelectorTests {
 
     @Test("Combines all prioritization criteria")
     func combinesAllCriteria() {
-        var recipes = createRecipes(count: 100)
+        let recipes = createRecipes(count: 100)
         let recentDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
 
         recipes[0].isFavorite = true
