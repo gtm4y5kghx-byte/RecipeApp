@@ -43,27 +43,30 @@ struct MealPlanView: View {
     private func calendarContent(viewModel: MealPlanViewModel) -> some View {
         ScrollViewReader { proxy in
             ZStack(alignment: .bottomTrailing) {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(viewModel.dateRange, id: \.self) { date in
-                            MealPlanDayRow(
-                                date: date,
-                                entries: viewModel.entries(for: date),
-                                onAddTapped: { mealType in
-                                    selectedDate = date
-                                    selectedMealType = mealType
-                                },
-                                onEntryTapped: { entry in
-                                    selectedRecipe = entry.recipe
-                                },
-                                onRemoveEntry: { entry in
-                                    viewModel.removeEntry(entry)
+                List {
+                    ForEach(viewModel.dateRange, id: \.self) { date in
+                        Section {
+                            let entries = viewModel.entries(for: date)
+                            if entries.isEmpty {
+                                Text("No meals planned")
+                                    .font(Theme.Typography.subheadline)
+                                    .foregroundStyle(Theme.Colors.textTertiary)
+                            } else {
+                                ForEach(entries) { entry in
+                                    MealPlanEntryRow(
+                                        entry: entry,
+                                        onTap: { selectedRecipe = entry.recipe },
+                                        onRemove: { viewModel.removeEntry(entry) }
+                                    )
                                 }
-                            )
-                            .id(date)
+                            }
+                        } header: {
+                            dayHeader(date: date, isToday: Calendar.current.isDateInToday(date))
                         }
+                        .id(date)
                     }
                 }
+                .listStyle(.plain)
 
                 DSButton(
                     title: "Today",
@@ -87,6 +90,28 @@ struct MealPlanView: View {
                         viewModel.addEntry(date: date, mealType: mealType, recipe: recipe)
                     }
                 }
+            }
+        }
+    }
+
+    private func dayHeader(date: Date, isToday: Bool) -> some View {
+        HStack {
+            DSLabel(
+                date.formatted(.dateTime.weekday(.wide).month().day()),
+                style: .headline,
+                color: isToday ? .accent : .primary
+            )
+            Spacer()
+            Menu {
+                ForEach(MealType.allCases, id: \.self) { mealType in
+                    Button(mealType.rawValue.capitalized) {
+                        selectedDate = date
+                        selectedMealType = mealType
+                    }
+                }
+            } label: {
+                Label("Add", systemImage: "plus")
+                    .font(Theme.Typography.subheadline)
             }
         }
     }
