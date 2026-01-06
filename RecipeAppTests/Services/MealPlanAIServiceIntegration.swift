@@ -52,6 +52,26 @@ struct MealPlanAIServiceIntegration {
         #expect(results.count >= 3)
     }
 
+    @Test("Generate plan with custom day count")
+    func validateGeneratePlanCustomDays() async throws {
+        let recipes = createDiverseRecipeCollection()
+
+        let results = try await service.generatePlan(for: .dinner, recipes: recipes, dayCount: 3)
+
+        print("\n========== GENERATE 3-DAY PLAN ==========")
+        print("Requested days: 3")
+        print("Assignments generated: \(results.count)")
+        print("\nPlan:")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE (MMM d)"
+        for result in results {
+            print("  \(formatter.string(from: result.date)): \(result.recipe.title)")
+        }
+        print("==========================================\n")
+
+        #expect(results.count == 3)
+    }
+
     @Test("Generate plan throws error for empty collection")
     func validateEmptyCollectionError() async throws {
         do {
@@ -122,7 +142,7 @@ struct MealPlanAIServiceIntegration {
         #expect(insights.count <= 3)
     }
 
-    @Test("Review plan with pattern issues")
+    @Test("Review plan with pattern issues - all insights have suggestions")
     func validateReviewPlanPatternDetection() async throws {
         let recipes = createDiverseRecipeCollection()
         let entries = createPlanWithPatternIssues(from: recipes)
@@ -131,6 +151,7 @@ struct MealPlanAIServiceIntegration {
 
         print("\n========== REVIEW PLAN (PATTERN ISSUES) ==========")
         print("Plan has 4 Italian dishes - should detect variety issue")
+        print("All insights should have actionable suggestions")
         print("\nCurrent Plan:")
         print(RecipeContextFormatter.formatCurrentPlan(entries))
         print("\nInsights:")
@@ -138,10 +159,34 @@ struct MealPlanAIServiceIntegration {
             print("\n\(index + 1). [\(insight.suggestionType.rawValue)]")
             print("   Insight: \(insight.insight)")
             print("   Recommendation: \(insight.recommendation)")
+            if let recipe = insight.suggestedRecipe {
+                print("   Suggested: \(recipe.title)")
+            } else {
+                print("   Suggested: ⚠️ MISSING")
+            }
+            if let date = insight.targetDate {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "EEEE"
+                print("   Target Day: \(formatter.string(from: date))")
+            } else {
+                print("   Target Day: ⚠️ MISSING")
+            }
+            if let mealType = insight.targetMealType {
+                print("   Target Meal: \(mealType.rawValue)")
+            } else {
+                print("   Target Meal: ⚠️ MISSING")
+            }
         }
         print("==========================================\n")
 
         #expect(insights.count >= 1)
+
+        // Verify ALL insights have actionable suggestions
+        for insight in insights {
+            #expect(insight.suggestedRecipe != nil, "Insight '\(insight.insight)' missing suggested recipe")
+            #expect(insight.targetDate != nil, "Insight '\(insight.insight)' missing target date")
+            #expect(insight.targetMealType != nil, "Insight '\(insight.insight)' missing target meal type")
+        }
     }
 
     @Test("Review plan returns empty for empty collection")

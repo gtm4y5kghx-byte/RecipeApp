@@ -4,7 +4,6 @@ import Foundation
 class MealPlanAIService {
 
     private let claudeClient: ClaudeAPIClient
-    private let planDays = 7
     private let minimumRecipeCount = 3
 
     init() {
@@ -13,7 +12,11 @@ class MealPlanAIService {
 
     // MARK: - Public API
 
-    func generatePlan(for mealType: MealType, recipes: [Recipe]) async throws -> [MealPlanGenerationResult] {
+    func generatePlan(
+        for mealType: MealType,
+        recipes: [Recipe],
+        dayCount: Int = 7
+    ) async throws -> [MealPlanGenerationResult] {
         guard !recipes.isEmpty else {
             throw MealPlanAIError.emptyCollection
         }
@@ -22,8 +25,8 @@ class MealPlanAIService {
             throw MealPlanAIError.insufficientRecipes(available: recipes.count, required: minimumRecipeCount)
         }
 
-        let systemPrompt = buildGeneratePlanSystemPrompt()
-        let userPrompt = buildGeneratePlanUserPrompt(mealType: mealType, recipes: recipes)
+        let systemPrompt = buildGeneratePlanSystemPrompt(dayCount: dayCount)
+        let userPrompt = buildGeneratePlanUserPrompt(mealType: mealType, recipes: recipes, dayCount: dayCount)
 
         let jsonResponse = try await claudeClient.sendMessage(
             prompt: userPrompt,
@@ -41,7 +44,7 @@ class MealPlanAIService {
         }
 
         let today = Calendar.current.startOfDay(for: Date())
-        let weekEnd = Calendar.current.date(byAdding: .day, value: planDays, to: today)!
+        let weekEnd = Calendar.current.date(byAdding: .day, value: 7, to: today)!
         let weekEntries = entries.filter { entry in
             entry.date >= today && entry.date < weekEnd
         }
@@ -61,13 +64,15 @@ class MealPlanAIService {
 
     // MARK: - Generate Plan Prompts
 
-    private func buildGeneratePlanSystemPrompt() -> String {
-        """
-        You are a meal planning assistant. Select recipes from the user's collection to create a week-long meal plan.
+    private func buildGeneratePlanSystemPrompt(dayCount: Int) -> String {
+        let maxDayOffset = dayCount - 1
+
+        return """
+        You are a meal planning assistant. Select recipes from the user's collection to create a meal plan.
 
         CRITICAL RULES:
         1. Return ONLY raw JSON - no markdown, no ```json blocks, no explanation
-        2. Select 5-7 recipes for the next 7 days (one per day)
+        2. Select recipes for the specified number of days (one per day)
         3. ONLY use recipe IDs from the provided catalog - never invent new recipes
         4. Each recipe should appear at most once in the plan
         5. Prioritize variety (different cuisines, different cooking styles)
@@ -85,24 +90,25 @@ class MealPlanAIService {
         ]
 
         NOTES:
-        - dayOffset: 0 = today, 1 = tomorrow, ..., 6 = 6 days from now
-        - Generate 5-7 assignments (skip days if needed for variety)
-        - If fewer than 5 suitable recipes exist, return what you can
+        - dayOffset: 0 = today, 1 = tomorrow, ..., \(maxDayOffset) = \(maxDayOffset) days from now
+        - Generate one recipe per day for the requested day count
+        - If fewer suitable recipes exist than days requested, return what you can
         """
     }
 
-    private func buildGeneratePlanUserPrompt(mealType: MealType, recipes: [Recipe]) -> String {
+    private func buildGeneratePlanUserPrompt(mealType: MealType, recipes: [Recipe], dayCount: Int) -> String {
         let catalogContext = RecipeContextFormatter.formatCatalog(recipes)
 
         return """
         Current time: \(formatCurrentTime())
         Meal type: \(mealType.rawValue.capitalized)
+        Days to plan: \(dayCount)
 
         User's Recipe Collection (\(recipes.count) recipes):
         \(catalogContext)
 
-        Create a \(mealType.rawValue) plan for the next 7 days.
-        Select 5-7 recipes that provide variety and match the user's cooking patterns.
+        Create a \(mealType.rawValue) plan for the next \(dayCount) days.
+        Select \(dayCount) recipes that provide variety and match the user's cooking patterns.
 
         Return ONLY the JSON array, nothing else.
         """
@@ -121,27 +127,26 @@ class MealPlanAIService {
         4. Be specific and actionable
 
         INSIGHT CATEGORIES:
-        - "varietyAlert": Pattern recognition (e.g., "3 pasta dishes this week")
-        - "add": Empty slot suggestions (e.g., "Friday dinner is open")
-        - "swap": Recipe swap suggestions (e.g., "Consider swapping Tuesday's Italian for Thai")
+        - "varietyAlert": Pattern recognition (e.g., "3 pasta dishes - suggest a Thai alternative")
+        - "add": Empty slot suggestions (e.g., "Friday dinner is open - suggest Pad Thai")
+        - "swap": Recipe swap suggestions (e.g., "Swap Tuesday's Italian for Thai Green Curry")
 
-        FOR "add" and "swap" suggestions:
-        - MUST include a specific recipe from the catalog
-        - MUST include targetDayOffset and targetMealType
+        MANDATORY FOR EVERY INSIGHT - NO EXCEPTIONS:
+        - suggestedRecipeID: REQUIRED - must be a valid UUID from the catalog
+        - targetDayOffset: REQUIRED - must be 0-6
+        - targetMealType: REQUIRED - must be "breakfast", "lunch", or "dinner"
 
-        FOR "varietyAlert":
-        - suggestedRecipeID is optional (can be null)
-        - targetDayOffset and targetMealType are optional
+        DO NOT generate insights without all three fields. An insight without a suggestion is useless.
 
         Return JSON array matching this exact schema:
         [
           {
             "insight": "What you noticed",
             "recommendation": "What to do about it",
-            "suggestedRecipeID": "uuid-here or null",
+            "suggestedRecipeID": "uuid-here",
             "suggestionType": "swap|add|varietyAlert",
             "targetDayOffset": 0,
-            "targetMealType": "breakfast|lunch|dinner or null"
+            "targetMealType": "breakfast|lunch|dinner"
           }
         ]
         """
@@ -228,20 +233,30 @@ class MealPlanAIService {
                 return nil
             }
 
+            // Resolve suggested recipe
             var suggestedRecipe: Recipe? = nil
             if let recipeIDString = response.suggestedRecipeID,
                let recipeUUID = UUID(uuidString: recipeIDString) {
                 suggestedRecipe = recipesByID[recipeUUID]
             }
 
+            // Resolve target date
             var targetDate: Date? = nil
             if let dayOffset = response.targetDayOffset {
                 targetDate = dateForDayOffset(dayOffset)
             }
 
+            // Resolve target meal type
             var targetMealType: MealType? = nil
             if let mealTypeString = response.targetMealType {
                 targetMealType = MealType(rawValue: mealTypeString)
+            }
+
+            // Filter out non-actionable insights
+            guard suggestedRecipe != nil,
+                  targetDate != nil,
+                  targetMealType != nil else {
+                return nil
             }
 
             return MealPlanInsight(

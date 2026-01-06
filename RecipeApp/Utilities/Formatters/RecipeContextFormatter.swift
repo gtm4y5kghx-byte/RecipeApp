@@ -53,6 +53,10 @@ struct RecipeContextFormatter {
             }
 
             context += "   Favorite: \(recipe.isFavorite ? "Yes" : "No")\n"
+
+            if !recipe.userTags.isEmpty {
+                context += "   Tags: \(recipe.userTags.joined(separator: ", "))\n"
+            }
         }
 
         return context
