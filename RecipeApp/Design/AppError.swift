@@ -239,6 +239,52 @@ enum MealPlanError: AppError {
     var recoverySuggestion: String? { suggestion }
 }
 
+// MARK: - Meal Plan AI Errors
+
+enum MealPlanAIError: AppError {
+    case emptyCollection
+    case insufficientRecipes(available: Int, required: Int)
+    case parsingFailed
+    case apiError(String)
+
+    var title: String {
+        switch self {
+        case .emptyCollection: return "No Recipes"
+        case .insufficientRecipes: return "Not Enough Recipes"
+        case .parsingFailed: return "Generation Failed"
+        case .apiError: return "AI Error"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .emptyCollection:
+            return "You don't have any recipes yet."
+        case .insufficientRecipes(let available, let required):
+            return "You have \(available) recipes, but need at least \(required) for variety."
+        case .parsingFailed:
+            return "We couldn't create a meal plan at this time."
+        case .apiError(let details):
+            return "AI service error: \(details)"
+        }
+    }
+
+    var suggestion: String? {
+        switch self {
+        case .emptyCollection:
+            return "Import or create at least 3 recipes to generate a meal plan."
+        case .insufficientRecipes:
+            return "Add more recipes to your collection for better variety."
+        case .parsingFailed, .apiError:
+            return "Please try again. If the problem persists, contact support."
+        }
+    }
+
+    var errorDescription: String? { message }
+    var failureReason: String? { message }
+    var recoverySuggestion: String? { suggestion }
+}
+
 // MARK: - Generic App Error
 
 enum GenericError: AppError {
