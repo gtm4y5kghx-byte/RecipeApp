@@ -25,8 +25,10 @@ class MealPlanAIService {
             throw MealPlanAIError.insufficientRecipes(available: recipes.count, required: minimumRecipeCount)
         }
 
+        let candidates = RecipeCandidateSelector.selectCandidates(from: recipes, for: mealType)
+
         let systemPrompt = buildGeneratePlanSystemPrompt(dayCount: dayCount)
-        let userPrompt = buildGeneratePlanUserPrompt(mealType: mealType, recipes: recipes, dayCount: dayCount)
+        let userPrompt = buildGeneratePlanUserPrompt(mealType: mealType, recipes: candidates, dayCount: dayCount)
 
         let jsonResponse = try await claudeClient.sendMessage(
             prompt: userPrompt,
@@ -35,7 +37,7 @@ class MealPlanAIService {
             maxTokens: 1024
         )
 
-        return try parseGeneratePlanResponse(from: jsonResponse, recipes: recipes)
+        return try parseGeneratePlanResponse(from: jsonResponse, recipes: candidates)
     }
 
     func reviewPlan(entries: [MealPlanEntry], recipes: [Recipe]) async throws -> [MealPlanInsight] {

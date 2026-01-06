@@ -29,7 +29,8 @@ class AISuggestionEngineService {
     }
     
     func generateSuggestions(recipes: [Recipe]) async throws -> [RecipeSuggestion] {
-        let recipeContext = RecipeContextFormatter.formatCatalog(recipes)
+        let candidates = RecipeCandidateSelector.selectCandidates(from: recipes)
+        let recipeContext = RecipeContextFormatter.formatCatalog(candidates)
         let systemPrompt = buildSuggestionSystemPrompt()
         let userPrompt = buildSuggestionUserPrompt(recipeContext: recipeContext)
         
@@ -39,7 +40,7 @@ class AISuggestionEngineService {
             model: .haiku
         )
         
-        return try parseSuggestions(from: jsonResponse, recipes: recipes)
+        return try parseSuggestions(from: jsonResponse, recipes: candidates)
     }
     
     private func buildSuggestionSystemPrompt() -> String {
