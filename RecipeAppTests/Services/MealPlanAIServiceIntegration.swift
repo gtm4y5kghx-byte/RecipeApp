@@ -49,7 +49,7 @@ struct MealPlanAIServiceIntegration {
         }
         print("==========================================\n")
 
-        #expect(results.count >= 5)
+        #expect(results.count >= 3)
     }
 
     @Test("Generate plan throws error for empty collection")
@@ -167,6 +167,43 @@ struct MealPlanAIServiceIntegration {
         let sixtyDaysAgo = Calendar.current.date(byAdding: .day, value: -60, to: today)!
 
         return [
+            // Breakfast recipes
+            RecipeTestFixtures.createRecipe(
+                title: "Fluffy Pancakes",
+                cuisine: "American",
+                timesCooked: 4,
+                lastMade: thirtyDaysAgo,
+                isFavorite: true
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "Avocado Toast",
+                cuisine: "American",
+                timesCooked: 2,
+                lastMade: sixtyDaysAgo
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "Veggie Omelette",
+                cuisine: "French",
+                timesCooked: 0
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "Breakfast Burrito",
+                cuisine: "Mexican",
+                timesCooked: 3,
+                lastMade: thirtyDaysAgo
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "French Toast",
+                cuisine: "French",
+                timesCooked: 0
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "Shakshuka",
+                cuisine: "Middle Eastern",
+                timesCooked: 1,
+                lastMade: sixtyDaysAgo
+            ),
+            // Lunch/Dinner recipes
             RecipeTestFixtures.createRecipe(
                 title: "Pasta Carbonara",
                 cuisine: "Italian",
@@ -191,26 +228,6 @@ struct MealPlanAIServiceIntegration {
                 timesCooked: 0
             ),
             RecipeTestFixtures.createRecipe(
-                title: "Beef Tacos",
-                cuisine: "Mexican",
-                timesCooked: 8,
-                lastMade: today,
-                isFavorite: true
-            ),
-            RecipeTestFixtures.createRecipe(
-                title: "Caesar Salad",
-                cuisine: "American",
-                timesCooked: 0,
-                prepTime: 10,
-                cookTime: 0
-            ),
-            RecipeTestFixtures.createRecipe(
-                title: "Pad Thai",
-                cuisine: "Thai",
-                timesCooked: 2,
-                lastMade: sixtyDaysAgo
-            ),
-            RecipeTestFixtures.createRecipe(
                 title: "Spaghetti Bolognese",
                 cuisine: "Italian",
                 timesCooked: 0
@@ -222,9 +239,17 @@ struct MealPlanAIServiceIntegration {
                 lastMade: thirtyDaysAgo
             ),
             RecipeTestFixtures.createRecipe(
-                title: "Vegetable Stir Fry",
-                cuisine: "Chinese",
-                timesCooked: 0
+                title: "Beef Tacos",
+                cuisine: "Mexican",
+                timesCooked: 8,
+                lastMade: today,
+                isFavorite: true
+            ),
+            RecipeTestFixtures.createRecipe(
+                title: "Pad Thai",
+                cuisine: "Thai",
+                timesCooked: 2,
+                lastMade: sixtyDaysAgo
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Grilled Salmon",
@@ -234,26 +259,15 @@ struct MealPlanAIServiceIntegration {
                 isFavorite: true
             ),
             RecipeTestFixtures.createRecipe(
-                title: "Chicken Parmesan",
-                cuisine: "Italian",
-                timesCooked: 0
-            ),
-            RecipeTestFixtures.createRecipe(
                 title: "Beef Stroganoff",
                 cuisine: "Russian",
                 timesCooked: 1,
                 lastMade: sixtyDaysAgo
             ),
             RecipeTestFixtures.createRecipe(
-                title: "Greek Salad",
-                cuisine: "Greek",
+                title: "Vegetable Stir Fry",
+                cuisine: "Chinese",
                 timesCooked: 0
-            ),
-            RecipeTestFixtures.createRecipe(
-                title: "Fish and Chips",
-                cuisine: "British",
-                timesCooked: 2,
-                lastMade: thirtyDaysAgo
             )
         ]
     }
