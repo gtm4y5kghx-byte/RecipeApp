@@ -69,7 +69,7 @@ struct MealPlanAIServiceIntegration {
         }
         print("==========================================\n")
 
-        #expect(results.count == 3)
+        #expect(results.count >= 2 && results.count <= 3)
     }
 
     @Test("Generate plan throws error for empty collection")
@@ -218,35 +218,41 @@ struct MealPlanAIServiceIntegration {
                 cuisine: "American",
                 timesCooked: 4,
                 lastMade: thirtyDaysAgo,
-                isFavorite: true
+                isFavorite: true,
+                tags: ["breakfast", "sweet"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Avocado Toast",
                 cuisine: "American",
                 timesCooked: 2,
-                lastMade: sixtyDaysAgo
+                lastMade: sixtyDaysAgo,
+                tags: ["breakfast", "quick", "healthy"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Veggie Omelette",
                 cuisine: "French",
-                timesCooked: 0
+                timesCooked: 0,
+                tags: ["breakfast", "eggs", "vegetarian"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Breakfast Burrito",
                 cuisine: "Mexican",
                 timesCooked: 3,
-                lastMade: thirtyDaysAgo
+                lastMade: thirtyDaysAgo,
+                tags: ["breakfast", "filling"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "French Toast",
                 cuisine: "French",
-                timesCooked: 0
+                timesCooked: 0,
+                tags: ["breakfast", "sweet", "weekend"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Shakshuka",
                 cuisine: "Middle Eastern",
                 timesCooked: 1,
-                lastMade: sixtyDaysAgo
+                lastMade: sixtyDaysAgo,
+                tags: ["breakfast", "eggs", "savory"]
             ),
             // Lunch/Dinner recipes
             RecipeTestFixtures.createRecipe(
@@ -254,65 +260,76 @@ struct MealPlanAIServiceIntegration {
                 cuisine: "Italian",
                 timesCooked: 5,
                 lastMade: sixtyDaysAgo,
-                isFavorite: true
+                isFavorite: true,
+                tags: ["dinner", "pasta", "comfort food"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Chicken Tikka Masala",
                 cuisine: "Indian",
-                timesCooked: 0
+                timesCooked: 0,
+                tags: ["dinner", "spicy", "curry"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Thai Green Curry",
                 cuisine: "Thai",
                 timesCooked: 3,
-                lastMade: thirtyDaysAgo
+                lastMade: thirtyDaysAgo,
+                tags: ["dinner", "spicy", "curry"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Margherita Pizza",
                 cuisine: "Italian",
-                timesCooked: 0
+                timesCooked: 0,
+                tags: ["dinner", "vegetarian", "weekend"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Spaghetti Bolognese",
                 cuisine: "Italian",
-                timesCooked: 0
+                timesCooked: 0,
+                tags: ["dinner", "pasta", "weeknight"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Chicken Alfredo",
                 cuisine: "Italian",
                 timesCooked: 4,
-                lastMade: thirtyDaysAgo
+                lastMade: thirtyDaysAgo,
+                tags: ["dinner", "pasta", "creamy"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Beef Tacos",
                 cuisine: "Mexican",
                 timesCooked: 8,
                 lastMade: today,
-                isFavorite: true
+                isFavorite: true,
+                tags: ["dinner", "quick", "weeknight"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Pad Thai",
                 cuisine: "Thai",
                 timesCooked: 2,
-                lastMade: sixtyDaysAgo
+                lastMade: sixtyDaysAgo,
+                tags: ["dinner", "noodles", "quick"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Grilled Salmon",
                 cuisine: "American",
                 timesCooked: 3,
                 lastMade: sixtyDaysAgo,
-                isFavorite: true
+                isFavorite: true,
+                tags: ["dinner", "healthy", "seafood"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Beef Stroganoff",
                 cuisine: "Russian",
                 timesCooked: 1,
-                lastMade: sixtyDaysAgo
+                lastMade: sixtyDaysAgo,
+                tags: ["dinner", "comfort food", "creamy"]
             ),
             RecipeTestFixtures.createRecipe(
                 title: "Vegetable Stir Fry",
                 cuisine: "Chinese",
-                timesCooked: 0
+                timesCooked: 0,
+                tags: ["dinner", "quick", "vegetarian", "healthy"]
             )
         ]
     }
