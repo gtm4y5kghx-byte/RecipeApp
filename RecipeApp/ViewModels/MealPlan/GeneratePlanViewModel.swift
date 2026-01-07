@@ -12,10 +12,10 @@ class GeneratePlanViewModel {
 
     // MARK: - Results State
 
-    private(set) var results: [MealPlanGenerationResult] = []
-    private(set) var addedResultIDs: Set<UUID> = []
-    private(set) var isLoading: Bool = false
-    private(set) var error: Error?
+    var results: [MealPlanGenerationResult] = []
+    var addedResultIDs: Set<UUID> = []
+    var isLoading: Bool = false
+    var error: Error?
 
     // MARK: - Dependencies
 

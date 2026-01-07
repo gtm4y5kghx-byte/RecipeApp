@@ -9,6 +9,7 @@ struct MealPlanView: View {
     @State private var selectedDate: Date?
     @State private var selectedMealType: MealType?
     @State private var selectedRecipe: Recipe?
+    @State private var showingGeneratePlan = false
     
     var body: some View {
         NavigationStack {
@@ -68,15 +69,27 @@ struct MealPlanView: View {
                 }
                 .listStyle(.plain)
 
-                DSButton(
-                    title: "Today",
-                    style: .secondary,
-                    size: .small,
-                    icon: "calendar",
-                    fullWidth: false
-                ) {
-                    withAnimation {
-                        proxy.scrollTo(viewModel.today, anchor: .top)
+                VStack(spacing: Theme.Spacing.sm) {
+                    DSButton(
+                        title: "Generate",
+                        style: .primary,
+                        size: .small,
+                        icon: "sparkles",
+                        fullWidth: false
+                    ) {
+                        showingGeneratePlan = true
+                    }
+
+                    DSButton(
+                        title: "Today",
+                        style: .secondary,
+                        size: .small,
+                        icon: "calendar",
+                        fullWidth: false
+                    ) {
+                        withAnimation {
+                            proxy.scrollTo(viewModel.today, anchor: .top)
+                        }
                     }
                 }
                 .padding()
@@ -90,6 +103,9 @@ struct MealPlanView: View {
                         viewModel.addEntry(date: date, mealType: mealType, recipe: recipe)
                     }
                 }
+            }
+            .sheet(isPresented: $showingGeneratePlan) {
+                GeneratePlanSheet()
             }
         }
     }
