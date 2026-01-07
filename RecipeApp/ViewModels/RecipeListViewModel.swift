@@ -8,18 +8,12 @@ class RecipeListViewModel {
     var filteredResults: [Recipe] = []
     var isSearching: Bool = false
     var searchTask: Task<Void, Never>?
-    var hasAISearched = false
-    var isAISearching = false
-    var aiSearchResults: [Recipe] = []
-    var aiSearchError: SearchError?
-    var aiSearchTask: Task<Void, Never>?
     var suggestions: [RecipeSuggestion] = []
     var suggestionError: AIError?
     var selectedSection: MenuSection = .all
     var justImportedRecipe: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext
-    private let aiSearchService = AISearchService()
     private let suggestionEngine = AISuggestionEngineService()
     
     var error: Error?
@@ -208,47 +202,6 @@ class RecipeListViewModel {
             
             filteredResults = results
         }
-    }
-    
-    func performAISearch(query: String) async {
-        aiSearchTask?.cancel()
-        aiSearchTask = Task {
-            try? await Task.sleep(for: .milliseconds(500))
-            guard !Task.isCancelled else { return }
-            
-            guard !query.isEmpty else {
-                aiSearchResults = []
-                isAISearching = false
-                hasAISearched = false
-                return
-            }
-            
-            hasAISearched = true
-            isAISearching = true
-            aiSearchError = nil
-            
-            do {
-                aiSearchResults = try await aiSearchService.search(query: query, recipes: recipes)
-                isAISearching = false
-            } catch let error as SearchError {
-                aiSearchError = error
-                aiSearchResults = []
-                isAISearching = false
-            } catch {
-                aiSearchError = .searchFailed
-                aiSearchResults = []
-                isAISearching = false
-            }
-        }
-        
-        await aiSearchTask?.value
-    }
-    
-    func clearAISearch() {
-        aiSearchResults = []
-        isAISearching = false
-        aiSearchError = nil
-        hasAISearched = false
     }
     
     func checkSuggestionThreshold() {
