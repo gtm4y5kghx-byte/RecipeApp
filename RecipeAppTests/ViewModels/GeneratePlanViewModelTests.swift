@@ -127,16 +127,19 @@ struct GeneratePlanViewModelTests {
         #expect(entries.first?.recipe?.id == recipes[0].id)
     }
 
-    @Test("addResult adds recipe.id to addedResultIDs")
+    @Test("addResult adds result.id to addedResultIDs")
     func addResultAddsToSet() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
         let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
-        viewModel.addResult(result)
 
-        #expect(viewModel.addedResultIDs.contains(recipes[0].id))
+        // Get the actual result from viewModel (has same date/recipe but different id)
+        let actualResult = viewModel.results.first!
+        viewModel.addResult(actualResult)
+
+        #expect(viewModel.addedResultIDs.contains(actualResult.id))
     }
 
     @Test("addResult uses selectedMealType")
@@ -258,14 +261,175 @@ struct GeneratePlanViewModelTests {
         mockService.mockResults = [result1, result2]
 
         await viewModel.generatePlan()
-        viewModel.addResult(result1)  // Mark first as added
+
+        // Get actual results from viewModel
+        let actualResult1 = viewModel.results[0]
+        let actualResult2 = viewModel.results[1]
+
+        viewModel.addResult(actualResult1)  // Mark first as added
 
         // Swap second result's recipe
-        viewModel.swapRecipe(for: result2, with: recipes[2])
+        viewModel.swapRecipe(for: actualResult2, with: recipes[2])
 
-        // First should still be marked as added
-        #expect(viewModel.addedResultIDs.contains(recipes[0].id))
+        // First should still be marked as added (by result.id)
+        #expect(viewModel.addedResultIDs.contains(actualResult1.id))
         #expect(viewModel.addedResultIDs.count == 1)
+    }
+
+    @Test("swapRecipe preserves result ID")
+    func swapRecipePreservesResultID() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        let originalID = viewModel.results.first!.id
+
+        viewModel.swapRecipe(for: viewModel.results.first!, with: recipes[1])
+
+        // ID should remain the same after swap
+        #expect(viewModel.results.first!.id == originalID)
+        // But recipe should be different
+        #expect(viewModel.results.first!.recipe.id == recipes[1].id)
+    }
+
+    // MARK: - Remove Result
+
+    @Test("removeResult removes from addedResultIDs")
+    func removeResultRemovesFromSet() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        let actualResult = viewModel.results.first!
+
+        viewModel.addResult(actualResult)
+        #expect(viewModel.isAdded(actualResult) == true)
+
+        viewModel.removeResult(actualResult)
+        #expect(viewModel.isAdded(actualResult) == false)
+    }
+
+    @Test("removeResult removes entry from meal plan")
+    func removeResultRemovesEntry() async throws {
+        let (viewModel, mockService, recipes, context) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        let actualResult = viewModel.results.first!
+
+        viewModel.addResult(actualResult)
+        let mealPlanService = MealPlanService(modelContext: context)
+        #expect(try mealPlanService.allEntries().count == 1)
+
+        viewModel.removeResult(actualResult)
+        #expect(try mealPlanService.allEntries().count == 0)
+    }
+
+    @Test("removeResult does nothing if not added")
+    func removeResultDoesNothingIfNotAdded() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        let actualResult = viewModel.results.first!
+
+        // Never added, so remove should do nothing
+        viewModel.removeResult(actualResult)
+        #expect(viewModel.addedResultIDs.isEmpty)
+    }
+
+    @Test("remainingResults updates after remove")
+    func remainingResultsUpdatesAfterRemove() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result1 = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result2 = MealPlanGenerationResult(
+            date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            recipe: recipes[1]
+        )
+        mockService.mockResults = [result1, result2]
+
+        await viewModel.generatePlan()
+        let actualResult1 = viewModel.results[0]
+        let actualResult2 = viewModel.results[1]
+
+        // Add both
+        viewModel.addResult(actualResult1)
+        viewModel.addResult(actualResult2)
+        #expect(viewModel.remainingResults.count == 0)
+
+        // Remove one
+        viewModel.removeResult(actualResult1)
+        #expect(viewModel.remainingResults.count == 1)
+        #expect(viewModel.remainingResults.first?.id == actualResult1.id)
+    }
+
+    // MARK: - Delete Result
+
+    @Test("deleteResult removes from results array")
+    func deleteResultRemovesFromArray() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        #expect(viewModel.results.count == 1)
+
+        viewModel.deleteResult(viewModel.results.first!)
+        #expect(viewModel.results.isEmpty)
+    }
+
+    @Test("deleteResult removes from meal plan if added")
+    func deleteResultRemovesFromMealPlanIfAdded() async throws {
+        let (viewModel, mockService, recipes, context) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        let actualResult = viewModel.results.first!
+        viewModel.addResult(actualResult)
+
+        let mealPlanService = MealPlanService(modelContext: context)
+        #expect(try mealPlanService.allEntries().count == 1)
+
+        viewModel.deleteResult(actualResult)
+        #expect(try mealPlanService.allEntries().count == 0)
+        #expect(viewModel.addedResultIDs.isEmpty)
+    }
+
+    @Test("deleteResult updates remainingResults")
+    func deleteResultUpdatesRemainingResults() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result1 = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result2 = MealPlanGenerationResult(
+            date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            recipe: recipes[1]
+        )
+        mockService.mockResults = [result1, result2]
+
+        await viewModel.generatePlan()
+
+        // Delete first result (not added)
+        viewModel.deleteResult(viewModel.results.first!)
+
+        #expect(viewModel.results.count == 1)
+        #expect(viewModel.remainingResults.count == 1)
+    }
+
+    @Test("hasResults false after deleting all results")
+    func hasResultsFalseAfterDeletingAll() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        #expect(viewModel.hasResults == true)
+
+        viewModel.deleteResult(viewModel.results.first!)
+        #expect(viewModel.hasResults == false)
     }
 
     // MARK: - Reset

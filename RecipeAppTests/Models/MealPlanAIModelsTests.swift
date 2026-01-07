@@ -40,6 +40,29 @@ struct MealPlanAIModelsTests {
 
     // MARK: - MealPlanGenerationResult
 
+    @Test("GenerationResult generates unique ID on init")
+    func generationResultGeneratesUniqueID() {
+        let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
+        let date = Date()
+
+        let result1 = MealPlanGenerationResult(date: date, recipe: recipe)
+        let result2 = MealPlanGenerationResult(date: date, recipe: recipe)
+
+        // Each instance gets its own UUID, even with same date/recipe
+        #expect(result1.id != result2.id)
+    }
+
+    @Test("GenerationResult ID is independent of recipe ID")
+    func generationResultIDIsIndependentOfRecipeID() {
+        let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
+        let date = Date()
+
+        let result = MealPlanGenerationResult(date: date, recipe: recipe)
+
+        // Result ID should NOT equal recipe ID
+        #expect(result.id != recipe.id)
+    }
+
     @Test("GenerationResult equality compares date and recipe ID")
     func generationResultEquality() {
         let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
@@ -48,6 +71,7 @@ struct MealPlanAIModelsTests {
         let result1 = MealPlanGenerationResult(date: date, recipe: recipe)
         let result2 = MealPlanGenerationResult(date: date, recipe: recipe)
 
+        // Equality is based on date + recipe, not instance ID
         #expect(result1 == result2)
     }
 
@@ -73,5 +97,28 @@ struct MealPlanAIModelsTests {
         let result2 = MealPlanGenerationResult(date: date, recipe: recipe2)
 
         #expect(result1 != result2)
+    }
+
+    @Test("GenerationResult dayOfWeek formats correctly")
+    func generationResultDayOfWeekFormats() {
+        let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
+        // Create a known date: January 1, 2025 is a Wednesday
+        let components = DateComponents(year: 2025, month: 1, day: 1)
+        let date = Calendar.current.date(from: components)!
+
+        let result = MealPlanGenerationResult(date: date, recipe: recipe)
+
+        #expect(result.dayOfWeek == "Wed")
+    }
+
+    @Test("GenerationResult dayNumber formats correctly")
+    func generationResultDayNumberFormats() {
+        let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
+        let components = DateComponents(year: 2025, month: 1, day: 15)
+        let date = Calendar.current.date(from: components)!
+
+        let result = MealPlanGenerationResult(date: date, recipe: recipe)
+
+        #expect(result.dayNumber == "15")
     }
 }

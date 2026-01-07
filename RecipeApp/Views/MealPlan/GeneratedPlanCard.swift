@@ -4,6 +4,7 @@ struct GeneratedPlanCard: View {
     let result: MealPlanGenerationResult
     let isAdded: Bool
     let onAdd: () -> Void
+    let onRemove: () -> Void
     let onSwap: () -> Void
 
     var body: some View {
@@ -45,7 +46,9 @@ struct GeneratedPlanCard: View {
     @ViewBuilder
     private var actions: some View {
         if isAdded {
-            DSIcon("checkmark.circle.fill", size: .medium, color: .accent)
+            Button { onRemove() } label: {
+                DSIcon("arrow.uturn.backward.circle", size: .medium, color: .secondary)
+            }
         } else {
             HStack(spacing: Theme.Spacing.sm) {
                 Button { onSwap() } label: {
@@ -67,6 +70,7 @@ struct GeneratedPlanCard: View {
         result: MealPlanGenerationResult(date: Date(), recipe: recipe),
         isAdded: false,
         onAdd: {},
+        onRemove: {},
         onSwap: {}
     )
     .padding()
@@ -81,6 +85,7 @@ struct GeneratedPlanCard: View {
         result: MealPlanGenerationResult(date: Date(), recipe: recipe),
         isAdded: true,
         onAdd: {},
+        onRemove: {},
         onSwap: {}
     )
     .padding()

@@ -22,19 +22,33 @@ struct GeneratePlanResultsView: View {
     // MARK: - Results List
 
     private var resultsList: some View {
-        ScrollView {
-            LazyVStack(spacing: Theme.Spacing.sm) {
-                ForEach(viewModel.results) { result in
-                    GeneratedPlanCard(
-                        result: result,
-                        isAdded: viewModel.isAdded(result),
-                        onAdd: { viewModel.addResult(result) },
-                        onSwap: { swapTarget = result }
-                    )
+        List {
+            ForEach(viewModel.results) { result in
+                GeneratedPlanCard(
+                    result: result,
+                    isAdded: viewModel.isAdded(result),
+                    onAdd: { viewModel.addResult(result) },
+                    onRemove: { viewModel.removeResult(result) },
+                    onSwap: { swapTarget = result }
+                )
+                .listRowInsets(EdgeInsets(
+                    top: Theme.Spacing.xs,
+                    leading: Theme.Spacing.md,
+                    bottom: Theme.Spacing.xs,
+                    trailing: Theme.Spacing.md
+                ))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        viewModel.deleteResult(result)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 }
             }
-            .padding()
         }
+        .listStyle(.plain)
     }
 
     // MARK: - Footer Actions

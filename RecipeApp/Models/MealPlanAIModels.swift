@@ -10,10 +10,15 @@ struct MealPlanAssignment: Codable {
 // MARK: - Public Result Types
 
 struct MealPlanGenerationResult: Equatable, Identifiable {
+    let id: UUID
     let date: Date
-    let recipe: Recipe
+    var recipe: Recipe
 
-    var id: UUID { recipe.id }
+    init(date: Date, recipe: Recipe) {
+        self.id = UUID()
+        self.date = date
+        self.recipe = recipe
+    }
 
     var dayOfWeek: String {
         date.formatted(.dateTime.weekday(.abbreviated))
