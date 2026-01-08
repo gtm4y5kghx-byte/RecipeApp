@@ -5,7 +5,7 @@ enum TimeConstants {
 
     static let cookedLongAgoThreshold = 30
 
-    static let suggestionCacheDays = 7
+    static let aiCacheStaleDays = 7
 
     static let fuzzySearchThreshold = 2
 

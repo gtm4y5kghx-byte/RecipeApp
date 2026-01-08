@@ -14,9 +14,9 @@ struct TimeConstantsTests {
         #expect(TimeConstants.cookedLongAgoThreshold == 30)
     }
     
-    @Test("Suggestion cache days is 7")
-    func testSuggestionCacheDays() {
-        #expect(TimeConstants.suggestionCacheDays == 7)
+    @Test("AI cache stale days is 7")
+    func testAICacheStaleDays() {
+        #expect(TimeConstants.aiCacheStaleDays == 7)
     }
     
     @Test("Fuzzy search threshold is 2")

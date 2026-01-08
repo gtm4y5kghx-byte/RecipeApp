@@ -9,7 +9,6 @@ protocol RecipeGenerating {
 class RecipeGenerationService: RecipeGenerating {
 
     private let claudeClient: ClaudeAPIClient
-    private let cacheKey = "generated_recipe_cache"
     
     init() {
         self.claudeClient = ClaudeAPIClient(apiKey: Config.claudeAPIKey)
@@ -22,15 +21,15 @@ class RecipeGenerationService: RecipeGenerating {
     }
 
     func getGeneratedRecipes(recipes: [Recipe], forceRefresh: Bool) async throws -> [GeneratedRecipe] {
-        if !forceRefresh, let cache = loadCache(), !cache.isStale {
-            return cache.recipes
+        if !forceRefresh,
+           let entry: CacheEntry<[GeneratedRecipe]> = AICache.load(.generatedRecipes),
+           !entry.isStale {
+            return entry.payload
         }
-        
+
         let generatedRecipes = try await generateRecipes(recipes: recipes)
-        
-        let cache = GeneratedRecipeCache(recipes: generatedRecipes, generatedAt: Date())
-        saveCache(cache)
-        
+        AICache.save(generatedRecipes, for: .generatedRecipes)
+
         return generatedRecipes
     }
     
@@ -253,21 +252,6 @@ class RecipeGenerationService: RecipeGenerating {
         if let servings = recipe.servings, servings < 1 { return false }
         
         return true
-    }
-    
-    // MARK: - Caching
-    
-    private func loadCache() -> GeneratedRecipeCache? {
-        guard let data = UserDefaults.standard.data(forKey: cacheKey) else {
-            return nil
-        }
-        return try? JSONDecoder().decode(GeneratedRecipeCache.self, from: data)
-    }
-    
-    private func saveCache(_ cache: GeneratedRecipeCache) {
-        if let data = try? JSONEncoder().encode(cache) {
-            UserDefaults.standard.set(data, forKey: cacheKey)
-        }
     }
     
     // MARK: - Helpers

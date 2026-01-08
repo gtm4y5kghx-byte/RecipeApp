@@ -4,7 +4,6 @@ import Foundation
 class AISuggestionEngineService {
     
     private let claudeClient: ClaudeAPIClient
-    private let cacheKey = "suggestion_cache"
     private let minimumRecipeCount = 10
     
     init() {
@@ -15,16 +14,16 @@ class AISuggestionEngineService {
         guard recipes.count >= minimumRecipeCount else {
             return []
         }
-        
-        if !forceRefresh, let cache = loadCache(), !cache.isStale {
-            return cache.suggestions
+
+        if !forceRefresh,
+           let entry: CacheEntry<[RecipeSuggestion]> = AICache.load(.suggestions),
+           !entry.isStale {
+            return entry.payload
         }
-        
+
         let suggestions = try await generateSuggestions(recipes: recipes)
-        
-        let cache = SuggestionCache(suggestions: suggestions, generatedAt: Date())
-        saveCache(cache)
-        
+        AICache.save(suggestions, for: .suggestions)
+
         return suggestions
     }
     
@@ -111,16 +110,4 @@ class AISuggestionEngineService {
         }
     }
     
-    private func loadCache() -> SuggestionCache? {
-        guard let data = UserDefaults.standard.data(forKey: cacheKey) else {
-            return nil
-        }
-        return try? JSONDecoder().decode(SuggestionCache.self, from: data)
-    }
-    
-    private func saveCache(_ cache: SuggestionCache) {
-        if let data = try? JSONEncoder().encode(cache) {
-            UserDefaults.standard.set(data, forKey: cacheKey)
-        }
-    }
 }

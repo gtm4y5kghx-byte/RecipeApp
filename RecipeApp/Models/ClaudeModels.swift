@@ -29,17 +29,6 @@ struct RecipeSuggestion: Codable, Identifiable {
     }
 }
 
-struct SuggestionCache: Codable {
-    let suggestions: [RecipeSuggestion]
-    let generatedAt: Date
-    
-    // Check if cache is stale (> 7 days old)
-    var isStale: Bool {
-        let daysSinceGeneration = Date().daysSince(generatedAt)
-        return daysSinceGeneration >= 7
-    }
-}
-
 // MARK: - Recipe Generation
 
 struct GeneratedIngredient: Codable, Equatable {
@@ -183,12 +172,3 @@ struct GeneratedRecipe: Codable, Identifiable, Equatable {
       }
 }
 
-struct GeneratedRecipeCache: Codable {
-    let recipes: [GeneratedRecipe]
-    let generatedAt: Date
-    
-    var isStale: Bool {
-        let daysSinceGeneration = Date().daysSince(generatedAt)
-        return daysSinceGeneration >= 7
-    }
-}
