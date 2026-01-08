@@ -12,7 +12,8 @@ struct RecipeFormIngredients : View {
                     DSFormField(
                         label: "Ingredient",
                         placeholder: "Enter ingredient",
-                        text: $ingredients[index]
+                        text: $ingredients[index],
+                        accessibilityID: "recipe-form-ingredient-\(index)-field"
                     )
                     
                     if ingredients.count > 1 {

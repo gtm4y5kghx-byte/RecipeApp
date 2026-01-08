@@ -15,23 +15,26 @@ struct RecipeFormBasicInfo : View {
                 text: $title,
                 icon: "text.alignleft",
                 isRequired: true,
-                helperText: "Give your recipe a descriptive name"
+                helperText: "Give your recipe a descriptive name",
+                accessibilityID: "recipe-form-title-field"
             )
-            
+
             DSFormField(
                 label: "Cuisine Type",
                 placeholder: "Italian",
                 text: $cuisine,
                 icon: "fork.knife",
-                helperText: "e.g., Italian, Mexican, Thai"
+                helperText: "e.g., Italian, Mexican, Thai",
+                accessibilityID: "recipe-form-cuisine-field"
             )
-            
+
             DSFormField(
                 label: "Servings",
                 placeholder: "4",
                 text: $servings,
                 icon: "person.2",
-                keyboardType: .numberPad
+                keyboardType: .numberPad,
+                accessibilityID: "recipe-form-servings-field"
             )
 
             DSFormField(
@@ -40,15 +43,17 @@ struct RecipeFormBasicInfo : View {
                 text: $prepTime,
                 icon: "clock",
                 keyboardType: .numberPad,
+                accessibilityID: "recipe-form-prep-time-field"
             )
-            
+
             DSFormField(
                 label: "Cook Time",
                 placeholder: "30",
                 text: $cookTime,
                 icon: "timer",
                 keyboardType: .numberPad,
-                helperText: "minutes"
+                helperText: "minutes",
+                accessibilityID: "recipe-form-cook-time-field"
             )
         }
     }

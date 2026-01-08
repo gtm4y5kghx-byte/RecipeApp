@@ -12,7 +12,8 @@ struct RecipeFormIntstructions : View {
                     DSFormField(
                         label: "Step \(index + 1)",
                         placeholder: "Enter instruction",
-                        text: $instructions[index]
+                        text: $instructions[index],
+                        accessibilityID: "recipe-form-instruction-\(index)-field"
                     )
                     
                     if instructions.count > 1 {

@@ -14,6 +14,7 @@ struct DSFormField: View {
     let isRequired: Bool
     let helperText: String?
     let errorText: String?
+    let accessibilityID: String
 
     @Binding var text: String
 
@@ -41,7 +42,8 @@ struct DSFormField: View {
         autocapitalization: TextInputAutocapitalization = .sentences,
         isRequired: Bool = false,
         helperText: String? = nil,
-        errorText: String? = nil
+        errorText: String? = nil,
+        accessibilityID: String
     ) {
         self.label = label
         self.placeholder = placeholder
@@ -52,6 +54,7 @@ struct DSFormField: View {
         self.isRequired = isRequired
         self.helperText = helperText
         self.errorText = errorText
+        self.accessibilityID = accessibilityID
     }
 
     // MARK: - Body
@@ -75,7 +78,8 @@ struct DSFormField: View {
                 keyboardType: keyboardType,
                 autocapitalization: autocapitalization,
                 state: fieldState,
-                helperText: displayHelperText
+                helperText: displayHelperText,
+                accessibilityID: accessibilityID
             )
         }
     }
@@ -160,7 +164,8 @@ struct DSSecureFormField: View {
             text: $title,
             icon: "text.alignleft",
             isRequired: true,
-            helperText: "Give your recipe a descriptive name"
+            helperText: "Give your recipe a descriptive name",
+            accessibilityID: "preview-title-field"
         )
 
         DSFormField(
@@ -170,7 +175,8 @@ struct DSSecureFormField: View {
             icon: "envelope",
             keyboardType: .emailAddress,
             autocapitalization: .never,
-            helperText: "We'll never share your email"
+            helperText: "We'll never share your email",
+            accessibilityID: "preview-email-field"
         )
 
         DSFormField(
@@ -180,7 +186,8 @@ struct DSSecureFormField: View {
             icon: "envelope",
             keyboardType: .emailAddress,
             autocapitalization: .never,
-            errorText: "Please enter a valid email address"
+            errorText: "Please enter a valid email address",
+            accessibilityID: "preview-invalid-email-field"
         )
 
         DSFormField(
@@ -190,7 +197,8 @@ struct DSSecureFormField: View {
             icon: "link",
             keyboardType: .URL,
             autocapitalization: .never,
-            helperText: "Optional: Link to original recipe"
+            helperText: "Optional: Link to original recipe",
+            accessibilityID: "preview-url-field"
         )
     }
     .padding()
@@ -216,7 +224,8 @@ struct DSSecureFormField: View {
                 text: $title,
                 icon: "text.alignleft",
                 isRequired: true,
-                helperText: "Give your recipe a memorable name"
+                helperText: "Give your recipe a memorable name",
+                accessibilityID: "preview-recipe-title"
             )
 
             DSFormField(
@@ -224,7 +233,8 @@ struct DSSecureFormField: View {
                 placeholder: "Italian",
                 text: $cuisine,
                 icon: "fork.knife",
-                helperText: "e.g., Italian, Mexican, Thai"
+                helperText: "e.g., Italian, Mexican, Thai",
+                accessibilityID: "preview-cuisine"
             )
 
             HStack(spacing: Theme.Spacing.md) {
@@ -233,7 +243,8 @@ struct DSSecureFormField: View {
                     placeholder: "4",
                     text: $servings,
                     icon: "person.2",
-                    keyboardType: .numberPad
+                    keyboardType: .numberPad,
+                    accessibilityID: "preview-servings"
                 )
 
                 DSFormField(
@@ -242,6 +253,7 @@ struct DSSecureFormField: View {
                     text: $prepTime,
                     icon: "clock",
                     keyboardType: .numberPad,
+                    accessibilityID: "preview-prep-time"
                 )
             }
 
@@ -251,7 +263,8 @@ struct DSSecureFormField: View {
                 text: $cookTime,
                 icon: "timer",
                 keyboardType: .numberPad,
-                helperText: "minutes"
+                helperText: "minutes",
+                accessibilityID: "preview-cook-time"
             )
 
             DSDivider(spacing: .standard)
@@ -282,7 +295,8 @@ struct DSSecureFormField: View {
             text: $username,
             icon: "person",
             autocapitalization: .never,
-            isRequired: true
+            isRequired: true,
+            accessibilityID: "preview-username"
         )
 
         DSFormField(
@@ -292,7 +306,8 @@ struct DSSecureFormField: View {
             icon: "envelope",
             keyboardType: .emailAddress,
             autocapitalization: .never,
-            isRequired: true
+            isRequired: true,
+            accessibilityID: "preview-email"
         )
 
         DSSecureFormField(
@@ -332,7 +347,8 @@ struct DSSecureFormField: View {
             icon: "envelope",
             keyboardType: .emailAddress,
             autocapitalization: .never,
-            helperText: "Email is valid ✓"
+            helperText: "Email is valid ✓",
+            accessibilityID: "preview-valid-email"
         )
 
         DSFormField(
@@ -342,7 +358,8 @@ struct DSSecureFormField: View {
             icon: "envelope",
             keyboardType: .emailAddress,
             autocapitalization: .never,
-            errorText: "Please enter a valid email address"
+            errorText: "Please enter a valid email address",
+            accessibilityID: "preview-invalid-email"
         )
 
         DSFormField(
@@ -350,7 +367,8 @@ struct DSSecureFormField: View {
             placeholder: "Cannot be empty",
             text: $emptyRequired,
             isRequired: true,
-            errorText: emptyRequired.isEmpty ? "This field is required" : nil
+            errorText: emptyRequired.isEmpty ? "This field is required" : nil,
+            accessibilityID: "preview-required-field"
         )
     }
     .padding()

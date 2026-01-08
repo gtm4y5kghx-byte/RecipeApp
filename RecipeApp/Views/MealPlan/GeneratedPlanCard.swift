@@ -49,14 +49,17 @@ struct GeneratedPlanCard: View {
             Button { onRemove() } label: {
                 DSIcon("arrow.uturn.backward.circle", size: .medium, color: .secondary)
             }
+            .buttonStyle(.borderless)
         } else {
             HStack(spacing: Theme.Spacing.sm) {
                 Button { onSwap() } label: {
                     DSIcon("arrow.triangle.2.circlepath", size: .small, color: .secondary)
                 }
+                .buttonStyle(.borderless)
                 Button { onAdd() } label: {
                     DSIcon("plus.circle.fill", size: .medium, color: .accent)
                 }
+                .buttonStyle(.borderless)
             }
         }
     }

@@ -67,8 +67,9 @@ struct RecipeFormView: View {
                                 dismiss()
                             }
                         }
+                        .accessibilityIdentifier("recipe-form-cancel-button")
                     }
-                    
+
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Save") {
                             if viewModel.saveRecipe() {
@@ -76,6 +77,7 @@ struct RecipeFormView: View {
                             }
                         }
                         .disabled(viewModel.title.isEmpty)
+                        .accessibilityIdentifier("recipe-form-save-button")
                     }
                 }
                 .alert("Discard Changes?", isPresented: $showingDiscardConfirmation) {

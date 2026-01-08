@@ -28,22 +28,26 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Recipes", systemImage: "book")
                 }
-            
+                .accessibilityIdentifier("tab-recipes")
+
             DiscoverView(menuState: menuState)
                 .tag(Tab.discover)
                 .tabItem {
                     Label("Discover", systemImage: "sparkles")
                 }
+                .accessibilityIdentifier("tab-discover")
             MealPlanView()
                 .tag(Tab.mealPlan)
                 .tabItem {
                     Label("Meal Plan", systemImage: "calendar")
                 }
+                .accessibilityIdentifier("tab-meal-plan")
             ShoppingListView()
                 .tag(Tab.shoppingList)
                 .tabItem {
                     Label("Shopping List", systemImage: "cart")
                 }
+                .accessibilityIdentifier("tab-shopping-list")
         }
         .sheet(isPresented: $menuState.showingMenu) {
             RecipesMenuSheet(

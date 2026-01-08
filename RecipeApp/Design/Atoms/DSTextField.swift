@@ -14,6 +14,7 @@ struct DSTextField: View {
     let autocapitalization: TextInputAutocapitalization
     let state: FieldState
     let helperText: String?
+    let accessibilityID: String
 
     @Binding var text: String
     @FocusState private var isFocused: Bool
@@ -63,7 +64,8 @@ struct DSTextField: View {
         keyboardType: UIKeyboardType = .default,
         autocapitalization: TextInputAutocapitalization = .sentences,
         state: FieldState = .normal,
-        helperText: String? = nil
+        helperText: String? = nil,
+        accessibilityID: String
     ) {
         self.placeholder = placeholder
         self._text = text
@@ -72,6 +74,7 @@ struct DSTextField: View {
         self.autocapitalization = autocapitalization
         self.state = state
         self.helperText = helperText
+        self.accessibilityID = accessibilityID
     }
 
     // MARK: - Body
@@ -92,6 +95,7 @@ struct DSTextField: View {
                     .textInputAutocapitalization(autocapitalization)
                     .disabled(state == .disabled)
                     .focused($isFocused)
+                    .accessibilityIdentifier(accessibilityID)
             }
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm + 4) // 12pt vertical
@@ -163,7 +167,8 @@ struct DSTextField: View {
         DSTextField(
             placeholder: "Enter recipe title",
             text: $normalText,
-            icon: "text.alignleft"
+            icon: "text.alignleft",
+            accessibilityID: "preview-normal-field"
         )
 
         DSTextField(
@@ -173,7 +178,8 @@ struct DSTextField: View {
             keyboardType: .emailAddress,
             autocapitalization: .never,
             state: .error,
-            helperText: "Please enter a valid email address"
+            helperText: "Please enter a valid email address",
+            accessibilityID: "preview-error-field"
         )
 
         DSTextField(
@@ -183,14 +189,16 @@ struct DSTextField: View {
             keyboardType: .emailAddress,
             autocapitalization: .never,
             state: .success,
-            helperText: "Email is valid"
+            helperText: "Email is valid",
+            accessibilityID: "preview-success-field"
         )
 
         DSTextField(
             placeholder: "Disabled field",
             text: .constant(""),
             state: .disabled,
-            helperText: "This field is disabled"
+            helperText: "This field is disabled",
+            accessibilityID: "preview-disabled-field"
         )
     }
     .padding()
@@ -207,7 +215,8 @@ struct DSTextField: View {
         DSTextField(
             placeholder: "Recipe Title",
             text: $title,
-            icon: "text.alignleft"
+            icon: "text.alignleft",
+            accessibilityID: "preview-title"
         )
 
         DSTextField(
@@ -216,21 +225,24 @@ struct DSTextField: View {
             icon: "link",
             keyboardType: .URL,
             autocapitalization: .never,
-            helperText: "Optional: Add the original recipe URL"
+            helperText: "Optional: Add the original recipe URL",
+            accessibilityID: "preview-url"
         )
 
         DSTextField(
             placeholder: "Number of servings",
             text: $servings,
             icon: "person.2",
-            keyboardType: .numberPad
+            keyboardType: .numberPad,
+            accessibilityID: "preview-servings"
         )
 
         DSTextField(
             placeholder: "Add notes",
             text: $notes,
             icon: "note.text",
-            helperText: "Optional cooking tips or substitutions"
+            helperText: "Optional cooking tips or substitutions",
+            accessibilityID: "preview-notes"
         )
     }
     .padding()
@@ -252,21 +264,24 @@ struct DSTextField: View {
             text: $email,
             icon: "envelope",
             keyboardType: .emailAddress,
-            autocapitalization: .never
+            autocapitalization: .never,
+            accessibilityID: "preview-focus-email"
         )
 
         DSTextField(
             placeholder: "Phone Number",
             text: $number,
             icon: "phone",
-            keyboardType: .phonePad
+            keyboardType: .phonePad,
+            accessibilityID: "preview-focus-phone"
         )
 
         DSTextField(
             placeholder: "Prep Time (minutes)",
             text: $decimal,
             icon: "clock",
-            keyboardType: .decimalPad
+            keyboardType: .decimalPad,
+            accessibilityID: "preview-focus-prep-time"
         )
     }
     .padding()

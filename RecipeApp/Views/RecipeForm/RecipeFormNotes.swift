@@ -8,7 +8,8 @@ struct RecipeFormNotes: View {
             DSFormField(
                 label: "Notes",
                 placeholder: "Add notes",
-                text: $notes
+                text: $notes,
+                accessibilityID: "recipe-form-notes-field"
             )
         }
     }

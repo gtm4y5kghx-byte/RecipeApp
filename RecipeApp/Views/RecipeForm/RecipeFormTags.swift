@@ -10,7 +10,8 @@ struct RecipeFormTags: View {
             DSFormField(
                 label: "Tags (comma separated)",
                 placeholder: "Enter tags here",
-                text: $tagInput
+                text: $tagInput,
+                accessibilityID: "recipe-form-tags-field"
             )
 
             if !suggestions.isEmpty {
