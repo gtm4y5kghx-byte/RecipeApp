@@ -76,7 +76,8 @@ struct RecipesMenuSheet: View {
                 FilterRow(
                     title: option.title,
                     icon: option.icon,
-                    count: option.count
+                    count: option.count,
+                    accessibilityID: "filter-\(option.id)-row"
                 ) {
                     dismiss()
                     onSelectOption(option.id)
@@ -94,7 +95,8 @@ struct RecipesMenuSheet: View {
                 FilterRow(
                     title: option.title,
                     icon: option.icon,
-                    count: option.count
+                    count: option.count,
+                    accessibilityID: "tag-\(option.id)-row"
                 ) {
                     dismiss()
                     onSelectOption(option.id)
@@ -108,7 +110,7 @@ struct RecipesMenuSheet: View {
             FilterRow(
                 title: "Settings",
                 icon: "gear",
-                accessibilityId: "settings-row"
+                accessibilityID: "settings-row"
             ) {
                 dismiss()
                 onSettings()

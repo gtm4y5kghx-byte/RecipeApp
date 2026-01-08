@@ -39,7 +39,8 @@ struct ShoppingListView: View {
         DSEmptyState(
             icon: "cart",
             title: "Shopping List Empty",
-            message: "Add ingredients from your recipes to start building your shopping list."
+            message: "Add ingredients from your recipes to start building your shopping list.",
+            accessibilityID: "shopping-list-empty-state"
         )
     }
 }

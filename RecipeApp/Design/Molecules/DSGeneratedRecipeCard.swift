@@ -3,7 +3,7 @@ import SwiftUI
 struct DSGeneratedRecipeCard: View {
     
     // MARK: - Configuration
-    
+
     let title: String
     let description: String
     let cuisine: String?
@@ -11,6 +11,7 @@ struct DSGeneratedRecipeCard: View {
     let servings: Int?
     let tags: [String]
     let onSaveTap: () -> Void
+    let accessibilityID: String
     
     private let placeholderImage = "https://placehold.co/400x300"
     
@@ -61,6 +62,7 @@ struct DSGeneratedRecipeCard: View {
             }
             
             DSButton(title: "Save to Collection", style: .primary, action: onSaveTap)
+                .accessibilityIdentifier("\(accessibilityID)-save-button")
         }
         .padding(Theme.Spacing.md)
         .frame(width: 280)
@@ -70,6 +72,7 @@ struct DSGeneratedRecipeCard: View {
             RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
                 .stroke(Theme.Colors.border, lineWidth: 1)
         )
+        .accessibilityIdentifier(accessibilityID)
     }
 }
 
@@ -81,7 +84,8 @@ struct DSGeneratedRecipeCard: View {
         totalTime: 35,
         servings: 4,
         tags: ["Healthy", "Vegetarian", "Quick"],
-        onSaveTap: {}
+        onSaveTap: {},
+        accessibilityID: "preview-generated-recipe-card"
     )
     .padding()
     .background(Theme.Colors.background)
@@ -97,9 +101,10 @@ struct DSGeneratedRecipeCard: View {
                 totalTime: 35,
                 servings: 4,
                 tags: ["Healthy", "Vegetarian"],
-                onSaveTap: {}
+                onSaveTap: {},
+                accessibilityID: "preview-generated-recipe-card-1"
             )
-            
+
             DSGeneratedRecipeCard(
                 title: "Spicy Korean Beef Tacos",
                 description: "Fusion tacos with gochujang-marinated beef, pickled vegetables, and sriracha mayo.",
@@ -107,9 +112,10 @@ struct DSGeneratedRecipeCard: View {
                 totalTime: 45,
                 servings: 6,
                 tags: ["Spicy", "Fusion"],
-                onSaveTap: {}
+                onSaveTap: {},
+                accessibilityID: "preview-generated-recipe-card-2"
             )
-            
+
             DSGeneratedRecipeCard(
                 title: "Lemon Herb Roasted Chicken",
                 description: "Classic roasted chicken with garlic, rosemary, and a bright lemon finish.",
@@ -117,7 +123,8 @@ struct DSGeneratedRecipeCard: View {
                 totalTime: 75,
                 servings: 4,
                 tags: ["Classic", "Sunday Dinner"],
-                onSaveTap: {}
+                onSaveTap: {},
+                accessibilityID: "preview-generated-recipe-card-3"
             )
         }
         .padding(.horizontal, Theme.Spacing.md)

@@ -29,7 +29,8 @@ struct GeneratePlanResultsView: View {
                     isAdded: viewModel.isAdded(result),
                     onAdd: { viewModel.addResult(result) },
                     onRemove: { viewModel.removeResult(result) },
-                    onSwap: { swapTarget = result }
+                    onSwap: { swapTarget = result },
+                    accessibilityID: "generated-plan-card-\(result.id)"
                 )
                 .listRowInsets(EdgeInsets(
                     top: Theme.Spacing.xs,
@@ -59,6 +60,7 @@ struct GeneratePlanResultsView: View {
                 DSButton(title: "Done", style: .primary, fullWidth: true) {
                     onDone()
                 }
+                .accessibilityIdentifier("generate-plan-done-button")
             } else {
                 DSButton(
                     title: "Add All (\(viewModel.remainingResults.count))",
@@ -67,6 +69,7 @@ struct GeneratePlanResultsView: View {
                 ) {
                     viewModel.addAllRemaining()
                 }
+                .accessibilityIdentifier("generate-plan-add-all-button")
             }
         }
         .padding()

@@ -23,6 +23,7 @@ struct RecipePickerSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier("recipe-picker-cancel-button")
                 }
             }
         }
@@ -50,13 +51,15 @@ struct RecipePickerSheet: View {
                     DSEmptyState(
                         icon: "book",
                         title: "No Recipes",
-                        message: "Add some recipes first to plan your meals."
+                        message: "Add some recipes first to plan your meals.",
+                        accessibilityID: "recipe-picker-no-recipes-empty-state"
                     )
                 } else {
                     DSEmptyState(
                         icon: "magnifyingglass",
                         title: "No Results",
-                        message: "No recipes match your search."
+                        message: "No recipes match your search.",
+                        accessibilityID: "recipe-picker-no-results-empty-state"
                     )
                 }
                 Spacer()

@@ -11,6 +11,7 @@ struct DSEmptyState: View {
     let message: String
     let actionTitle: String?
     let action: (() -> Void)?
+    let accessibilityID: String
 
     // MARK: - Initializer
 
@@ -19,13 +20,15 @@ struct DSEmptyState: View {
         title: String,
         message: String,
         actionTitle: String? = nil,
-        action: (() -> Void)? = nil
+        action: (() -> Void)? = nil,
+        accessibilityID: String
     ) {
         self.icon = icon
         self.title = title
         self.message = message
         self.actionTitle = actionTitle
         self.action = action
+        self.accessibilityID = accessibilityID
     }
 
     // MARK: - Body
@@ -53,11 +56,13 @@ struct DSEmptyState: View {
                 DSButton(title: actionTitle, style: .primary, action: action)
                     .padding(.horizontal, Theme.Spacing.xl)
                     .padding(.top, Theme.Spacing.sm)
+                    .accessibilityIdentifier("\(accessibilityID)-action-button")
             }
 
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier(accessibilityID)
     }
 }
 
@@ -69,7 +74,8 @@ struct DSEmptyState: View {
         title: "No Recipes Yet",
         message: "Start building your recipe collection by adding your first recipe.",
         actionTitle: "Add Recipe",
-        action: {}
+        action: {},
+        accessibilityID: "preview-empty-state"
     )
     .background(Theme.Colors.background)
 }
@@ -80,7 +86,8 @@ struct DSEmptyState: View {
         title: "No Results Found",
         message: "We couldn't find any recipes matching your search. Try different keywords or browse all recipes.",
         actionTitle: "Clear Search",
-        action: {}
+        action: {},
+        accessibilityID: "preview-empty-state"
     )
     .background(Theme.Colors.background)
 }
@@ -91,7 +98,8 @@ struct DSEmptyState: View {
         title: "No Favorites Yet",
         message: "Mark recipes as favorites by tapping the heart icon. Your favorite recipes will appear here.",
         actionTitle: "Browse Recipes",
-        action: {}
+        action: {},
+        accessibilityID: "preview-empty-state"
     )
     .background(Theme.Colors.background)
 }
@@ -100,7 +108,8 @@ struct DSEmptyState: View {
     DSEmptyState(
         icon: "checkmark.circle",
         title: "All Caught Up",
-        message: "You've reviewed all your recipes. Check back later for new suggestions."
+        message: "You've reviewed all your recipes. Check back later for new suggestions.",
+        accessibilityID: "preview-empty-state"
     )
     .background(Theme.Colors.background)
 }
@@ -112,7 +121,8 @@ struct DSEmptyState: View {
             title: "No Items",
             message: "Your shopping list is empty. Add ingredients from recipes to get started.",
             actionTitle: "Browse Recipes",
-            action: {}
+            action: {},
+            accessibilityID: "preview-empty-state-1"
         )
         .background(Theme.Colors.background)
         .tabItem { Label("Shopping List", systemImage: "cart") }
@@ -122,7 +132,8 @@ struct DSEmptyState: View {
             title: "No Recent Activity",
             message: "You haven't cooked any recipes recently. Start cooking to track your history.",
             actionTitle: "Find a Recipe",
-            action: {}
+            action: {},
+            accessibilityID: "preview-empty-state-2"
         )
         .background(Theme.Colors.background)
         .tabItem { Label("Recent", systemImage: "clock") }
@@ -130,7 +141,8 @@ struct DSEmptyState: View {
         DSEmptyState(
             icon: "tag",
             title: "No Tags Created",
-            message: "Organize your recipes by creating custom tags like 'Weeknight', 'Healthy', or 'Party'."
+            message: "Organize your recipes by creating custom tags like 'Weeknight', 'Healthy', or 'Party'.",
+            accessibilityID: "preview-empty-state-3"
         )
         .background(Theme.Colors.background)
         .tabItem { Label("Tags", systemImage: "tag") }
@@ -155,7 +167,8 @@ struct DSEmptyState: View {
             title: "No Favorites Yet",
             message: "Start building your favorites collection by tapping the heart icon on recipes you love.",
             actionTitle: "Explore Recipes",
-            action: {}
+            action: {},
+            accessibilityID: "preview-empty-state"
         )
         .background(Theme.Colors.background)
     }
@@ -167,7 +180,8 @@ struct DSEmptyState: View {
         title: "Import Failed",
         message: "We couldn't import this recipe. The website may not be supported or the recipe format is incompatible. Try copying the recipe details manually or check if the URL is correct.",
         actionTitle: "Try Again",
-        action: {}
+        action: {},
+        accessibilityID: "preview-empty-state"
     )
     .background(Theme.Colors.background)
 }
@@ -178,7 +192,8 @@ struct DSEmptyState: View {
         title: "All Done!",
         message: "You've completed all the steps for this recipe. Enjoy your meal!",
         actionTitle: "Rate Recipe",
-        action: {}
+        action: {},
+        accessibilityID: "preview-empty-state"
     )
     .background(Theme.Colors.background)
 }
@@ -191,7 +206,8 @@ struct DSEmptyState: View {
                 title: "No Recipes",
                 message: "Add your first recipe",
                 actionTitle: "Add",
-                action: {}
+                action: {},
+                accessibilityID: "preview-empty-state-1"
             )
             .frame(height: 300)
             .background(Theme.Colors.backgroundLight)
@@ -202,7 +218,8 @@ struct DSEmptyState: View {
                 title: "No Favorites",
                 message: "Mark recipes as favorites",
                 actionTitle: "Browse",
-                action: {}
+                action: {},
+                accessibilityID: "preview-empty-state-2"
             )
             .frame(height: 300)
             .background(Theme.Colors.backgroundLight)

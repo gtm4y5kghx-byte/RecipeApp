@@ -5,25 +5,25 @@ struct FilterRow: View {
     let title: String
     let icon: String
     let count: Int?
-    let accessibilityId: String?
+    let accessibilityID: String
     let onTap: () -> Void
 
     init(
         title: String,
         icon: String,
         count: Int? = nil,
-        accessibilityId: String? = nil,
+        accessibilityID: String,
         onTap: @escaping () -> Void
     ) {
         self.title = title
         self.icon = icon
         self.count = count
-        self.accessibilityId = accessibilityId
+        self.accessibilityID = accessibilityID
         self.onTap = onTap
     }
 
     var body: some View {
-        let button = Button(action: onTap) {
+        Button(action: onTap) {
             HStack(spacing: Theme.Spacing.md) {
                 DSIcon(icon, size: .medium, color: .primary)
 
@@ -41,11 +41,6 @@ struct FilterRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
-
-        if let accessibilityId = accessibilityId {
-            button.accessibilityIdentifier(accessibilityId)
-        } else {
-            button
-        }
+        .accessibilityIdentifier(accessibilityID)
     }
 }

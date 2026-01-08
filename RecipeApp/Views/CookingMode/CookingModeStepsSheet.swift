@@ -23,12 +23,14 @@ struct CookingModeStepsSheet: View {
                         }
                     }
                 }
+                .accessibilityIdentifier("cooking-mode-step-\(item.id)-button")
             }
             .navigationTitle("Steps")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { onDismiss() }
+                        .accessibilityIdentifier("cooking-mode-steps-done-button")
                 }
             }
         }

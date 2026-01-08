@@ -66,6 +66,7 @@ struct RecipeListView: View {
                     } label: {
                         Image(systemName: "line.3.horizontal")
                     }
+                    .accessibilityIdentifier("recipe-list-menu-button")
                 }
             }
             .navigationDestination(item: $selectedRecipe) { recipe in

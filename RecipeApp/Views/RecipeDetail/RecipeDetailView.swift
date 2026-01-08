@@ -49,6 +49,7 @@ struct RecipeDetailView: View {
                                     HapticFeedback.success.trigger()
                                     viewModel.markAsCooked()
                                 }
+                                .accessibilityIdentifier("recipe-detail-cooked-button")
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -87,14 +88,19 @@ struct RecipeDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button("Start Cooking") { showingCookingMode = true }
+                        .accessibilityIdentifier("recipe-detail-start-cooking-button")
                     Button("Add to Shopping List") {
                         viewModel?.addToShoppingList()
                     }
+                    .accessibilityIdentifier("recipe-detail-add-to-shopping-list-button")
                     Button("Edit") { showingEditSheet = true }
+                        .accessibilityIdentifier("recipe-detail-edit-button")
                     Button("Delete", role: .destructive) { showingDeleteConfirmation = true }
+                        .accessibilityIdentifier("recipe-detail-delete-button")
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
+                .accessibilityIdentifier("recipe-detail-menu-button")
             }
         }
         .sheet(isPresented: $showingEditSheet) {

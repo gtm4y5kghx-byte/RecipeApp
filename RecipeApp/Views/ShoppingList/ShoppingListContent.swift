@@ -33,14 +33,17 @@ struct ShoppingListContent: View {
                         Button("Clear Checked") {
                             viewModel.clearCheckedItems()
                         }
+                        .accessibilityIdentifier("shopping-list-clear-checked-button")
                     }
                     Button("Clear All", role: .destructive) {
                         showingClearAllConfirmation = true
                     }
+                    .accessibilityIdentifier("shopping-list-clear-all-button")
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
                 .disabled(!viewModel.hasItems)
+                .accessibilityIdentifier("shopping-list-menu-button")
             }
         }
         .alert("Clear Shopping List?", isPresented: $showingClearAllConfirmation) {
@@ -99,7 +102,7 @@ struct ShoppingListContent: View {
     private var addItemField: some View {
         HStack(spacing: Theme.Spacing.md) {
             DSIcon("plus.circle", size: .medium, color: .tertiary)
-            
+
             TextField("Add item", text: $newItemText)
                 .submitLabel(.done)
                 .onSubmit {
@@ -107,6 +110,7 @@ struct ShoppingListContent: View {
                     viewModel.addManualItem(item: newItemText)
                     newItemText = ""
                 }
+                .accessibilityIdentifier("shopping-list-add-item-field")
         }
         .padding(.vertical, Theme.Spacing.sm)
         .padding(.horizontal, Theme.Spacing.md)

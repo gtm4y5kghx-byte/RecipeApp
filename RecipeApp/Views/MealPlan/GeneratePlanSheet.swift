@@ -22,6 +22,7 @@ struct GeneratePlanSheet: View {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel") { dismiss() }
+                            .accessibilityIdentifier("generate-plan-cancel-button")
                     }
                 }
         }
@@ -72,17 +73,18 @@ struct GeneratePlanSheet: View {
             icon: "exclamationmark.triangle",
             title: "Generation Failed",
             message: error.localizedDescription,
-            actionTitle: "Try Again"
-        ) {
-            Task { await viewModel.generatePlan() }
-        }
+            actionTitle: "Try Again",
+            action: { Task { await viewModel.generatePlan() } },
+            accessibilityID: "generate-plan-error-empty-state"
+        )
     }
 
     private var emptyState: some View {
         DSEmptyState(
             icon: "sparkles",
             title: "Ready to Generate",
-            message: "Configure your preferences above and tap Generate Plan."
+            message: "Configure your preferences above and tap Generate Plan.",
+            accessibilityID: "generate-plan-empty-state"
         )
     }
 

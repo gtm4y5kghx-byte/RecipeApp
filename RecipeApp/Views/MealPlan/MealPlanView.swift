@@ -79,6 +79,7 @@ struct MealPlanView: View {
                     ) {
                         showingGeneratePlan = true
                     }
+                    .accessibilityIdentifier("meal-plan-generate-button")
 
                     DSButton(
                         title: "Today",
@@ -91,6 +92,7 @@ struct MealPlanView: View {
                             proxy.scrollTo(viewModel.today, anchor: .top)
                         }
                     }
+                    .accessibilityIdentifier("meal-plan-today-button")
                 }
                 .padding()
             }

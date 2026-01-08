@@ -37,13 +37,15 @@ struct RecipeListContent: View {
                 title: "No Results Found",
                 message: "We couldn't find any recipes matching '\(searchText)'. Try different keywords.",
                 actionTitle: "Clear Search",
-                action: onClearSearch
+                action: onClearSearch,
+                accessibilityID: "recipe-list-no-results-empty-state"
             )
         } else if let sectionTitle = selectedSectionTitle, let sectionIcon = selectedSectionIcon {
             DSEmptyState(
                 icon: sectionIcon,
                 title: "No \(sectionTitle)",
-                message: "No recipes found in this category."
+                message: "No recipes found in this category.",
+                accessibilityID: "recipe-list-section-empty-state"
             )
         } else {
             DSEmptyState(
@@ -51,7 +53,8 @@ struct RecipeListContent: View {
                 title: "No Recipes Yet",
                 message: "Start building your recipe collection by adding your first recipe.",
                 actionTitle: "Add Recipe",
-                action: onAddRecipe
+                action: onAddRecipe,
+                accessibilityID: "recipe-list-empty-state"
             )
         }
     }

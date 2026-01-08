@@ -32,6 +32,7 @@ struct DiscoverView: View {
                     } label: {
                         Image(systemName: "line.3.horizontal")
                     }
+                    .accessibilityIdentifier("discover-menu-button")
                 }
             }
         }
@@ -71,7 +72,8 @@ struct DiscoverView: View {
             title: "Unlock AI Recipes",
             message: "Get personalized recipe suggestions based on your cooking style and preferences.",
             actionTitle: "Upgrade to Premium",
-            action: { /* TODO: Show paywall */ }
+            action: { /* TODO: Show paywall */ },
+            accessibilityID: "discover-premium-empty-state"
         )
     }
     
@@ -81,7 +83,8 @@ struct DiscoverView: View {
             title: AIError.generationFailed.title,
             message: AIError.generationFailed.message,
             actionTitle: "Try Again",
-            action: { Task { await viewModel?.loadGeneratedRecipes() } }
+            action: { Task { await viewModel?.loadGeneratedRecipes() } },
+            accessibilityID: "discover-error-empty-state"
         )
     }
     
@@ -91,7 +94,8 @@ struct DiscoverView: View {
             title: "Ready to Discover",
             message: "Generate new recipes tailored to your taste.",
             actionTitle: "Generate Recipes",
-            action: { Task { await viewModel.loadGeneratedRecipes() } }
+            action: { Task { await viewModel.loadGeneratedRecipes() } },
+            accessibilityID: "discover-empty-state"
         )
     }
     
@@ -111,7 +115,8 @@ struct DiscoverView: View {
                                 totalTime: recipe.totalTime,
                                 servings: recipe.servings,
                                 tags: recipe.tags,
-                                onSaveTap: { viewModel.saveToCollection(recipe) }
+                                onSaveTap: { viewModel.saveToCollection(recipe) },
+                                accessibilityID: "discover-generated-recipe-\(recipe.id)"
                             )
                         }
                     }

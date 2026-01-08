@@ -18,6 +18,7 @@ struct DSRecipeCard: View {
     let onFavoriteTap: () -> Void
     let suggestionReason: String?
     let onDeleteTap: () -> Void
+    let accessibilityID: String
 
     // MARK: - Computed Properties
 
@@ -42,7 +43,8 @@ struct DSRecipeCard: View {
         onTap: @escaping () -> Void,
         onFavoriteTap: @escaping () -> Void,
         suggestionReason: String? = nil,
-        onDeleteTap: @escaping () -> Void
+        onDeleteTap: @escaping () -> Void,
+        accessibilityID: String
     ) {
         self.title = title
         self.cuisine = cuisine
@@ -56,6 +58,7 @@ struct DSRecipeCard: View {
         self.onFavoriteTap = onFavoriteTap
         self.suggestionReason = suggestionReason
         self.onDeleteTap = onDeleteTap
+        self.accessibilityID = accessibilityID
     }
 
     // MARK: - Body
@@ -81,6 +84,7 @@ struct DSRecipeCard: View {
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityIdentifier("\(accessibilityID)-favorite-button")
             }
             
             // MARK: - Suggested Recipe
@@ -147,6 +151,7 @@ struct DSRecipeCard: View {
         .onTapGesture {
             onTap()
         }
+        .accessibilityIdentifier(accessibilityID)
     }
 }
 
@@ -165,7 +170,8 @@ struct DSRecipeCard: View {
             imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {},
-            onDeleteTap: {}
+            onDeleteTap: {},
+            accessibilityID: "preview-card-1"
         )
 
         DSRecipeCard(
@@ -179,7 +185,8 @@ struct DSRecipeCard: View {
             imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {},
-            onDeleteTap: {}
+            onDeleteTap: {},
+            accessibilityID: "preview-card-2"
         )
     }
     .padding()
@@ -193,7 +200,8 @@ struct DSRecipeCard: View {
             isFavorite: false,
             onTap: {},
             onFavoriteTap: {},
-            onDeleteTap: {}
+            onDeleteTap: {},
+            accessibilityID: "preview-variation-1"
         )
 
         DSRecipeCard(
@@ -205,7 +213,8 @@ struct DSRecipeCard: View {
             imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {},
-            onDeleteTap: {}
+            onDeleteTap: {},
+            accessibilityID: "preview-variation-2"
         )
 
         DSRecipeCard(
@@ -219,7 +228,8 @@ struct DSRecipeCard: View {
             imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {},
-            onDeleteTap: {}
+            onDeleteTap: {},
+            accessibilityID: "preview-variation-3"
         )
     }
     .padding()
@@ -245,7 +255,8 @@ struct DSRecipeCard: View {
                     imageURL: "https://placehold.co/400x300",
                     onTap: {},
                     onFavoriteTap: {},
-                    onDeleteTap: {}
+                    onDeleteTap: {},
+                    accessibilityID: "preview-list-\(index)"
                 )
             }
         }
@@ -278,7 +289,8 @@ struct DSRecipeCard: View {
             },
             onDeleteTap: {
                 print("Delete tapped!")
-            }
+            },
+            accessibilityID: "preview-interactive"
         )
 
         if isFavorite {
@@ -313,7 +325,8 @@ struct DSRecipeCard: View {
                         imageURL: "https://placehold.co/400x300",
                         onTap: {},
                         onFavoriteTap: {},
-                        onDeleteTap: {}
+                        onDeleteTap: {},
+                        accessibilityID: "preview-grid-\(index)"
                     )
                 }
             }
@@ -337,7 +350,8 @@ struct DSRecipeCard: View {
             onTap: {},
             onFavoriteTap: {},
             suggestionReason: "You haven't cooked this in a while",
-            onDeleteTap: {}
+            onDeleteTap: {},
+            accessibilityID: "preview-suggestion-1"
         )
 
         DSRecipeCard(
@@ -351,7 +365,8 @@ struct DSRecipeCard: View {
             imageURL: "https://placehold.co/400x300",
             onTap: {},
             onFavoriteTap: {},
-            onDeleteTap: {}
+            onDeleteTap: {},
+            accessibilityID: "preview-suggestion-2"
         )
     }
     .padding()

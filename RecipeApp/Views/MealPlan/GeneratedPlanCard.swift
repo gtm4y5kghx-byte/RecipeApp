@@ -6,6 +6,7 @@ struct GeneratedPlanCard: View {
     let onAdd: () -> Void
     let onRemove: () -> Void
     let onSwap: () -> Void
+    let accessibilityID: String
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
@@ -18,6 +19,7 @@ struct GeneratedPlanCard: View {
         .background(isAdded ? Theme.Colors.backgroundDark : Theme.Colors.backgroundLight)
         .cornerRadius(Theme.CornerRadius.md)
         .opacity(isAdded ? 0.7 : 1.0)
+        .accessibilityIdentifier(accessibilityID)
     }
 
     // MARK: - Date Badge
@@ -50,16 +52,19 @@ struct GeneratedPlanCard: View {
                 DSIcon("arrow.uturn.backward.circle", size: .medium, color: .secondary)
             }
             .buttonStyle(.borderless)
+            .accessibilityIdentifier("\(accessibilityID)-undo-button")
         } else {
             HStack(spacing: Theme.Spacing.sm) {
                 Button { onSwap() } label: {
                     DSIcon("arrow.triangle.2.circlepath", size: .small, color: .secondary)
                 }
                 .buttonStyle(.borderless)
+                .accessibilityIdentifier("\(accessibilityID)-swap-button")
                 Button { onAdd() } label: {
                     DSIcon("plus.circle.fill", size: .medium, color: .accent)
                 }
                 .buttonStyle(.borderless)
+                .accessibilityIdentifier("\(accessibilityID)-add-button")
             }
         }
     }
@@ -74,7 +79,8 @@ struct GeneratedPlanCard: View {
         isAdded: false,
         onAdd: {},
         onRemove: {},
-        onSwap: {}
+        onSwap: {},
+        accessibilityID: "preview-generated-plan-card"
     )
     .padding()
     .background(Theme.Colors.background)
@@ -89,7 +95,8 @@ struct GeneratedPlanCard: View {
         isAdded: true,
         onAdd: {},
         onRemove: {},
-        onSwap: {}
+        onSwap: {},
+        accessibilityID: "preview-generated-plan-card"
     )
     .padding()
     .background(Theme.Colors.background)

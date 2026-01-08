@@ -14,6 +14,7 @@ struct CookingModeIngredientsSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { onDismiss() }
+                        .accessibilityIdentifier("cooking-mode-ingredients-done-button")
                 }
             }
         }

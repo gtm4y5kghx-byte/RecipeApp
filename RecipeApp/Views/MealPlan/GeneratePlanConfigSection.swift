@@ -28,6 +28,7 @@ struct GeneratePlanConfigSection: View {
                             style: viewModel.selectedMealType == type ? .primary : .outline
                         )
                     }
+                    .accessibilityIdentifier("generate-plan-meal-\(type.rawValue)-button")
                 }
             }
         }
@@ -49,6 +50,7 @@ struct GeneratePlanConfigSection: View {
                             style: viewModel.selectedDayCount == count ? .primary : .outline
                         )
                     }
+                    .accessibilityIdentifier("generate-plan-days-\(count)-button")
                 }
             }
         }
@@ -66,5 +68,6 @@ struct GeneratePlanConfigSection: View {
             Task { await viewModel.generatePlan() }
         }
         .disabled(!viewModel.canGenerate)
+        .accessibilityIdentifier("generate-plan-generate-button")
     }
 }

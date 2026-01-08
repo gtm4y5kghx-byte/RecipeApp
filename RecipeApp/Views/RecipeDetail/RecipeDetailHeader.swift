@@ -19,6 +19,7 @@ struct RecipeDetailHeader: View {
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityIdentifier("recipe-detail-favorite-button")
             }
         }
     }

@@ -32,8 +32,9 @@ struct CookingModeView: View {
                             } label: {
                                 Image(systemName: "xmark")
                             }
+                            .accessibilityIdentifier("cooking-mode-close-button")
                         }
-                        
+
                         ToolbarItem(placement: .topBarTrailing) {
                             Menu {
                                 Button {
@@ -41,15 +42,17 @@ struct CookingModeView: View {
                                 } label: {
                                     Label("Steps", systemImage: "list.number")
                                 }
-                                
+                                .accessibilityIdentifier("cooking-mode-steps-button")
+
                                 Button {
                                     showingIngredients = true
                                 } label: {
                                     Label("Ingredients", systemImage: "list.bullet")
                                 }
-                                
+                                .accessibilityIdentifier("cooking-mode-ingredients-button")
+
                                 Divider()
-                                
+
                                 Button {
                                     if viewModel.markAsCooked() {
                                         showingCookedConfirmation = true
@@ -59,9 +62,11 @@ struct CookingModeView: View {
                                 } label: {
                                     Label("Mark as Cooked", systemImage: "checkmark.circle")
                                 }
+                                .accessibilityIdentifier("cooking-mode-mark-cooked-button")
                             } label: {
                                 Image(systemName: "ellipsis.circle")
                             }
+                            .accessibilityIdentifier("cooking-mode-menu-button")
                         }
                     }
                     .sheet(isPresented: $showingSteps) {

@@ -32,7 +32,8 @@ struct RecipeGrid: View {
                         suggestionReason: suggestionReasons[recipe.id],
                         onDeleteTap: {
                             onDeleteTap(recipe)
-                        }
+                        },
+                        accessibilityID: "recipe-card-\(recipe.id)"
                     )
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
