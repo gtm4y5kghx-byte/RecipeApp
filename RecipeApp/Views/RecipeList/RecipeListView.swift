@@ -68,6 +68,12 @@ struct RecipeListView: View {
                     }
                     .accessibilityIdentifier("recipe-list-menu-button")
                 }
+
+                #if DEBUG
+                ToolbarItem(placement: .topBarLeading) {
+                    devToolsMenu
+                }
+                #endif
             }
             .navigationDestination(item: $selectedRecipe) { recipe in
                 RecipeDetailView(recipe: recipe)
@@ -154,6 +160,21 @@ struct RecipeListView: View {
             await viewModel?.loadSuggestionsIfEligible()
         }
     }
+
+    #if DEBUG
+    private var devToolsMenu: some View {
+        Menu {
+            Button("Load Suggestions") {
+                Task { await viewModel?.loadSuggestionsDev() }
+            }
+            Button("Invalidate AI Cache") {
+                AICache.invalidateAll()
+            }
+        } label: {
+            Label("Dev Tools", systemImage: "hammer.fill")
+        }
+    }
+    #endif
 }
 
 #Preview {
