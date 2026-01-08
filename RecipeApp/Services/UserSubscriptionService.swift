@@ -16,7 +16,9 @@ class UserSubscriptionService {
     }
     
     var isPremium: Bool {
-        Self.mockIsPremium
+        // TestFlight: everyone is premium when gating disabled
+        guard FeatureFlags.isPremiumGatingEnabled else { return true }
+        return Self.mockIsPremium
     }
     
     func requiresPremium(action: () -> Void, showPaywall: @escaping () -> Void) {
