@@ -13,10 +13,10 @@ struct MainTabView: View {
 
         var title: String {
             switch self {
-            case .recipes: return "Recipes"
-            case .discover: return "Discover"
-            case .mealPlan: return "Meal Plan"
-            case .shoppingList: return "Shopping List"
+            case .recipes: return String(localized: "Recipes")
+            case .discover: return String(localized: "Discover")
+            case .mealPlan: return String(localized: "Meal Plan")
+            case .shoppingList: return String(localized: "Shopping List")
             }
         }
     }

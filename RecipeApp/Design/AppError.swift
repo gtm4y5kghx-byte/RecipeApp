@@ -15,42 +15,42 @@ enum RecipeError: AppError {
     case deleteFailed
     case importFailed(reason: String)
     case invalidData
-    
+
     var title: String {
         switch self {
-        case .saveFailed: return "Save Failed"
-        case .deleteFailed: return "Delete Failed"
-        case .importFailed: return "Import Failed"
-        case .invalidData: return "Invalid Recipe Data"
+        case .saveFailed: return String(localized: "Save Failed")
+        case .deleteFailed: return String(localized: "Delete Failed")
+        case .importFailed: return String(localized: "Import Failed")
+        case .invalidData: return String(localized: "Invalid Recipe Data")
         }
     }
-    
+
     var message: String {
         switch self {
         case .saveFailed:
-            return "We couldn't save your recipe. Please try again."
+            return String(localized: "We couldn't save your recipe. Please try again.")
         case .deleteFailed:
-            return "We couldn't delete this recipe. Please try again."
+            return String(localized: "We couldn't delete this recipe. Please try again.")
         case .importFailed(let reason):
-            return "We couldn't import this recipe. \(reason)"
+            return String(localized: "We couldn't import this recipe. \(reason)")
         case .invalidData:
-            return "The recipe data is incomplete or invalid."
+            return String(localized: "The recipe data is incomplete or invalid.")
         }
     }
-    
+
     var suggestion: String? {
         switch self {
         case .saveFailed:
-            return "Check that all required fields are filled out."
+            return String(localized: "Check that all required fields are filled out.")
         case .deleteFailed:
-            return "Make sure the recipe isn't currently being edited."
+            return String(localized: "Make sure the recipe isn't currently being edited.")
         case .importFailed:
-            return "Try copying the recipe details manually or check if the URL is correct."
+            return String(localized: "Try copying the recipe details manually or check if the URL is correct.")
         case .invalidData:
-            return "Ensure the recipe has a title and at least one ingredient or instruction."
+            return String(localized: "Ensure the recipe has a title and at least one ingredient or instruction.")
         }
     }
-    
+
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
@@ -62,37 +62,37 @@ enum SearchError: AppError {
     case noResults
     case searchFailed
     case outOfScope(String)
-    
+
     var title: String {
         switch self {
-        case .noResults: return "No Results"
-        case .searchFailed: return "Search Failed"
-        case .outOfScope: return "Out of Scope"
+        case .noResults: return String(localized: "No Results")
+        case .searchFailed: return String(localized: "Search Failed")
+        case .outOfScope: return String(localized: "Out of Scope")
         }
     }
-    
+
     var message: String {
         switch self {
         case .noResults:
-            return "We couldn't find any recipes matching your search."
+            return String(localized: "We couldn't find any recipes matching your search.")
         case .searchFailed:
-            return "Something went wrong while searching. Please try again."
+            return String(localized: "Something went wrong while searching. Please try again.")
         case .outOfScope(let details):
-            return details
+            return details  // Dynamic content, not localized
         }
     }
-    
+
     var suggestion: String? {
         switch self {
         case .noResults:
-            return "Try different keywords or browse all recipes."
+            return String(localized: "Try different keywords or browse all recipes.")
         case .searchFailed:
-            return "Check your connection and try again."
+            return String(localized: "Check your connection and try again.")
         case .outOfScope:
-            return "This service only handles recipe and cooking-related questions."
+            return String(localized: "This service only handles recipe and cooking-related questions.")
         }
     }
-    
+
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
@@ -106,48 +106,47 @@ enum AIError: AppError {
     case apiError(String)
     case networkError
     case premiumRequired
-    
+
     var title: String {
         switch self {
-        case .suggestionsFailed: return "Suggestions Unavailable"
-        case .generationFailed: return "Generation Failed"
-        case .apiError: return "AI Error"
-        case .networkError: return "Network Error"
-        case .premiumRequired: return "Premium Feature"
+        case .suggestionsFailed: return String(localized: "Suggestions Unavailable")
+        case .generationFailed: return String(localized: "Generation Failed")
+        case .apiError: return String(localized: "AI Error")
+        case .networkError: return String(localized: "Network Error")
+        case .premiumRequired: return String(localized: "Premium Feature")
         }
     }
-    
+
     var message: String {
         switch self {
         case .suggestionsFailed:
-            return "We couldn't generate recipe suggestions at this time."
+            return String(localized: "We couldn't generate recipe suggestions at this time.")
         case .generationFailed:
-            return "We couldn't generate new recipes at this time."
-            
+            return String(localized: "We couldn't generate new recipes at this time.")
         case .apiError(let details):
-            return "AI service error: \(details)"
+            return String(localized: "AI service error: \(details)")
         case .networkError:
-            return "Unable to connect to AI service. Check your internet connection."
+            return String(localized: "Unable to connect to AI service. Check your internet connection.")
         case .premiumRequired:
-            return "AI-powered features require a premium subscription."
+            return String(localized: "AI-powered features require a premium subscription.")
         }
     }
-    
+
     var suggestion: String? {
         switch self {
         case .suggestionsFailed:
-            return "Try again later or browse your recipes manually."
+            return String(localized: "Try again later or browse your recipes manually.")
         case .generationFailed:
-            return "Try again later. Your recipe collection helps us personalize suggestions."
+            return String(localized: "Try again later. Your recipe collection helps us personalize suggestions.")
         case .apiError:
-            return "Please try again. If the problem persists, contact support."
+            return String(localized: "Please try again. If the problem persists, contact support.")
         case .networkError:
-            return "Check your internet connection and try again."
+            return String(localized: "Check your internet connection and try again.")
         case .premiumRequired:
-            return "Upgrade to premium to unlock AI features."
+            return String(localized: "Upgrade to premium to unlock AI features.")
         }
     }
-    
+
     var errorDescription: String? { message }
     var failureReason: String? { message }
     var recoverySuggestion: String? { suggestion }
@@ -163,36 +162,36 @@ enum ImportError: AppError {
     
     var title: String {
         switch self {
-        case .unsupportedWebsite: return "Unsupported Website"
-        case .parsingFailed: return "Import Failed"
-        case .networkTimeout: return "Connection Timeout"
-        case .invalidURL: return "Invalid URL"
+        case .unsupportedWebsite: return String(localized: "Unsupported Website")
+        case .parsingFailed: return String(localized: "Import Failed")
+        case .networkTimeout: return String(localized: "Connection Timeout")
+        case .invalidURL: return String(localized: "Invalid URL")
         }
     }
-    
+
     var message: String {
         switch self {
         case .unsupportedWebsite:
-            return "This website is not supported for automatic recipe import."
+            return String(localized: "This website is not supported for automatic recipe import.")
         case .parsingFailed:
-            return "We couldn't extract recipe data from this page."
+            return String(localized: "We couldn't extract recipe data from this page.")
         case .networkTimeout:
-            return "The request took too long to complete."
+            return String(localized: "The request took too long to complete.")
         case .invalidURL:
-            return "The URL you entered is not valid."
+            return String(localized: "The URL you entered is not valid.")
         }
     }
-    
+
     var suggestion: String? {
         switch self {
         case .unsupportedWebsite:
-            return "Try copying the recipe details manually."
+            return String(localized: "Try copying the recipe details manually.")
         case .parsingFailed:
-            return "The recipe format may not be compatible. Try adding it manually."
+            return String(localized: "The recipe format may not be compatible. Try adding it manually.")
         case .networkTimeout:
-            return "Check your internet connection and try again."
+            return String(localized: "Check your internet connection and try again.")
         case .invalidURL:
-            return "Please enter a valid URL starting with http:// or https://"
+            return String(localized: "Please enter a valid URL starting with http:// or https://")
         }
     }
     
@@ -210,27 +209,27 @@ enum MealPlanError: AppError {
 
     var title: String {
         switch self {
-        case .saveFailed: return "Save Failed"
-        case .deleteFailed: return "Delete Failed"
-        case .loadFailed: return "Load Failed"
+        case .saveFailed: return String(localized: "Save Failed")
+        case .deleteFailed: return String(localized: "Delete Failed")
+        case .loadFailed: return String(localized: "Load Failed")
         }
     }
 
     var message: String {
         switch self {
         case .saveFailed:
-            return "We couldn't save this meal plan entry."
+            return String(localized: "We couldn't save this meal plan entry.")
         case .deleteFailed:
-            return "We couldn't remove this meal plan entry."
+            return String(localized: "We couldn't remove this meal plan entry.")
         case .loadFailed:
-            return "We couldn't load your meal plan."
+            return String(localized: "We couldn't load your meal plan.")
         }
     }
 
     var suggestion: String? {
         switch self {
         case .saveFailed, .deleteFailed, .loadFailed:
-            return "Please try again."
+            return String(localized: "Please try again.")
         }
     }
 
@@ -249,34 +248,34 @@ enum MealPlanAIError: AppError {
 
     var title: String {
         switch self {
-        case .emptyCollection: return "No Recipes"
-        case .insufficientRecipes: return "Not Enough Recipes"
-        case .parsingFailed: return "Generation Failed"
-        case .apiError: return "AI Error"
+        case .emptyCollection: return String(localized: "No Recipes")
+        case .insufficientRecipes: return String(localized: "Not Enough Recipes")
+        case .parsingFailed: return String(localized: "Generation Failed")
+        case .apiError: return String(localized: "AI Error")
         }
     }
 
     var message: String {
         switch self {
         case .emptyCollection:
-            return "You don't have any recipes yet."
+            return String(localized: "You don't have any recipes yet.")
         case .insufficientRecipes(let available, let required):
-            return "You have \(available) recipes, but need at least \(required) for variety."
+            return String(localized: "You have \(available) recipes, but need at least \(required) for variety.")
         case .parsingFailed:
-            return "We couldn't create a meal plan at this time."
+            return String(localized: "We couldn't create a meal plan at this time.")
         case .apiError(let details):
-            return "AI service error: \(details)"
+            return String(localized: "AI service error: \(details)")
         }
     }
 
     var suggestion: String? {
         switch self {
         case .emptyCollection:
-            return "Import or create at least 3 recipes to generate a meal plan."
+            return String(localized: "Import or create at least 3 recipes to generate a meal plan.")
         case .insufficientRecipes:
-            return "Add more recipes to your collection for better variety."
+            return String(localized: "Add more recipes to your collection for better variety.")
         case .parsingFailed, .apiError:
-            return "Please try again. If the problem persists, contact support."
+            return String(localized: "Please try again. If the problem persists, contact support.")
         }
     }
 
@@ -293,22 +292,22 @@ enum GenericError: AppError {
     
     var title: String {
         switch self {
-        case .unknown: return "Something Went Wrong"
-        case .custom(let title, _, _): return title
+        case .unknown: return String(localized: "Something Went Wrong")
+        case .custom(let title, _, _): return title  // Caller responsible for localization
         }
     }
-    
+
     var message: String {
         switch self {
-        case .unknown: return "An unexpected error occurred."
-        case .custom(_, let message, _): return message
+        case .unknown: return String(localized: "An unexpected error occurred.")
+        case .custom(_, let message, _): return message  // Caller responsible for localization
         }
     }
-    
+
     var suggestion: String? {
         switch self {
-        case .unknown: return "Please try again."
-        case .custom(_, _, let suggestion): return suggestion
+        case .unknown: return String(localized: "Please try again.")
+        case .custom(_, _, let suggestion): return suggestion  // Caller responsible for localization
         }
     }
     

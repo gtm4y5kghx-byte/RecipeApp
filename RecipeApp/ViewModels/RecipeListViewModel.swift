@@ -437,12 +437,12 @@ enum MenuSection: Hashable, Identifiable {
     
     var title: String {
         switch self {
-        case .all: return "All"
-        case .recentlyAdded: return "Recently Added"
-        case .recentlyCooked: return "Recently Cooked"
-        case .favorites: return "Favorites"
-        case .uncategorized: return "Uncategorized"
-        case .tag(let name): return name
+        case .all: return String(localized: "All")
+        case .recentlyAdded: return String(localized: "Recently Added")
+        case .recentlyCooked: return String(localized: "Recently Cooked")
+        case .favorites: return String(localized: "Favorites")
+        case .uncategorized: return String(localized: "Uncategorized")
+        case .tag(let name): return name  // User-provided, not localized
         }
     }
     

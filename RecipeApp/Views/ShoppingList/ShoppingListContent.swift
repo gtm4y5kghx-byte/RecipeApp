@@ -46,13 +46,13 @@ struct ShoppingListContent: View {
                 .accessibilityIdentifier("shopping-list-menu-button")
             }
         }
-        .alert("Clear Shopping List?", isPresented: $showingClearAllConfirmation) {
-            Button("Clear All", role: .destructive) {
+        .alert(String(localized: "Clear Shopping List?"), isPresented: $showingClearAllConfirmation) {
+            Button(String(localized: "Clear All"), role: .destructive) {
                 viewModel.clearAllItems()
             }
-            Button("Cancel", role: .cancel) { }
+            Button(String(localized: "Cancel"), role: .cancel) { }
         } message: {
-            Text("This will remove all items from your shopping list.")
+            Text(String(localized: "This will remove all items from your shopping list."))
         }
     }
     

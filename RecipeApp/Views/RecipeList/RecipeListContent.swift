@@ -35,7 +35,7 @@ struct RecipeListContent: View {
             DSEmptyState(
                 icon: "magnifyingglass",
                 title: "No Results Found",
-                message: "We couldn't find any recipes matching '\(searchText)'. Try different keywords.",
+                message: String(localized: "We couldn't find any recipes matching '\(searchText)'. Try different keywords."),
                 actionTitle: "Clear Search",
                 action: onClearSearch,
                 accessibilityID: "recipe-list-no-results-empty-state"
@@ -43,7 +43,7 @@ struct RecipeListContent: View {
         } else if let sectionTitle = selectedSectionTitle, let sectionIcon = selectedSectionIcon {
             DSEmptyState(
                 icon: sectionIcon,
-                title: "No \(sectionTitle)",
+                title: String(localized: "No \(sectionTitle)"),
                 message: "No recipes found in this category.",
                 accessibilityID: "recipe-list-section-empty-state"
             )

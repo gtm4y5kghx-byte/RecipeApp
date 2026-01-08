@@ -109,14 +109,14 @@ struct RecipeDetailView: View {
         .sheet(isPresented: $showingCookingMode) {
             CookingModeView(recipe: recipe)
         }
-        .alert("Delete Recipe?", isPresented: $showingDeleteConfirmation) {
-            Button("Delete", role: .destructive) {
+        .alert(String(localized: "Delete Recipe?"), isPresented: $showingDeleteConfirmation) {
+            Button(String(localized: "Delete"), role: .destructive) {
                 guard let viewModel = viewModel else { return }
                 if viewModel.deleteRecipe() {
                     dismiss()
                 }
             }
-            Button("Cancel", role: .cancel) { }
+            Button(String(localized: "Cancel"), role: .cancel) { }
         }
         .onAppear {
             if viewModel == nil {

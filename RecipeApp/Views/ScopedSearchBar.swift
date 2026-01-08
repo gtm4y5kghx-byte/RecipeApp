@@ -9,9 +9,9 @@ struct ScopedSearchBar: View {
         VStack(spacing: 0) {
             DSSection {
                 if !searchText.isEmpty {
-                    Picker("Search In", selection: $searchScope) {
+                    Picker(String(localized: "Search In"), selection: $searchScope) {
                         ForEach(SearchScope.allCases, id: \.self) { scope in
-                            Text(scope.rawValue).tag(scope)
+                            Text(scope.localizedName).tag(scope)
                         }
                     }
                     .pickerStyle(.segmented)

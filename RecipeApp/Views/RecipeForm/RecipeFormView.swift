@@ -80,11 +80,11 @@ struct RecipeFormView: View {
                         .accessibilityIdentifier("recipe-form-save-button")
                     }
                 }
-                .alert("Discard Changes?", isPresented: $showingDiscardConfirmation) {
-                    Button("Discard", role: .destructive) { dismiss() }
-                    Button("Keep Editing", role: .cancel) { }
+                .alert(String(localized: "Discard Changes?"), isPresented: $showingDiscardConfirmation) {
+                    Button(String(localized: "Discard"), role: .destructive) { dismiss() }
+                    Button(String(localized: "Keep Editing"), role: .cancel) { }
                 } message: {
-                    Text("You have unsaved changes.")
+                    Text(String(localized: "You have unsaved changes."))
                 }
             } else {
                 DSLoadingSpinner(message: "Loading...")

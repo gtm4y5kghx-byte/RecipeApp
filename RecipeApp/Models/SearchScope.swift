@@ -7,4 +7,8 @@ enum SearchScope: String, CaseIterable {
     case ingredients = "Ingredients"
     case instructions = "Instructions"
     case notes = "Notes"
+
+    var localizedName: String {
+        String(localized: String.LocalizationValue(rawValue))
+    }
 }
