@@ -186,7 +186,7 @@ struct GeneratePlanSheet: View {
         mealPlanService: MealPlanService(modelContext: container.mainContext),
         aiService: MealPlanAIService()
     )
-    viewModel.error = MealPlanAIError.emptyCollection
+    viewModel.error = AIError.emptyCollection
 
     return GeneratePlanSheet(previewViewModel: viewModel)
         .modelContainer(container)

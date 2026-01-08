@@ -77,7 +77,7 @@ struct MealPlanAIServiceIntegration {
         do {
             _ = try await service.generatePlan(for: .dinner, recipes: [])
             Issue.record("Expected error to be thrown")
-        } catch let error as MealPlanAIError {
+        } catch let error as AIError {
             #expect(error.title == "No Recipes")
             print("\n========== EMPTY COLLECTION ERROR ==========")
             print("Error: \(error.title)")
@@ -96,7 +96,7 @@ struct MealPlanAIServiceIntegration {
         do {
             _ = try await service.generatePlan(for: .dinner, recipes: recipes)
             Issue.record("Expected error to be thrown")
-        } catch let error as MealPlanAIError {
+        } catch let error as AIError {
             #expect(error.title == "Not Enough Recipes")
             print("\n========== INSUFFICIENT RECIPES ERROR ==========")
             print("Error: \(error.title)")

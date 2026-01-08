@@ -18,11 +18,11 @@ class MealPlanAIService {
         dayCount: Int = 7
     ) async throws -> [MealPlanGenerationResult] {
         guard !recipes.isEmpty else {
-            throw MealPlanAIError.emptyCollection
+            throw AIError.emptyCollection
         }
 
         guard recipes.count >= minimumRecipeCount else {
-            throw MealPlanAIError.insufficientRecipes(available: recipes.count, required: minimumRecipeCount)
+            throw AIError.insufficientRecipes(available: recipes.count, required: minimumRecipeCount)
         }
 
         let candidates = RecipeCandidateSelector.selectCandidates(from: recipes, for: mealType)
@@ -98,14 +98,14 @@ class MealPlanAIService {
         let cleanedJSON = jsonResponse.strippingMarkdownCodeFences()
 
         guard let jsonData = cleanedJSON.data(using: .utf8) else {
-            throw MealPlanAIError.parsingFailed
+            throw AIError.parsingFailed
         }
 
         let assignments: [MealPlanAssignment]
         do {
             assignments = try JSONDecoder().decode([MealPlanAssignment].self, from: jsonData)
         } catch {
-            throw MealPlanAIError.parsingFailed
+            throw AIError.parsingFailed
         }
 
         let recipesByID = Dictionary(uniqueKeysWithValues: recipes.map { ($0.id, $0) })
@@ -123,7 +123,7 @@ class MealPlanAIService {
         }
 
         guard !results.isEmpty else {
-            throw MealPlanAIError.parsingFailed
+            throw AIError.parsingFailed
         }
 
         return results.sorted { $0.date < $1.date }

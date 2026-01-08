@@ -93,7 +93,7 @@ class AISuggestionEngineService {
         let cleanedJSON = jsonResponse.strippingMarkdownCodeFences()
         
         guard let jsonData = cleanedJSON.data(using: .utf8) else {
-            throw NSError(domain: "AISuggestionEngine", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON"])
+            throw AIError.parsingFailed
         }
         
         struct SuggestionResponse: Codable {

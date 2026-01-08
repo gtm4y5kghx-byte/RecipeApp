@@ -106,6 +106,9 @@ enum AIError: AppError {
     case apiError(String)
     case networkError
     case premiumRequired
+    case emptyCollection
+    case insufficientRecipes(available: Int, required: Int)
+    case parsingFailed
 
     var title: String {
         switch self {
@@ -114,6 +117,9 @@ enum AIError: AppError {
         case .apiError: return String(localized: "AI Error")
         case .networkError: return String(localized: "Network Error")
         case .premiumRequired: return String(localized: "Premium Feature")
+        case .emptyCollection: return String(localized: "No Recipes")
+        case .insufficientRecipes: return String(localized: "Not Enough Recipes")
+        case .parsingFailed: return String(localized: "Processing Failed")
         }
     }
 
@@ -129,6 +135,12 @@ enum AIError: AppError {
             return String(localized: "Unable to connect to AI service. Check your internet connection.")
         case .premiumRequired:
             return String(localized: "AI-powered features require a premium subscription.")
+        case .emptyCollection:
+            return String(localized: "You don't have any recipes yet.")
+        case .insufficientRecipes(let available, let required):
+            return String(localized: "You have \(available) recipes, but need at least \(required) for this feature.")
+        case .parsingFailed:
+            return String(localized: "We couldn't process the AI response.")
         }
     }
 
@@ -138,12 +150,16 @@ enum AIError: AppError {
             return String(localized: "Try again later or browse your recipes manually.")
         case .generationFailed:
             return String(localized: "Try again later. Your recipe collection helps us personalize suggestions.")
-        case .apiError:
+        case .apiError, .parsingFailed:
             return String(localized: "Please try again. If the problem persists, contact support.")
         case .networkError:
             return String(localized: "Check your internet connection and try again.")
         case .premiumRequired:
             return String(localized: "Upgrade to premium to unlock AI features.")
+        case .emptyCollection:
+            return String(localized: "Import or create some recipes to use this feature.")
+        case .insufficientRecipes:
+            return String(localized: "Add more recipes to your collection for better results.")
         }
     }
 
@@ -230,52 +246,6 @@ enum MealPlanError: AppError {
         switch self {
         case .saveFailed, .deleteFailed, .loadFailed:
             return String(localized: "Please try again.")
-        }
-    }
-
-    var errorDescription: String? { message }
-    var failureReason: String? { message }
-    var recoverySuggestion: String? { suggestion }
-}
-
-// MARK: - Meal Plan AI Errors
-
-enum MealPlanAIError: AppError {
-    case emptyCollection
-    case insufficientRecipes(available: Int, required: Int)
-    case parsingFailed
-    case apiError(String)
-
-    var title: String {
-        switch self {
-        case .emptyCollection: return String(localized: "No Recipes")
-        case .insufficientRecipes: return String(localized: "Not Enough Recipes")
-        case .parsingFailed: return String(localized: "Generation Failed")
-        case .apiError: return String(localized: "AI Error")
-        }
-    }
-
-    var message: String {
-        switch self {
-        case .emptyCollection:
-            return String(localized: "You don't have any recipes yet.")
-        case .insufficientRecipes(let available, let required):
-            return String(localized: "You have \(available) recipes, but need at least \(required) for variety.")
-        case .parsingFailed:
-            return String(localized: "We couldn't create a meal plan at this time.")
-        case .apiError(let details):
-            return String(localized: "AI service error: \(details)")
-        }
-    }
-
-    var suggestion: String? {
-        switch self {
-        case .emptyCollection:
-            return String(localized: "Import or create at least 3 recipes to generate a meal plan.")
-        case .insufficientRecipes:
-            return String(localized: "Add more recipes to your collection for better variety.")
-        case .parsingFailed, .apiError:
-            return String(localized: "Please try again. If the problem persists, contact support.")
         }
     }
 

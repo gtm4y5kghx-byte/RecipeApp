@@ -23,7 +23,7 @@ class MockMealPlanAIService: MealPlanAIService {
         lastDayCount = dayCount
 
         if shouldThrowError {
-            throw MealPlanAIError.parsingFailed
+            throw AIError.parsingFailed
         }
         return mockResults
     }
