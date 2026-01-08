@@ -55,8 +55,8 @@ struct DiscoverView: View {
                 premiumUpgradeState
             } else if viewModel.isLoading {
                 DSLoadingSpinner(message: "Generating recipes...")
-            } else if viewModel.error != nil {
-                errorState
+            } else if let error = viewModel.error {
+                errorState(error: error, viewModel: viewModel)
             } else if viewModel.generatedRecipes.isEmpty {
                 emptyState(viewModel: viewModel)
             } else {
@@ -77,13 +77,14 @@ struct DiscoverView: View {
         )
     }
     
-    private var errorState: some View {
-        DSEmptyState(
+    private func errorState(error: Error, viewModel: DiscoverViewModel) -> some View {
+        let appError = error as? AppError
+        return DSEmptyState(
             icon: "exclamationmark.triangle",
-            title: AIError.generationFailed.title,
-            message: AIError.generationFailed.message,
-            actionTitle: "Try Again",
-            action: { Task { await viewModel?.loadGeneratedRecipes() } },
+            title: appError?.title ?? String(localized: "Something Went Wrong"),
+            message: appError?.message ?? error.localizedDescription,
+            actionTitle: String(localized: "Try Again"),
+            action: { Task { await viewModel.loadGeneratedRecipes() } },
             accessibilityID: "discover-error-empty-state"
         )
     }

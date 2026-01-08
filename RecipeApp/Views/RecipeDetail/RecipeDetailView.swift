@@ -9,6 +9,7 @@ struct RecipeDetailView: View {
     @State private var showingEditSheet = false
     @State private var showingCookingMode = false
     @State private var showingDeleteConfirmation = false
+    @State private var showingCannotCookAlert = false
     @State private var error: Error?
     
     let recipe: Recipe
@@ -87,8 +88,14 @@ struct RecipeDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button("Start Cooking") { showingCookingMode = true }
-                        .accessibilityIdentifier("recipe-detail-start-cooking-button")
+                    Button("Start Cooking") {
+                        if recipe.canStartCooking {
+                            showingCookingMode = true
+                        } else {
+                            showingCannotCookAlert = true
+                        }
+                    }
+                    .accessibilityIdentifier("recipe-detail-start-cooking-button")
                     Button("Add to Shopping List") {
                         viewModel?.addToShoppingList()
                     }
@@ -117,6 +124,11 @@ struct RecipeDetailView: View {
                 }
             }
             Button(String(localized: "Cancel"), role: .cancel) { }
+        }
+        .alert(String(localized: "Can't Start Cooking"), isPresented: $showingCannotCookAlert) {
+            Button(String(localized: "OK"), role: .cancel) { }
+        } message: {
+            Text(String(localized: "This recipe needs ingredients and instructions before you can start cooking."))
         }
         .onAppear {
             if viewModel == nil {

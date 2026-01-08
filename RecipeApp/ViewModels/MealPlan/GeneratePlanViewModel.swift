@@ -54,7 +54,16 @@ class GeneratePlanViewModel {
     var allResultsAdded: Bool {
         !results.isEmpty && remainingResults.isEmpty
     }
-    
+
+    var hasFewerResultsThanRequested: Bool {
+        !results.isEmpty && results.count < selectedDayCount
+    }
+
+    var resultCountMessage: String? {
+        guard hasFewerResultsThanRequested else { return nil }
+        return String(localized: "Generated \(results.count) of \(selectedDayCount) days based on your recipes")
+    }
+
     // MARK: - Actions
     
     func generatePlan() async {
@@ -76,21 +85,28 @@ class GeneratePlanViewModel {
     }
     
     func addResult(_ result: MealPlanGenerationResult) {
-        if let entry = try? mealPlanService.addEntry(
-            date: result.date,
-            mealType: selectedMealType,
-            recipe: result.recipe
-        ) {
+        do {
+            let entry = try mealPlanService.addEntry(
+                date: result.date,
+                mealType: selectedMealType,
+                recipe: result.recipe
+            )
             addedEntries[result.id] = entry
             addedResultIDs.insert(result.id)
+        } catch {
+            self.error = MealPlanError.saveFailed
         }
     }
-    
+
     func removeResult(_ result: MealPlanGenerationResult) {
         guard let entry = addedEntries[result.id] else { return }
-        try? mealPlanService.removeEntry(entry)
-        addedEntries.removeValue(forKey: result.id)
-        addedResultIDs.remove(result.id)
+        do {
+            try mealPlanService.removeEntry(entry)
+            addedEntries.removeValue(forKey: result.id)
+            addedResultIDs.remove(result.id)
+        } catch {
+            self.error = MealPlanError.deleteFailed
+        }
     }
     
     func deleteResult(_ result: MealPlanGenerationResult) {

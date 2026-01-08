@@ -23,6 +23,26 @@ struct GeneratePlanResultsView: View {
 
     private var resultsList: some View {
         List {
+            if let message = viewModel.resultCountMessage {
+                HStack(spacing: Theme.Spacing.sm) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundStyle(Theme.Colors.accent)
+                    DSLabel(message, style: .subheadline, color: .secondary)
+                }
+                .padding(Theme.Spacing.md)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.Colors.backgroundLight)
+                .cornerRadius(Theme.CornerRadius.sm)
+                .listRowInsets(EdgeInsets(
+                    top: Theme.Spacing.sm,
+                    leading: Theme.Spacing.md,
+                    bottom: Theme.Spacing.sm,
+                    trailing: Theme.Spacing.md
+                ))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            }
+
             ForEach(viewModel.results) { result in
                 GeneratedPlanCard(
                     result: result,
