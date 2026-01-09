@@ -22,6 +22,7 @@ struct RecipeDetailView: View {
                         title: viewModel.recipe.title,
                         isFavorite: viewModel.recipe.isFavorite,
                         onFavoriteTap: {
+                            HapticFeedback.light.trigger()
                             viewModel.toggleFavorite()
                         }
                     )
@@ -92,6 +93,7 @@ struct RecipeDetailView: View {
                         if recipe.canStartCooking {
                             showingCookingMode = true
                         } else {
+                            HapticFeedback.warning.trigger()
                             showingCannotCookAlert = true
                         }
                     }
@@ -119,6 +121,7 @@ struct RecipeDetailView: View {
         .alert(String(localized: "Delete Recipe?"), isPresented: $showingDeleteConfirmation) {
             Button(String(localized: "Delete"), role: .destructive) {
                 guard let viewModel = viewModel else { return }
+                HapticFeedback.warning.trigger()
                 if viewModel.deleteRecipe() {
                     dismiss()
                 }

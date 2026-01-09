@@ -3,7 +3,7 @@ import SwiftUI
 struct ScopedSearchBar: View {
     @Binding var searchText: String
     @Binding var searchScope: SearchScope
-    let onSubmit: () -> Void
+    var onSubmit: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) {

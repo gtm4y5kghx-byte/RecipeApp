@@ -48,23 +48,29 @@ struct GeneratedPlanCard: View {
     @ViewBuilder
     private var actions: some View {
         if isAdded {
-            Button { onRemove() } label: {
-                DSIcon("arrow.uturn.backward.circle", size: .medium, color: .secondary)
-            }
-            .buttonStyle(.borderless)
-            .accessibilityIdentifier("\(accessibilityID)-undo-button")
+            DSIconButton(
+                "arrow.uturn.backward.circle",
+                size: .medium,
+                color: .secondary,
+                accessibilityID: "\(accessibilityID)-undo-button",
+                action: onRemove
+            )
         } else {
             HStack(spacing: Theme.Spacing.sm) {
-                Button { onSwap() } label: {
-                    DSIcon("arrow.triangle.2.circlepath", size: .small, color: .secondary)
-                }
-                .buttonStyle(.borderless)
-                .accessibilityIdentifier("\(accessibilityID)-swap-button")
-                Button { onAdd() } label: {
-                    DSIcon("plus.circle.fill", size: .medium, color: .accent)
-                }
-                .buttonStyle(.borderless)
-                .accessibilityIdentifier("\(accessibilityID)-add-button")
+                DSIconButton(
+                    "arrow.triangle.2.circlepath",
+                    size: .small,
+                    color: .secondary,
+                    accessibilityID: "\(accessibilityID)-swap-button",
+                    action: onSwap
+                )
+                DSIconButton(
+                    "plus.circle.fill",
+                    size: .medium,
+                    color: .accent,
+                    accessibilityID: "\(accessibilityID)-add-button",
+                    action: onAdd
+                )
             }
         }
     }

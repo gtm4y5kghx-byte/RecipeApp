@@ -8,6 +8,7 @@ struct ShoppingListItemRow: View {
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
             Button {
+                HapticFeedback.selection.trigger()
                 onToggle()
             } label: {
                 DSIcon(

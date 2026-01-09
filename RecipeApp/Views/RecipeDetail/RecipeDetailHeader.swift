@@ -10,16 +10,14 @@ struct RecipeDetailHeader: View {
             HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 DSLabel(title, style: .title2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Button(action: onFavoriteTap) {
-                    DSIcon(
-                        isFavorite ? "heart.fill" : "heart",
-                        size: .large,
-                        color: isFavorite ? .error : .secondary
-                    )
-                }
-                .buttonStyle(PlainButtonStyle())
-                .accessibilityIdentifier("recipe-detail-favorite-button")
+
+                DSIconButton(
+                    isFavorite ? "heart.fill" : "heart",
+                    size: .large,
+                    color: isFavorite ? .error : .secondary,
+                    accessibilityID: "recipe-detail-favorite-button",
+                    action: onFavoriteTap
+                )
             }
         }
     }

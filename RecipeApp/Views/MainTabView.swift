@@ -77,9 +77,20 @@ struct MainTabView: View {
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Recipe.self, MealPlanEntry.self, ShoppingList.self, configurations: config)
-    
+
     SampleData.loadSampleRecipes(into: container.mainContext)
-    
+
     return MainTabView()
         .modelContainer(container)
+}
+
+#Preview("Dark: Main Tab View") {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Recipe.self, MealPlanEntry.self, ShoppingList.self, configurations: config)
+
+    SampleData.loadSampleRecipes(into: container.mainContext)
+
+    return MainTabView()
+        .modelContainer(container)
+        .preferredColorScheme(.dark)
 }

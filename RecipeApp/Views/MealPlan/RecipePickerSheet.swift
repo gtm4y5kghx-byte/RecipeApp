@@ -41,8 +41,7 @@ struct RecipePickerSheet: View {
         VStack(spacing: 0) {
             ScopedSearchBar(
                 searchText: Bindable(viewModel).searchText,
-                searchScope: Bindable(viewModel).searchScope,
-                onSubmit: {}
+                searchScope: Bindable(viewModel).searchScope
             )
 
             if viewModel.filteredRecipes.isEmpty {
@@ -85,6 +84,7 @@ struct RecipePickerSheet: View {
                     }
                 }
                 .listStyle(.plain)
+                .scrollDismissesKeyboard(.interactively)
             }
         }
     }

@@ -25,6 +25,7 @@ struct ShoppingListContent: View {
             }
             .padding(Theme.Spacing.md)
         }
+        .scrollDismissesKeyboard(.interactively)
         .background(Theme.Colors.background)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

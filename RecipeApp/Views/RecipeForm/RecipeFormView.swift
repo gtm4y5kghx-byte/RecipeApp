@@ -73,7 +73,10 @@ struct RecipeFormView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Save") {
                             if viewModel.saveRecipe() {
+                                HapticFeedback.success.trigger()
                                 dismiss()
+                            } else {
+                                HapticFeedback.error.trigger()
                             }
                         }
                         .disabled(viewModel.title.isEmpty)

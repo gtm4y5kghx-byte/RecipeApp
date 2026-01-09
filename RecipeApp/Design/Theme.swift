@@ -37,25 +37,26 @@ enum Theme {
     }
 
     // MARK: - Typography
+    // Uses SwiftUI's built-in text styles for Dynamic Type accessibility support
 
     enum Typography {
 
         // MARK: Display Sizes (Large headings, hero text)
 
-        static let largeTitle = Font.system(size: 34, weight: .bold)
-        static let title1 = Font.system(size: 28, weight: .bold)
-        static let title2 = Font.system(size: 22, weight: .bold)
-        static let title3 = Font.system(size: 20, weight: .semibold)
+        static let largeTitle = Font.largeTitle.weight(.bold)
+        static let title1 = Font.title.weight(.bold)
+        static let title2 = Font.title2.weight(.bold)
+        static let title3 = Font.title3.weight(.semibold)
 
         // MARK: Body Sizes (Main content)
 
-        static let headline = Font.system(size: 17, weight: .semibold)
-        static let body = Font.system(size: 17, weight: .regular)
-        static let callout = Font.system(size: 16, weight: .regular)
-        static let subheadline = Font.system(size: 15, weight: .regular)
-        static let footnote = Font.system(size: 13, weight: .regular)
-        static let caption1 = Font.system(size: 12, weight: .regular)
-        static let caption2 = Font.system(size: 11, weight: .regular)
+        static let headline = Font.headline
+        static let body = Font.body
+        static let callout = Font.callout
+        static let subheadline = Font.subheadline
+        static let footnote = Font.footnote
+        static let caption1 = Font.caption
+        static let caption2 = Font.caption2
 
         // MARK: Semantic Styles (Use these in views)
 

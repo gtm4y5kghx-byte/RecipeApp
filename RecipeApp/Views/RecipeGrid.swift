@@ -47,6 +47,7 @@ struct RecipeGrid: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
+            .scrollDismissesKeyboard(.interactively)
             .background(Theme.Colors.background)
             .contentMargins(.top, Theme.Spacing.sm, for: .scrollContent)
             .onChange(of: scrollToTopTrigger) { _, _ in

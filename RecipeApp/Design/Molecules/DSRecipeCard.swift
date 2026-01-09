@@ -76,15 +76,15 @@ struct DSRecipeCard: View {
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Button(action: onFavoriteTap) {
-                    DSIcon(
-                        isFavorite ? "heart.fill" : "heart",
-                        size: .medium,
-                        color: isFavorite ? .error : .secondary
-                    )
+                DSIconButton(
+                    isFavorite ? "heart.fill" : "heart",
+                    size: .medium,
+                    color: isFavorite ? .error : .secondary,
+                    accessibilityID: "\(accessibilityID)-favorite-button"
+                ) {
+                    HapticFeedback.light.trigger()
+                    onFavoriteTap()
                 }
-                .buttonStyle(PlainButtonStyle())
-                .accessibilityIdentifier("\(accessibilityID)-favorite-button")
             }
             
             // MARK: - Suggested Recipe

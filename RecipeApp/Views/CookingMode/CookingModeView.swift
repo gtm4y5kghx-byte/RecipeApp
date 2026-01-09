@@ -55,8 +55,10 @@ struct CookingModeView: View {
 
                                 Button {
                                     if viewModel.markAsCooked() {
+                                        HapticFeedback.success.trigger()
                                         showingCookedConfirmation = true
                                     } else {
+                                        HapticFeedback.error.trigger()
                                         error = .saveFailed
                                     }
                                 } label: {
@@ -87,7 +89,7 @@ struct CookingModeView: View {
                         )
                     }
                 } else {
-                    ProgressView()
+                    DSLoadingSpinner(message: "Loading...")
                 }
             }
         }
