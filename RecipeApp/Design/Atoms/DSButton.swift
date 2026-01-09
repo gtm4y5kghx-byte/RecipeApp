@@ -223,3 +223,28 @@ struct DSButton: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Button Styles") {
+    VStack(spacing: Theme.Spacing.lg) {
+        DSButton(title: "Primary Button", style: .primary) {}
+        DSButton(title: "Secondary Button", style: .secondary) {}
+        DSButton(title: "Tertiary Button", style: .tertiary) {}
+        DSButton(title: "Destructive Button", style: .destructive) {}
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Dark: Buttons with Icons") {
+    VStack(spacing: Theme.Spacing.lg) {
+        DSButton(title: "Save Recipe", style: .primary, icon: "bookmark.fill") {}
+        DSButton(title: "Share", style: .secondary, icon: "square.and.arrow.up") {}
+        DSButton(title: "Delete", style: .destructive, icon: "trash") {}
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}

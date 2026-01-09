@@ -229,3 +229,30 @@ struct DSEmptyState: View {
     }
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Empty States") {
+    VStack(spacing: Theme.Spacing.xl) {
+        DSEmptyState(
+            icon: "fork.knife",
+            title: "No Recipes Yet",
+            message: "Start building your collection by adding your first recipe.",
+            actionTitle: "Add Recipe",
+            action: {},
+            accessibilityID: "dark-preview-1"
+        )
+
+        Divider()
+
+        DSEmptyState(
+            icon: "magnifyingglass",
+            title: "No Results",
+            message: "Try adjusting your search or filters.",
+            accessibilityID: "dark-preview-2"
+        )
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}

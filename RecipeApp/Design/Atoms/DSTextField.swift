@@ -451,3 +451,46 @@ struct DSSecureField: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Text Field States") {
+    @Previewable @State var text = "Sample text"
+
+    VStack(spacing: Theme.Spacing.lg) {
+        DSTextField(
+            placeholder: "Normal field",
+            text: $text,
+            icon: "pencil",
+            accessibilityID: "sample-text-field"
+        )
+
+        DSTextField(
+            placeholder: "Success state",
+            text: .constant("Valid input"),
+            icon: "checkmark",
+            state: .success,
+            helperText: "Looks good!",
+            accessibilityID: "valid-text-field"
+        )
+
+        DSTextField(
+            placeholder: "Error state",
+            text: .constant("Invalid"),
+            icon: "xmark",
+            state: .error,
+            helperText: "Please fix this",
+            accessibilityID: "invalid-text-field"
+        )
+
+        DSTextField(
+            placeholder: "Disabled",
+            text: .constant(""),
+            state: .disabled,
+            accessibilityID: "disabled-text-field"
+        )
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}

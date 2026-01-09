@@ -225,3 +225,34 @@ struct DSLabel: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Typography Hierarchy") {
+    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+        DSLabel("Large Title", style: .largeTitle)
+        DSLabel("Title 1", style: .title1)
+        DSLabel("Title 2", style: .title2)
+        DSLabel("Headline", style: .headline)
+        DSLabel("Body text for reading", style: .body)
+        DSLabel("Caption text", style: .caption1, color: .secondary)
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Dark: Label Colors") {
+    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+        DSLabel("Primary Color", style: .body, color: .primary)
+        DSLabel("Secondary Color", style: .body, color: .secondary)
+        DSLabel("Tertiary Color", style: .body, color: .tertiary)
+        DSLabel("Accent Color", style: .body, color: .accent)
+        DSLabel("Success Color", style: .body, color: .success)
+        DSLabel("Warning Color", style: .body, color: .warning)
+        DSLabel("Error Color", style: .body, color: .error)
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}

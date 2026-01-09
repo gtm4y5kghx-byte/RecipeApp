@@ -254,3 +254,43 @@ struct DSTag: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Tag Styles") {
+    VStack(spacing: Theme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.sm) {
+            DSTag("Italian", style: .primary)
+            DSTag("Quick", style: .secondary)
+            DSTag("Premium", style: .accent)
+        }
+
+        HStack(spacing: Theme.Spacing.sm) {
+            DSTag("30 min", style: .neutral)
+            DSTag("Vegetarian", style: .success)
+            DSTag("Dinner", style: .outline)
+        }
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Dark: Tags with Icons") {
+    VStack(spacing: Theme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.sm) {
+            DSTag("Italian", style: .primary, icon: "fork.knife")
+            DSTag("30 min", style: .neutral, icon: "clock")
+            DSTag("4 servings", style: .outline, icon: "person.2")
+        }
+
+        HStack(spacing: Theme.Spacing.sm) {
+            DSTag("Favorite", style: .accent, icon: "heart.fill")
+            DSTag("Vegetarian", style: .success, icon: "leaf")
+            DSTag("Spicy", style: .secondary, icon: "flame")
+        }
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}

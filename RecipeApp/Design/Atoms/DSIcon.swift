@@ -274,3 +274,42 @@ struct DSIcon: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Icon Colors") {
+    VStack(spacing: Theme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
+            DSIcon("star.fill", size: .large, color: .primary)
+            DSLabel("Primary", style: .body, color: .primary)
+        }
+
+        HStack(spacing: Theme.Spacing.md) {
+            DSIcon("star.fill", size: .large, color: .secondary)
+            DSLabel("Secondary", style: .body, color: .secondary)
+        }
+
+        HStack(spacing: Theme.Spacing.md) {
+            DSIcon("star.fill", size: .large, color: .accent)
+            DSLabel("Accent", style: .body, color: .accent)
+        }
+
+        HStack(spacing: Theme.Spacing.md) {
+            DSIcon("checkmark.circle.fill", size: .large, color: .success)
+            DSLabel("Success", style: .body, color: .success)
+        }
+
+        HStack(spacing: Theme.Spacing.md) {
+            DSIcon("exclamationmark.triangle.fill", size: .large, color: .warning)
+            DSLabel("Warning", style: .body, color: .warning)
+        }
+
+        HStack(spacing: Theme.Spacing.md) {
+            DSIcon("xmark.circle.fill", size: .large, color: .error)
+            DSLabel("Error", style: .body, color: .error)
+        }
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}

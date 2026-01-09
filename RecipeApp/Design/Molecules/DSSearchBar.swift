@@ -175,3 +175,19 @@ struct DSSearchBar: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Search Bar") {
+    @Previewable @State var searchText = ""
+    @Previewable @State var filledText = "chicken pasta"
+
+    VStack(spacing: Theme.Spacing.lg) {
+        DSSearchBar(placeholder: "Search recipes...", text: $searchText)
+
+        DSSearchBar(placeholder: "Search recipes...", text: $filledText)
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}

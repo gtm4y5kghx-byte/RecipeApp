@@ -275,3 +275,34 @@ struct DSLoadingOverlay: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Loading Spinners") {
+    VStack(spacing: Theme.Spacing.xl) {
+        DSLoadingSpinner(message: "Loading recipes...", size: .small)
+        DSLoadingSpinner(message: "Generating suggestions...", size: .medium)
+        DSLoadingSpinner(message: "Importing recipe...", size: .large)
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Dark: Loading Overlay") {
+    ZStack {
+        VStack(spacing: Theme.Spacing.md) {
+            DSLabel("Recipe List", style: .largeTitle)
+            ForEach(0..<3, id: \.self) { _ in
+                RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                    .fill(Theme.Colors.backgroundLight)
+                    .frame(height: 80)
+            }
+        }
+        .padding()
+        .background(Theme.Colors.background)
+
+        DSLoadingOverlay(message: "Loading...")
+    }
+    .preferredColorScheme(.dark)
+}

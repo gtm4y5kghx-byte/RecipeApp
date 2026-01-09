@@ -372,3 +372,43 @@ struct DSRecipeCard: View {
     .padding()
     .background(Theme.Colors.background)
 }
+
+// MARK: - Dark Mode Previews
+
+#Preview("Dark: Recipe Card") {
+    VStack(spacing: Theme.Spacing.md) {
+        DSRecipeCard(
+            title: "Chicken Tikka Masala",
+            cuisine: "Indian",
+            prepTime: 15,
+            cookTime: 30,
+            servings: 4,
+            isFavorite: true,
+            tags: ["Spicy", "Dinner"],
+            imageURL: "https://placehold.co/400x300",
+            onTap: {},
+            onFavoriteTap: {},
+            onDeleteTap: {},
+            accessibilityID: "dark-preview-1"
+        )
+
+        DSRecipeCard(
+            title: "Quick Salad",
+            cuisine: "Mediterranean",
+            prepTime: 10,
+            cookTime: 0,
+            servings: 2,
+            isFavorite: false,
+            tags: ["Healthy", "Quick"],
+            imageURL: "https://placehold.co/400x300",
+            onTap: {},
+            onFavoriteTap: {},
+            suggestionReason: "Perfect for tonight",
+            onDeleteTap: {},
+            accessibilityID: "dark-preview-2"
+        )
+    }
+    .padding()
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
+}
