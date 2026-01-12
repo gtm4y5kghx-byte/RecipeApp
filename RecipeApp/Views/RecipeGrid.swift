@@ -22,7 +22,6 @@ struct RecipeGrid: View {
                         servings: recipe.servings,
                         isFavorite: recipe.isFavorite,
                         tags: recipe.userTags,
-                        imageURL: recipe.imageURL,
                         onTap: {
                             onRecipeTap(recipe)
                         },

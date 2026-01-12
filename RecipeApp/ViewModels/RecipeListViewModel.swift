@@ -11,6 +11,7 @@ class RecipeListViewModel {
     var suggestions: [RecipeSuggestion] = []
     var suggestionError: AIError?
     var selectedSection: MenuSection = .all
+    var selectedRecipe: Recipe?
     var justImportedRecipe: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext
@@ -46,6 +47,11 @@ class RecipeListViewModel {
     func updateRecipes(_ recipes: [Recipe]) {
         self.recipes = recipes
         updateMenuState()
+    }
+
+    func autoSelectFirstRecipeIfNeeded(isRegularSizeClass: Bool) {
+        guard isRegularSizeClass, selectedRecipe == nil else { return }
+        selectedRecipe = displayedRecipes.first
     }
     
     
