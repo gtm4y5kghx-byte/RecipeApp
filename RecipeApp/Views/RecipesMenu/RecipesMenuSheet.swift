@@ -1,39 +1,34 @@
 import SwiftUI
 
 struct RecipesMenuSheet: View {
-
     @Environment(\.dismiss) private var dismiss
 
     let filterOptions: [MenuOption]
     let tagOptions: [MenuOption]
+    var selectedOptionID: String? = nil
     let onSelectOption: (String) -> Void
     let onNewRecipe: () -> Void
     let onSettings: () -> Void
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                DSSection {
-                    VStack(alignment: .leading, spacing: 0) {
-                        actionSection
-
-                        DSDivider(spacing: .standard)
-
-                        filtersSection
-
-                        if !tagOptions.isEmpty {
-                            DSDivider(spacing: .standard)
-                            tagsSection
-                        }
-
-                        DSDivider(spacing: .standard)
-
-                        settingsSection
-                    }
-                    .padding(.vertical, Theme.Spacing.md)
+            RecipesMenuList(
+                filterOptions: filterOptions,
+                tagOptions: tagOptions,
+                selectedOptionID: selectedOptionID,
+                onSelectOption: { id in
+                    dismiss()
+                    onSelectOption(id)
+                },
+                onNewRecipe: {
+                    dismiss()
+                    onNewRecipe()
+                },
+                onSettings: {
+                    dismiss()
+                    onSettings()
                 }
-            }
-            .background(Theme.Colors.background)
+            )
             .navigationTitle("Recipes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -46,74 +41,6 @@ struct RecipesMenuSheet: View {
                     .buttonStyle(PlainButtonStyle())
                     .accessibilityIdentifier("recipes-menu-close-button")
                 }
-            }
-        }
-    }
-
-    private var actionSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-            DSLabel("ACTIONS", style: .caption1, color: .secondary)
-                .padding(.bottom, Theme.Spacing.xs)
-
-            DSButton(
-                title: "New Recipe",
-                style: .primary,
-                icon: "plus"
-            ) {
-                dismiss()
-                onNewRecipe()
-            }
-            .accessibilityIdentifier("new-recipe-button")
-        }
-    }
-
-    private var filtersSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            DSLabel("FILTERS", style: .caption1, color: .secondary)
-                .padding(.bottom, Theme.Spacing.xs)
-
-            ForEach(filterOptions) { option in
-                FilterRow(
-                    title: option.title,
-                    icon: option.icon,
-                    count: option.count,
-                    accessibilityID: "filter-\(option.id)-row"
-                ) {
-                    dismiss()
-                    onSelectOption(option.id)
-                }
-            }
-        }
-    }
-
-    private var tagsSection: some View {
-        LazyVStack(alignment: .leading, spacing: 0) {
-            DSLabel("TAGS", style: .caption1, color: .secondary)
-                .padding(.bottom, Theme.Spacing.xs)
-
-            ForEach(tagOptions) { option in
-                FilterRow(
-                    title: option.title,
-                    icon: option.icon,
-                    count: option.count,
-                    accessibilityID: "tag-\(option.id)-row"
-                ) {
-                    dismiss()
-                    onSelectOption(option.id)
-                }
-            }
-        }
-    }
-
-    private var settingsSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            FilterRow(
-                title: "Settings",
-                icon: "gear",
-                accessibilityID: "settings-row"
-            ) {
-                dismiss()
-                onSettings()
             }
         }
     }
@@ -130,6 +57,7 @@ struct RecipesMenuSheet: View {
             MenuOption(id: "italian", title: "Italian", icon: "tag", count: 12),
             MenuOption(id: "quick", title: "Quick", icon: "tag", count: 8)
         ],
+        selectedOptionID: "all",
         onSelectOption: { _ in },
         onNewRecipe: {},
         onSettings: {}

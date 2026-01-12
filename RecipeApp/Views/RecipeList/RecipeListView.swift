@@ -4,6 +4,7 @@ import SwiftData
 struct RecipeListView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var menuState: AppMenuState?
 
@@ -14,6 +15,7 @@ struct RecipeListView: View {
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
     @State private var scrollToTopTrigger = 0
+    @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
     @State private var error: Error?
 
     init(menuState: AppMenuState? = nil, previewViewModel: RecipeListViewModel? = nil) {
@@ -22,65 +24,14 @@ struct RecipeListView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                if showImportBanner {
-                    RecipeImportBanner {
-                        importedRecipe = recipes.first
-                    }
-                }
-
-                if let _ = viewModel { recipeContent } else {
-                    DSLoadingSpinner(message: "Loading recipes...")
-                }
-
-                ScopedSearchBar(
-                    searchText: $searchText,
-                    searchScope: $searchScope,
-                    onSubmit: {
-                        viewModel?.performSearch(query: searchText, scope: searchScope)
-                    }
-                )
-            }
-            .background(Theme.Colors.background)
-            .navigationTitle(viewModel?.filterTitle ?? "Recipes")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                if viewModel?.hasActiveFilter == true {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            viewModel?.selectedSection = .all
-                        } label: {
-                            HStack(spacing: Theme.Spacing.xs) {
-                                Image(systemName: "chevron.left")
-                                Text("Recipes")
-                            }
-                        }
-                        .accessibilityIdentifier("clear-filter-button")
-                    }
-                }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        menuState?.showingMenu = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                    }
-                    .accessibilityIdentifier("recipe-list-menu-button")
-                }
-
-                #if DEBUG
-                ToolbarItem(placement: .topBarLeading) {
-                    devToolsMenu
-                }
-                #endif
-            }
-            .navigationDestination(item: $selectedRecipe) { recipe in
-                RecipeDetailView(recipe: recipe)
+        Group {
+            if horizontalSizeClass == .regular {
+                iPadLayout
+            } else {
+                iPhoneLayout
             }
         }
         .sheet(item: $importedRecipe) { recipe in
-            // TODO: RecipeDetailView
             Text("Recipe Detail View Coming Soon")
         }
         .onChange(of: recipes) { oldValue, newValue in
@@ -100,6 +51,119 @@ struct RecipeListView: View {
         }
     }
     
+    // MARK: - Shared Content
+
+    private var recipeListColumn: some View {
+        VStack(spacing: 0) {
+            if showImportBanner {
+                RecipeImportBanner {
+                    importedRecipe = recipes.first
+                }
+            }
+
+            if let _ = viewModel { recipeContent } else {
+                DSLoadingSpinner(message: "Loading recipes...")
+            }
+
+            ScopedSearchBar(
+                searchText: $searchText,
+                searchScope: $searchScope,
+                onSubmit: {
+                    viewModel?.performSearch(query: searchText, scope: searchScope)
+                }
+            )
+        }
+        .background(Theme.Colors.background)
+    }
+
+    // MARK: - iPhone Layout
+
+    private var iPhoneLayout: some View {
+        NavigationStack {
+            recipeListColumn
+                .navigationTitle(viewModel?.filterTitle ?? "Recipes")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    if viewModel?.hasActiveFilter == true {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                viewModel?.selectedSection = .all
+                            } label: {
+                                HStack(spacing: Theme.Spacing.xs) {
+                                    Image(systemName: "chevron.left")
+                                    Text("Recipes")
+                                }
+                            }
+                            .accessibilityIdentifier("clear-filter-button")
+                        }
+                    }
+
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            menuState?.showingMenu = true
+                        } label: {
+                            Image(systemName: "line.3.horizontal")
+                        }
+                        .accessibilityIdentifier("recipe-list-menu-button")
+                    }
+
+                    #if DEBUG
+                    ToolbarItem(placement: .topBarLeading) {
+                        devToolsMenu
+                    }
+                    #endif
+                }
+                .navigationDestination(item: $selectedRecipe) { recipe in
+                    RecipeDetailView(recipe: recipe)
+                }
+        }
+    }
+
+    // MARK: - iPad Layout
+
+    private var iPadLayout: some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            RecipesMenuList(
+                filterOptions: viewModel?.filterMenuOptions ?? [],
+                tagOptions: viewModel?.tagMenuOptions ?? [],
+                selectedOptionID: viewModel?.selectedSection.id,
+                onSelectOption: { id in
+                    viewModel?.selectMenuOption(id)
+                },
+                onNewRecipe: {
+                    menuState?.newRecipe()
+                },
+                onSettings: {
+                    menuState?.settings()
+                }
+            )
+            .navigationTitle("Recipes")
+        } detail: {
+            HStack(spacing: 0) {
+                recipeListColumn
+                    .frame(width: 350)
+                    #if DEBUG
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            devToolsMenu
+                        }
+                    }
+                    #endif
+
+                Divider()
+
+                if let recipe = selectedRecipe {
+                    RecipeDetailView(recipe: recipe)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+
     @ViewBuilder
     private var recipeContent: some View {
         if let viewModel = viewModel {
