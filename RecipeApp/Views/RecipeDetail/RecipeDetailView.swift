@@ -4,7 +4,8 @@ import SwiftData
 struct RecipeDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     @State private var viewModel: RecipeDetailViewModel?
     @State private var showingEditSheet = false
     @State private var showingCookingMode = false
@@ -140,10 +141,15 @@ struct RecipeDetailView: View {
                     modelContext: modelContext
                 )
             }
-            
+
             if UserDefaults.standard.bool(forKey: "keepScreenOnWhileViewingRecipes") {
                 UIApplication.shared.isIdleTimerDisabled = true
             }
+        }
+        .onChange(of: recipe) { _, newRecipe in
+            // Only needed on iPad where detail view persists across selections
+            guard horizontalSizeClass == .regular else { return }
+            viewModel?.updateRecipe(newRecipe)
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false

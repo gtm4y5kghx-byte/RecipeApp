@@ -5,9 +5,9 @@ struct RecipeListView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
+    
     var menuState: AppMenuState?
-
+    
     @State private var viewModel: RecipeListViewModel?
     @State private var showImportBanner = false
     @State private var importedRecipe: Recipe?
@@ -16,7 +16,7 @@ struct RecipeListView: View {
     @State private var scrollToTopTrigger = 0
     @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
     @State private var error: Error?
-
+    
     init(menuState: AppMenuState? = nil, previewViewModel: RecipeListViewModel? = nil) {
         self.menuState = menuState
         _viewModel = State(initialValue: previewViewModel)
@@ -61,9 +61,9 @@ struct RecipeListView: View {
             set: { viewModel?.selectedRecipe = $0 }
         )
     }
-
+    
     // MARK: - Shared Content
-
+    
     private var recipeListColumn: some View {
         VStack(spacing: 0) {
             if showImportBanner {
@@ -71,11 +71,11 @@ struct RecipeListView: View {
                     importedRecipe = recipes.first
                 }
             }
-
+            
             if let _ = viewModel { recipeContent } else {
                 DSLoadingSpinner(message: "Loading recipes...")
             }
-
+            
             ScopedSearchBar(
                 searchText: $searchText,
                 searchScope: $searchScope,
@@ -86,9 +86,9 @@ struct RecipeListView: View {
         }
         .background(Theme.Colors.background)
     }
-
+    
     // MARK: - iPhone Layout
-
+    
     private var iPhoneLayout: some View {
         NavigationStack {
             recipeListColumn
@@ -108,7 +108,7 @@ struct RecipeListView: View {
                             .accessibilityIdentifier("clear-filter-button")
                         }
                     }
-
+                    
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             menuState?.showingMenu = true
@@ -117,21 +117,21 @@ struct RecipeListView: View {
                         }
                         .accessibilityIdentifier("recipe-list-menu-button")
                     }
-
-                    #if DEBUG
+                    
+#if DEBUG
                     ToolbarItem(placement: .topBarLeading) {
                         devToolsMenu
                     }
-                    #endif
+#endif
                 }
                 .navigationDestination(item: selectedRecipeBinding) { recipe in
                     RecipeDetailView(recipe: recipe)
                 }
         }
     }
-
+    
     // MARK: - iPad Layout
-
+    
     private var iPadLayout: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             RecipesMenuList(
@@ -153,28 +153,22 @@ struct RecipeListView: View {
             HStack(spacing: 0) {
                 recipeListColumn
                     .frame(width: 350)
-                    #if DEBUG
+#if DEBUG
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             devToolsMenu
                         }
                     }
-                    #endif
-
+#endif
+                
                 Divider()
-
-                if let recipe = viewModel?.selectedRecipe {
-                    RecipeDetailView(recipe: recipe)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
+                
+                RecipeDetailColumn(recipe: viewModel?.selectedRecipe)
             }
         }
         .navigationSplitViewStyle(.balanced)
     }
-
+    
     @ViewBuilder
     private var recipeContent: some View {
         if let viewModel = viewModel {
@@ -187,6 +181,7 @@ struct RecipeListView: View {
                 suggestionReasons: viewModel.suggestionReasons,
                 scrollToTopTrigger: scrollToTopTrigger,
                 onRecipeTap: { recipe in
+                    print("[DEBUG] onRecipeTap called for: \(recipe.title)")
                     viewModel.selectedRecipe = recipe
                 },
                 onFavoriteTap: { recipe in
@@ -215,7 +210,7 @@ struct RecipeListView: View {
                 menuState: menuState
             )
         }
-
+        
         viewModel?.handlePendingImport()
         
         if viewModel?.justImportedRecipe == true {
@@ -234,13 +229,13 @@ struct RecipeListView: View {
         Task {
             await viewModel?.loadSuggestionsIfEligible()
         }
-
+        
         viewModel?.autoSelectFirstRecipeIfNeeded(
             isRegularSizeClass: horizontalSizeClass == .regular
         )
     }
-
-    #if DEBUG
+    
+#if DEBUG
     private var devToolsMenu: some View {
         Menu {
             Button("Load Suggestions") {
@@ -253,7 +248,24 @@ struct RecipeListView: View {
             Label("Dev Tools", systemImage: "hammer.fill")
         }
     }
-    #endif
+#endif
+}
+
+// MARK: - Detail Column
+
+private struct RecipeDetailColumn: View {
+    let recipe: Recipe?
+
+    var body: some View {
+        let _ = print("[DEBUG] RecipeDetailColumn body called, recipe: \(recipe?.title ?? "nil")")
+        if let recipe = recipe {
+            RecipeDetailView(recipe: recipe)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
 }
 
 #Preview {

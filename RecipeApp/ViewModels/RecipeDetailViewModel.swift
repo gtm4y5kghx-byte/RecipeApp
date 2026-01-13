@@ -11,15 +11,18 @@ class RecipeDetailViewModel {
         _recipe
     }
     
-    private let _recipe: Recipe
+    private var _recipe: Recipe
     private let modelContext: ModelContext
     
     init(recipe: Recipe, modelContext: ModelContext) {
         self._recipe = recipe
         self.modelContext = modelContext
     }
-    
-    
+
+    func updateRecipe(_ recipe: Recipe) {
+        self._recipe = recipe
+    }
+
     func toggleFavorite() {
         recipe.isFavorite.toggle()
         do {
