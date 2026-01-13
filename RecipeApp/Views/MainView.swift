@@ -1,11 +1,12 @@
 import SwiftUI
 import SwiftData
 
-struct MainTabView: View {
+struct MainView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var selectedTab: Tab = .recipes
     @State private var menuState = AppMenuState()
+    @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
 
     enum Tab: Hashable {
         case recipes
@@ -92,9 +93,26 @@ struct MainTabView: View {
     // MARK: - iPad Layout
 
     private var iPadLayout: some View {
-        // Phase 1: Just show RecipeListView for now (it has its own NavigationSplitView)
-        // Next step: Move the NavigationSplitView here and have RecipeListView return content only
-        RecipeListView(menuState: menuState)
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            RecipesMenuList(
+                filterOptions: menuState.filterOptions,
+                tagOptions: menuState.tagOptions,
+                selectedOptionID: nil, // TODO: Track selected filter
+                onSelectOption: { optionId in
+                    menuState.selectOption(optionId)
+                },
+                onNewRecipe: {
+                    menuState.newRecipe()
+                },
+                onSettings: {
+                    menuState.settings()
+                }
+            )
+            .navigationTitle("Recipes")
+        } detail: {
+            RecipeListView(menuState: menuState)
+        }
+        .navigationSplitViewStyle(.balanced)
     }
 }
 
@@ -104,17 +122,17 @@ struct MainTabView: View {
 
     SampleData.loadSampleRecipes(into: container.mainContext)
 
-    return MainTabView()
+    return MainView()
         .modelContainer(container)
 }
 
-#Preview("Dark: Main Tab View") {
+#Preview("Dark: Main View") {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Recipe.self, MealPlanEntry.self, ShoppingList.self, configurations: config)
 
     SampleData.loadSampleRecipes(into: container.mainContext)
 
-    return MainTabView()
+    return MainView()
         .modelContainer(container)
         .preferredColorScheme(.dark)
 }

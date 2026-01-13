@@ -14,7 +14,6 @@ struct RecipeListView: View {
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
     @State private var scrollToTopTrigger = 0
-    @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
     @State private var error: Error?
     
     init(menuState: AppMenuState? = nil, previewViewModel: RecipeListViewModel? = nil) {
@@ -131,42 +130,23 @@ struct RecipeListView: View {
     }
     
     // MARK: - iPad Layout
-    
+
     private var iPadLayout: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
-            RecipesMenuList(
-                filterOptions: viewModel?.filterMenuOptions ?? [],
-                tagOptions: viewModel?.tagMenuOptions ?? [],
-                selectedOptionID: viewModel?.selectedSection.id,
-                onSelectOption: { id in
-                    viewModel?.selectMenuOption(id)
-                },
-                onNewRecipe: {
-                    menuState?.newRecipe()
-                },
-                onSettings: {
-                    menuState?.settings()
-                }
-            )
-            .navigationTitle("Recipes")
-        } detail: {
-            HStack(spacing: 0) {
-                recipeListColumn
-                    .frame(width: 350)
+        HStack(spacing: 0) {
+            recipeListColumn
+                .frame(width: 350)
 #if DEBUG
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            devToolsMenu
-                        }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        devToolsMenu
                     }
+                }
 #endif
-                
-                Divider()
-                
-                RecipeDetailColumn(recipe: viewModel?.selectedRecipe)
-            }
+
+            Divider()
+
+            RecipeDetailColumn(recipe: viewModel?.selectedRecipe)
         }
-        .navigationSplitViewStyle(.balanced)
     }
     
     @ViewBuilder
