@@ -22,6 +22,15 @@ struct MainView: View {
             case .shoppingList: return String(localized: "Shopping List")
             }
         }
+
+        var icon: String {
+            switch self {
+            case .recipes: return "book"
+            case .discover: return "sparkles"
+            case .mealPlan: return "calendar"
+            case .shoppingList: return "cart"
+            }
+        }
     }
 
     var body: some View {
@@ -95,11 +104,17 @@ struct MainView: View {
     private var iPadLayout: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             RecipesMenuList(
+                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                selectedAppSection: selectedTab,
+                onSelectAppSection: { tab in
+                    selectedTab = tab
+                },
                 filterOptions: menuState.filterOptions,
                 tagOptions: menuState.tagOptions,
                 selectedOptionID: nil, // TODO: Track selected filter
                 onSelectOption: { optionId in
                     menuState.selectOption(optionId)
+                    selectedTab = .recipes
                 },
                 onNewRecipe: {
                     menuState.newRecipe()
@@ -108,9 +123,18 @@ struct MainView: View {
                     menuState.settings()
                 }
             )
-            .navigationTitle("Recipes")
+            .navigationTitle(selectedTab.title)
         } detail: {
-            RecipeListView(menuState: menuState)
+            switch selectedTab {
+            case .recipes:
+                RecipeListView(menuState: menuState)
+            case .discover:
+                DiscoverView(menuState: menuState)
+            case .mealPlan:
+                MealPlanView()
+            case .shoppingList:
+                ShoppingListView()
+            }
         }
         .navigationSplitViewStyle(.balanced)
     }

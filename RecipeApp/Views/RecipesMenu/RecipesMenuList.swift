@@ -2,15 +2,34 @@ import SwiftUI
 
 /// Shared menu list used by both iPad sidebar and iPhone sheet
 struct RecipesMenuList: View {
+    // Optional app sections (iPad only)
+    var appSections: [MainView.Tab]? = nil
+    var selectedAppSection: MainView.Tab? = nil
+    var onSelectAppSection: ((MainView.Tab) -> Void)? = nil
+    
     let filterOptions: [MenuOption]
     let tagOptions: [MenuOption]
     var selectedOptionID: String? = nil
     let onSelectOption: (String) -> Void
     let onNewRecipe: () -> Void
     let onSettings: () -> Void
-
+    
     var body: some View {
         List {
+            if let appSections = appSections {
+                Section("Sections") {
+                    ForEach(appSections, id: \.self) { tab in
+                        Button {
+                            onSelectAppSection?(tab)
+                        } label: {
+                            Label(tab.title, systemImage: tab.icon)
+                        }
+                        .listRowBackground(selectedAppSection == tab ? Color.accentColor.opacity(0.15) : nil)
+                        .accessibilityIdentifier("menu-section-\(tab.title.lowercased().replacingOccurrences(of: " ", with: "-"))")
+                    }
+                }
+            }
+            
             Section("Actions") {
                 Button {
                     onNewRecipe()
@@ -19,7 +38,7 @@ struct RecipesMenuList: View {
                 }
                 .accessibilityIdentifier("menu-new-recipe-button")
             }
-
+            
             Section("Filters") {
                 ForEach(filterOptions) { option in
                     Button {
@@ -42,7 +61,7 @@ struct RecipesMenuList: View {
                     .accessibilityIdentifier("menu-filter-\(option.id)")
                 }
             }
-
+            
             if !tagOptions.isEmpty {
                 Section("Tags") {
                     ForEach(tagOptions) { option in
@@ -67,7 +86,7 @@ struct RecipesMenuList: View {
                     }
                 }
             }
-
+            
             Section {
                 Button {
                     onSettings()
