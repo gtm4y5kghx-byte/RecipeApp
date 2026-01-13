@@ -2,9 +2,11 @@ import SwiftUI
 import SwiftData
 
 struct MainTabView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     @State private var selectedTab: Tab = .recipes
     @State private var menuState = AppMenuState()
-    
+
     enum Tab: Hashable {
         case recipes
         case discover
@@ -20,8 +22,26 @@ struct MainTabView: View {
             }
         }
     }
-    
+
     var body: some View {
+        Group {
+            if horizontalSizeClass == .regular {
+                iPadLayout
+            } else {
+                iPhoneLayout
+            }
+        }
+        .sheet(isPresented: $menuState.showingNewRecipe) {
+            RecipeFormView(recipe: nil)
+        }
+        .sheet(isPresented: $menuState.showingSettings) {
+            SettingsView()
+        }
+    }
+
+    // MARK: - iPhone Layout
+
+    private var iPhoneLayout: some View {
         TabView(selection: $selectedTab) {
             RecipeListView(menuState: menuState)
                 .tag(Tab.recipes)
@@ -36,12 +56,14 @@ struct MainTabView: View {
                     Label("Discover", systemImage: "sparkles")
                 }
                 .accessibilityIdentifier("tab-discover")
+
             MealPlanView()
                 .tag(Tab.mealPlan)
                 .tabItem {
                     Label("Meal Plan", systemImage: "calendar")
                 }
                 .accessibilityIdentifier("tab-meal-plan")
+
             ShoppingListView()
                 .tag(Tab.shoppingList)
                 .tabItem {
@@ -65,12 +87,14 @@ struct MainTabView: View {
                 }
             )
         }
-        .sheet(isPresented: $menuState.showingNewRecipe) {
-            RecipeFormView(recipe: nil)
-        }
-        .sheet(isPresented: $menuState.showingSettings) {
-            SettingsView()
-        }
+    }
+
+    // MARK: - iPad Layout
+
+    private var iPadLayout: some View {
+        // Phase 1: Just show RecipeListView for now (it has its own NavigationSplitView)
+        // Next step: Move the NavigationSplitView here and have RecipeListView return content only
+        RecipeListView(menuState: menuState)
     }
 }
 
