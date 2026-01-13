@@ -11,11 +11,7 @@ class RecipeListViewModel {
     var suggestions: [RecipeSuggestion] = []
     var suggestionError: AIError?
     var selectedSection: MenuSection = .all
-    var selectedRecipe: Recipe? {
-        didSet {
-            print("[DEBUG] ViewModel.selectedRecipe changed to: \(selectedRecipe?.title ?? "nil")")
-        }
-    }
+    var selectedRecipe: Recipe?
     var justImportedRecipe: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext

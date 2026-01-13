@@ -181,7 +181,6 @@ struct RecipeListView: View {
                 suggestionReasons: viewModel.suggestionReasons,
                 scrollToTopTrigger: scrollToTopTrigger,
                 onRecipeTap: { recipe in
-                    print("[DEBUG] onRecipeTap called for: \(recipe.title)")
                     viewModel.selectedRecipe = recipe
                 },
                 onFavoriteTap: { recipe in
@@ -257,7 +256,6 @@ private struct RecipeDetailColumn: View {
     let recipe: Recipe?
 
     var body: some View {
-        let _ = print("[DEBUG] RecipeDetailColumn body called, recipe: \(recipe?.title ?? "nil")")
         if let recipe = recipe {
             RecipeDetailView(recipe: recipe)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
