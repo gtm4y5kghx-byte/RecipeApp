@@ -50,7 +50,7 @@ class RecipeListViewModel {
     }
 
     func autoSelectFirstRecipeIfNeeded(isRegularSizeClass: Bool) {
-        guard isRegularSizeClass, selectedRecipe == nil else { return }
+        guard isRegularSizeClass else { return }
         selectedRecipe = displayedRecipes.first
     }
     
