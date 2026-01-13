@@ -3,15 +3,38 @@ import SwiftData
 
 struct MealPlanView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Query private var recipes: [Recipe]
     @State private var viewModel: MealPlanViewModel?
-    
+
     @State private var selectedDate: Date?
     @State private var selectedMealType: MealType?
     @State private var selectedRecipe: Recipe?
     @State private var showingGeneratePlan = false
-    
+
     var body: some View {
+        Group {
+            if horizontalSizeClass == .regular {
+                iPadLayout
+            } else {
+                iPhoneLayout
+            }
+        }
+        .onAppear {
+            if viewModel == nil {
+                viewModel = MealPlanViewModel(modelContext: modelContext)
+                viewModel?.loadEntries()
+            }
+            autoSelectFirstEntryIfNeeded()
+        }
+        .onChange(of: viewModel?.entries) { _, _ in
+            autoSelectFirstEntryIfNeeded()
+        }
+    }
+
+    // MARK: - iPhone Layout
+
+    private var iPhoneLayout: some View {
         NavigationStack {
             Group {
                 if let viewModel = viewModel {
@@ -26,12 +49,32 @@ struct MealPlanView: View {
                 RecipeDetailView(recipe: recipe)
             }
         }
-        .onAppear {
-            if viewModel == nil {
-                viewModel = MealPlanViewModel(modelContext: modelContext)
-                viewModel?.loadEntries()
+    }
+
+    // MARK: - iPad Layout
+
+    private var iPadLayout: some View {
+        HStack(spacing: 0) {
+            Group {
+                if let viewModel = viewModel {
+                    calendarContent(viewModel: viewModel)
+                } else {
+                    DSLoadingSpinner(message: "Loading...")
+                }
             }
+            .frame(width: 350)
+
+            Divider()
+
+            MealPlanDetailColumn(recipe: selectedRecipe)
         }
+    }
+
+    private func autoSelectFirstEntryIfNeeded() {
+        guard horizontalSizeClass == .regular, selectedRecipe == nil else { return }
+        // Select recipe from first entry by date
+        let sortedEntries = viewModel?.entries.sorted { $0.date < $1.date }
+        selectedRecipe = sortedEntries?.first?.recipe
     }
     
     private var showingRecipePicker: Binding<Bool> {
@@ -131,6 +174,22 @@ struct MealPlanView: View {
                 Label("Add", systemImage: "plus")
                     .font(Theme.Typography.subheadline)
             }
+        }
+    }
+}
+
+// MARK: - Detail Column
+
+private struct MealPlanDetailColumn: View {
+    let recipe: Recipe?
+
+    var body: some View {
+        if let recipe = recipe {
+            RecipeDetailView(recipe: recipe)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            ContentUnavailableView("Select a Meal", systemImage: "fork.knife")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
