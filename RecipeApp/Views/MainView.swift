@@ -108,6 +108,7 @@ struct MainView: View {
                 selectedAppSection: selectedTab,
                 onSelectAppSection: { tab in
                     selectedTab = tab
+                    columnVisibility = .detailOnly
                 },
                 filterOptions: menuState.filterOptions,
                 tagOptions: menuState.tagOptions,
@@ -115,6 +116,7 @@ struct MainView: View {
                 onSelectOption: { optionId in
                     menuState.selectOption(optionId)
                     selectedTab = .recipes
+                    columnVisibility = .detailOnly
                 },
                 onNewRecipe: {
                     menuState.newRecipe()
