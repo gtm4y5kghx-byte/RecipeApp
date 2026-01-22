@@ -7,7 +7,8 @@ struct RecipeListView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     var menuState: AppMenuState?
-    
+    var selectedRecipe: Binding<Recipe?>?
+
     @State private var viewModel: RecipeListViewModel?
     @State private var showImportBanner = false
     @State private var importedRecipe: Recipe?
@@ -16,8 +17,9 @@ struct RecipeListView: View {
     @State private var scrollToTopTrigger = 0
     @State private var error: Error?
     
-    init(menuState: AppMenuState? = nil, previewViewModel: RecipeListViewModel? = nil) {
+    init(menuState: AppMenuState? = nil, selectedRecipe: Binding<Recipe?>? = nil, previewViewModel: RecipeListViewModel? = nil) {
         self.menuState = menuState
+        self.selectedRecipe = selectedRecipe
         _viewModel = State(initialValue: previewViewModel)
     }
     
@@ -123,7 +125,7 @@ struct RecipeListView: View {
                     }
 #endif
                 }
-                .navigationDestination(item: selectedRecipeBinding) { recipe in
+                .navigationDestination(for: Recipe.self) { recipe in
                     RecipeDetailView(recipe: recipe)
                 }
         }
@@ -132,21 +134,33 @@ struct RecipeListView: View {
     // MARK: - iPad Layout
 
     private var iPadLayout: some View {
-        HStack(spacing: 0) {
-            recipeListColumn
-                .frame(width: 350)
-#if DEBUG
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        devToolsMenu
+        recipeContent
+            .navigationTitle(viewModel?.filterTitle ?? "Recipes")
+            .navigationBarTitleDisplayMode(.large)
+            .safeAreaInset(edge: .bottom) {
+                ScopedSearchBar(
+                    searchText: $searchText,
+                    searchScope: $searchScope,
+                    onSubmit: {
+                        viewModel?.performSearch(query: searchText, scope: searchScope)
+                    }
+                )
+            }
+            .overlay(alignment: .top) {
+                if showImportBanner {
+                    RecipeImportBanner {
+                        importedRecipe = recipes.first
                     }
                 }
+            }
+            .background(Theme.Colors.background)
+#if DEBUG
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    devToolsMenu
+                }
+            }
 #endif
-
-            Divider()
-
-            RecipeDetailColumn(recipe: viewModel?.selectedRecipe)
-        }
     }
     
     @ViewBuilder
@@ -160,6 +174,7 @@ struct RecipeListView: View {
                 selectedSectionIcon: viewModel.filterIcon,
                 suggestionReasons: viewModel.suggestionReasons,
                 scrollToTopTrigger: scrollToTopTrigger,
+                selectedRecipe: selectedRecipe,
                 onRecipeTap: { recipe in
                     viewModel.selectedRecipe = recipe
                 },

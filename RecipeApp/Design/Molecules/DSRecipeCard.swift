@@ -139,9 +139,6 @@ struct DSRecipeCard: View {
                 .stroke(Theme.Colors.border, lineWidth: 1)
         )
         .contentShape(Rectangle())
-        .onTapGesture {
-            onTap()
-        }
         .accessibilityIdentifier(accessibilityID)
     }
 }

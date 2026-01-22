@@ -7,6 +7,7 @@ struct MainView: View {
     @State private var selectedTab: Tab = .recipes
     @State private var menuState = AppMenuState()
     @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
+    @State private var selectedRecipe: Recipe?
 
     enum Tab: Hashable {
         case recipes
@@ -126,10 +127,22 @@ struct MainView: View {
                 }
             )
             .navigationTitle(selectedTab.title)
+        } content: {
+            switch selectedTab {
+            case .recipes:
+                RecipeListView(menuState: menuState, selectedRecipe: $selectedRecipe)
+            case .discover, .mealPlan, .shoppingList:
+                // These tabs don't use three-column layout
+                EmptyView()
+            }
         } detail: {
             switch selectedTab {
             case .recipes:
-                RecipeListView(menuState: menuState)
+                if let recipe = selectedRecipe {
+                    RecipeDetailView(recipe: recipe)
+                } else {
+                    ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
+                }
             case .discover:
                 DiscoverView(menuState: menuState)
             case .mealPlan:
