@@ -15,7 +15,10 @@ struct RecipeGrid: View {
         ScrollViewReader { proxy in
             List(selection: selectedRecipe) {
                 ForEach(recipes) { recipe in
-                    NavigationLink(value: recipe) {
+                    ZStack(alignment: .leading) {
+                        NavigationLink(value: recipe) { EmptyView() }
+                            .opacity(0)
+
                         DSRecipeCard(
                             title: recipe.title,
                             cuisine: recipe.cuisine,
@@ -37,7 +40,6 @@ struct RecipeGrid: View {
                             accessibilityID: "recipe-card-\(recipe.id)"
                         )
                     }
-                    .buttonStyle(.plain)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: Theme.Spacing.sm, leading: Theme.Spacing.md, bottom: Theme.Spacing.sm, trailing: Theme.Spacing.md))
