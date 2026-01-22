@@ -7,7 +7,6 @@ struct RecipeGrid: View {
     let suggestionReasons: [UUID: String]
     let scrollToTopTrigger: Int
     var selectedRecipe: Binding<Recipe?>?
-    let onRecipeTap: (Recipe) -> Void
     let onFavoriteTap: (Recipe) -> Void
     let onDeleteTap: (Recipe) -> Void
 
@@ -27,9 +26,6 @@ struct RecipeGrid: View {
                             servings: recipe.servings,
                             isFavorite: recipe.isFavorite,
                             tags: recipe.userTags,
-                            onTap: {
-                                onRecipeTap(recipe)
-                            },
                             onFavoriteTap: {
                                 onFavoriteTap(recipe)
                             },

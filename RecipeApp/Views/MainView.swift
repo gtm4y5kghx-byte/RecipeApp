@@ -6,7 +6,7 @@ struct MainView: View {
 
     @State private var selectedTab: Tab = .recipes
     @State private var menuState = AppMenuState()
-    @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
+    @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
     @State private var selectedRecipe: Recipe?
 
     enum Tab: Hashable {

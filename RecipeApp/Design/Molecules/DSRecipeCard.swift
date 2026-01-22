@@ -13,7 +13,6 @@ struct DSRecipeCard: View {
     let servings: Int?
     let isFavorite: Bool
     let tags: [String]
-    let onTap: () -> Void
     let onFavoriteTap: () -> Void
     let suggestionReason: String?
     let onDeleteTap: () -> Void
@@ -38,7 +37,6 @@ struct DSRecipeCard: View {
         servings: Int? = nil,
         isFavorite: Bool = false,
         tags: [String] = [],
-        onTap: @escaping () -> Void,
         onFavoriteTap: @escaping () -> Void,
         suggestionReason: String? = nil,
         onDeleteTap: @escaping () -> Void,
@@ -51,7 +49,6 @@ struct DSRecipeCard: View {
         self.servings = servings
         self.isFavorite = isFavorite
         self.tags = tags
-        self.onTap = onTap
         self.onFavoriteTap = onFavoriteTap
         self.suggestionReason = suggestionReason
         self.onDeleteTap = onDeleteTap
@@ -155,7 +152,6 @@ struct DSRecipeCard: View {
             servings: 4,
             isFavorite: false,
             tags: ["Pasta", "Quick", "Dinner"],
-            onTap: {},
             onFavoriteTap: {},
             onDeleteTap: {},
             accessibilityID: "preview-card-1"
@@ -169,7 +165,6 @@ struct DSRecipeCard: View {
             servings: 6,
             isFavorite: true,
             tags: ["Spicy", "Comfort Food", "Main Course"],
-            onTap: {},
             onFavoriteTap: {},
             onDeleteTap: {},
             accessibilityID: "preview-card-2"
@@ -184,7 +179,6 @@ struct DSRecipeCard: View {
         DSRecipeCard(
             title: "Simple Pasta",
             isFavorite: false,
-            onTap: {},
             onFavoriteTap: {},
             onDeleteTap: {},
             accessibilityID: "preview-variation-1"
@@ -196,7 +190,6 @@ struct DSRecipeCard: View {
             cookTime: 10,
             isFavorite: false,
             tags: ["Breakfast", "Quick", "Easy", "Protein", "Vegetarian"],
-            onTap: {},
             onFavoriteTap: {},
             onDeleteTap: {},
             accessibilityID: "preview-variation-2"
@@ -210,7 +203,6 @@ struct DSRecipeCard: View {
             servings: 8,
             isFavorite: true,
             tags: ["Complex"],
-            onTap: {},
             onFavoriteTap: {},
             onDeleteTap: {},
             accessibilityID: "preview-variation-3"
@@ -236,7 +228,6 @@ struct DSRecipeCard: View {
                     servings: 4,
                     isFavorite: index % 3 == 0,
                     tags: index % 2 == 0 ? ["Pasta", "Quick"] : ["Spicy", "Comfort Food"],
-                            onTap: {},
                     onFavoriteTap: {},
                     onDeleteTap: {},
                     accessibilityID: "preview-list-\(index)"
@@ -252,7 +243,7 @@ struct DSRecipeCard: View {
     @Previewable @State var isFavorite = false
 
     VStack(spacing: Theme.Spacing.lg) {
-        DSLabel("Tap card to view, tap heart to favorite", style: .caption1, color: .secondary)
+        DSLabel("Tap heart to favorite", style: .caption1, color: .secondary)
             .multilineTextAlignment(.center)
 
         DSRecipeCard(
@@ -263,9 +254,6 @@ struct DSRecipeCard: View {
             servings: 4,
             isFavorite: isFavorite,
             tags: ["Pasta", "Quick", "Dinner"],
-            onTap: {
-                print("Card tapped!")
-            },
             onFavoriteTap: {
                 isFavorite.toggle()
             },
@@ -304,7 +292,6 @@ struct DSRecipeCard: View {
                         servings: 4,
                         isFavorite: index % 2 == 0,
                         tags: ["Quick"],
-                                    onTap: {},
                         onFavoriteTap: {},
                         onDeleteTap: {},
                         accessibilityID: "preview-grid-\(index)"
@@ -327,7 +314,6 @@ struct DSRecipeCard: View {
             servings: 4,
             isFavorite: false,
             tags: ["Pasta", "Quick", "Dinner"],
-            onTap: {},
             onFavoriteTap: {},
             suggestionReason: "You haven't cooked this in a while",
             onDeleteTap: {},
@@ -342,7 +328,6 @@ struct DSRecipeCard: View {
             servings: 4,
             isFavorite: false,
             tags: ["Easy"],
-            onTap: {},
             onFavoriteTap: {},
             onDeleteTap: {},
             accessibilityID: "preview-suggestion-2"
@@ -364,7 +349,6 @@ struct DSRecipeCard: View {
             servings: 4,
             isFavorite: true,
             tags: ["Spicy", "Dinner"],
-            onTap: {},
             onFavoriteTap: {},
             onDeleteTap: {},
             accessibilityID: "dark-preview-1"
@@ -378,7 +362,6 @@ struct DSRecipeCard: View {
             servings: 2,
             isFavorite: false,
             tags: ["Healthy", "Quick"],
-            onTap: {},
             onFavoriteTap: {},
             suggestionReason: "Perfect for tonight",
             onDeleteTap: {},

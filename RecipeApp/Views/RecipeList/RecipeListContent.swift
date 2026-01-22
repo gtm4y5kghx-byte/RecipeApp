@@ -9,7 +9,6 @@ struct RecipeListContent: View {
     let suggestionReasons: [UUID: String]
     let scrollToTopTrigger: Int
     var selectedRecipe: Binding<Recipe?>?
-    let onRecipeTap: (Recipe) -> Void
     let onFavoriteTap: (Recipe) -> Void
     let onDeleteTap: (Recipe) -> Void
     let onClearSearch: () -> Void
@@ -24,7 +23,6 @@ struct RecipeListContent: View {
                 suggestionReasons: suggestionReasons,
                 scrollToTopTrigger: scrollToTopTrigger,
                 selectedRecipe: selectedRecipe,
-                onRecipeTap: onRecipeTap,
                 onFavoriteTap: onFavoriteTap,
                 onDeleteTap: onDeleteTap
             )
@@ -71,7 +69,6 @@ struct RecipeListContent: View {
         selectedSectionIcon: nil,
         suggestionReasons: [:],
         scrollToTopTrigger: 0,
-        onRecipeTap: { _ in },
         onFavoriteTap: { _ in },
         onDeleteTap: { _ in },
         onClearSearch: {},

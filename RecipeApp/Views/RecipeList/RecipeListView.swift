@@ -46,21 +46,9 @@ struct RecipeListView: View {
         .onChange(of: viewModel?.selectedSection) { _, _ in
             scrollToTopTrigger += 1
         }
-        .onChange(of: viewModel?.displayedRecipes) { _, _ in
-            viewModel?.autoSelectFirstRecipeIfNeeded(
-                isRegularSizeClass: horizontalSizeClass == .regular
-            )
-        }
         .onAppear {
             handleViewAppear()
         }
-    }
-    
-    private var selectedRecipeBinding: Binding<Recipe?> {
-        Binding(
-            get: { viewModel?.selectedRecipe },
-            set: { viewModel?.selectedRecipe = $0 }
-        )
     }
     
     // MARK: - Shared Content
@@ -175,9 +163,6 @@ struct RecipeListView: View {
                 suggestionReasons: viewModel.suggestionReasons,
                 scrollToTopTrigger: scrollToTopTrigger,
                 selectedRecipe: selectedRecipe,
-                onRecipeTap: { recipe in
-                    viewModel.selectedRecipe = recipe
-                },
                 onFavoriteTap: { recipe in
                     viewModel.toggleFavorite(recipe)
                 },
@@ -223,12 +208,8 @@ struct RecipeListView: View {
         Task {
             await viewModel?.loadSuggestionsIfEligible()
         }
-        
-        viewModel?.autoSelectFirstRecipeIfNeeded(
-            isRegularSizeClass: horizontalSizeClass == .regular
-        )
     }
-    
+
 #if DEBUG
     private var devToolsMenu: some View {
         Menu {
