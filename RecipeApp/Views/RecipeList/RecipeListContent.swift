@@ -7,7 +7,7 @@ struct RecipeListContent: View {
     let selectedSectionTitle: String?
     let selectedSectionIcon: String?
     let suggestionReasons: [UUID: String]
-    let scrollToTopTrigger: Int
+    @Binding var scrollPosition: ScrollPosition
     var selectedRecipe: Binding<Recipe?>?
     let onFavoriteTap: (Recipe) -> Void
     let onDeleteTap: (Recipe) -> Void
@@ -21,7 +21,7 @@ struct RecipeListContent: View {
             RecipeGrid(
                 recipes: recipes,
                 suggestionReasons: suggestionReasons,
-                scrollToTopTrigger: scrollToTopTrigger,
+                scrollPosition: $scrollPosition,
                 selectedRecipe: selectedRecipe,
                 onFavoriteTap: onFavoriteTap,
                 onDeleteTap: onDeleteTap
@@ -61,6 +61,8 @@ struct RecipeListContent: View {
 }
 
 #Preview {
+    @Previewable @State var scrollPosition = ScrollPosition(edge: .top)
+
     RecipeListContent(
         recipes: [],
         isSearching: false,
@@ -68,7 +70,7 @@ struct RecipeListContent: View {
         selectedSectionTitle: nil,
         selectedSectionIcon: nil,
         suggestionReasons: [:],
-        scrollToTopTrigger: 0,
+        scrollPosition: $scrollPosition,
         onFavoriteTap: { _ in },
         onDeleteTap: { _ in },
         onClearSearch: {},

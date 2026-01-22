@@ -5,14 +5,14 @@ struct RecipeGrid: View {
 
     let recipes: [Recipe]
     let suggestionReasons: [UUID: String]
-    let scrollToTopTrigger: Int
+    @Binding var scrollPosition: ScrollPosition
     var selectedRecipe: Binding<Recipe?>?
     let onFavoriteTap: (Recipe) -> Void
     let onDeleteTap: (Recipe) -> Void
 
     var body: some View {
-        ScrollViewReader { proxy in
-            List(selection: selectedRecipe) {
+        ScrollView {
+            LazyVStack(spacing: Theme.Spacing.sm) {
                 ForEach(recipes) { recipe in
                     ZStack(alignment: .leading) {
                         NavigationLink(value: recipe) { EmptyView() }
@@ -36,28 +36,18 @@ struct RecipeGrid: View {
                             accessibilityID: "recipe-card-\(recipe.id)"
                         )
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: Theme.Spacing.sm, leading: Theme.Spacing.md, bottom: Theme.Spacing.sm, trailing: Theme.Spacing.md))
-                    .swipeActions(edge: .trailing) {
-                        Button("Delete", role: .destructive) {
-                            onDeleteTap(recipe)
-                        }
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedRecipe?.wrappedValue = recipe
                     }
                 }
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .scrollDismissesKeyboard(.interactively)
-            .background(Theme.Colors.background)
-            .contentMargins(.top, Theme.Spacing.sm, for: .scrollContent)
-            .onChange(of: scrollToTopTrigger) { _, _ in
-                if let firstRecipe = recipes.first {
-                    withAnimation {
-                        proxy.scrollTo(firstRecipe.id, anchor: .top)
-                    }
-                }
-            }
+            .scrollTargetLayout()
+            .padding(.top, Theme.Spacing.sm)
         }
+        .scrollDismissesKeyboard(.interactively)
+        .background(Theme.Colors.background)
+        .scrollPosition($scrollPosition)
     }
 }

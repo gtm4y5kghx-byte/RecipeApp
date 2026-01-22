@@ -13,7 +13,7 @@ struct RecipeListView: View {
     @State private var importedRecipe: Recipe?
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
-    @State private var scrollToTopTrigger = 0
+    @State private var scrollPosition = ScrollPosition(edge: .top)
     @State private var error: Error?
     
     init(menuState: AppMenuState? = nil, selectedRecipe: Binding<Recipe?>? = nil, previewViewModel: RecipeListViewModel? = nil) {
@@ -47,7 +47,7 @@ struct RecipeListView: View {
             viewModel?.performSearch(query: searchText, scope: newValue)
         }
         .onChange(of: viewModel?.selectedSection) { _, _ in
-            scrollToTopTrigger += 1
+            scrollPosition.scrollTo(edge: .top)
         }
         .onAppear {
             handleViewAppear()
@@ -157,7 +157,7 @@ struct RecipeListView: View {
                 selectedSectionTitle: viewModel.filterTitle,
                 selectedSectionIcon: viewModel.filterIcon,
                 suggestionReasons: viewModel.suggestionReasons,
-                scrollToTopTrigger: scrollToTopTrigger,
+                scrollPosition: $scrollPosition,
                 selectedRecipe: selectedRecipe,
                 onFavoriteTap: { recipe in
                     viewModel.toggleFavorite(recipe)
