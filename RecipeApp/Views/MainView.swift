@@ -2,8 +2,6 @@ import SwiftUI
 import SwiftData
 
 struct MainView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     @State private var selectedTab: Tab = .recipes
     @State private var menuState = AppMenuState()
     @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
@@ -34,9 +32,13 @@ struct MainView: View {
         }
     }
 
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
     var body: some View {
         Group {
-            if horizontalSizeClass == .regular {
+            if isIPad {
                 iPadLayout
             } else {
                 iPhoneLayout

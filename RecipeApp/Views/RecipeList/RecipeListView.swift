@@ -4,7 +4,6 @@ import SwiftData
 struct RecipeListView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
     var menuState: AppMenuState?
     var selectedRecipe: Binding<Recipe?>?
@@ -23,9 +22,13 @@ struct RecipeListView: View {
         _viewModel = State(initialValue: previewViewModel)
     }
     
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
     var body: some View {
         Group {
-            if horizontalSizeClass == .regular {
+            if isIPad {
                 iPadLayout
             } else {
                 iPhoneLayout
@@ -142,13 +145,6 @@ struct RecipeListView: View {
                 }
             }
             .background(Theme.Colors.background)
-#if DEBUG
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    devToolsMenu
-                }
-            }
-#endif
     }
     
     @ViewBuilder
