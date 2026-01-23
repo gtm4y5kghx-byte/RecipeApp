@@ -14,7 +14,13 @@ struct RecipeListView: View {
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
     @State private var scrollPosition = ScrollPosition(edge: .top)
+    @State private var localSelectedRecipe: Recipe?
     @State private var error: Error?
+
+    /// Returns the passed-in binding or falls back to local state (for previews)
+    private var effectiveSelectedRecipe: Binding<Recipe?> {
+        selectedRecipe ?? $localSelectedRecipe
+    }
     
     init(menuState: AppMenuState? = nil, selectedRecipe: Binding<Recipe?>? = nil, previewViewModel: RecipeListViewModel? = nil) {
         self.menuState = menuState
@@ -116,7 +122,7 @@ struct RecipeListView: View {
                     }
 #endif
                 }
-                .navigationDestination(for: Recipe.self) { recipe in
+                .navigationDestination(item: effectiveSelectedRecipe) { recipe in
                     RecipeDetailView(recipe: recipe)
                 }
         }

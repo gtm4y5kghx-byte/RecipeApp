@@ -14,28 +14,23 @@ struct RecipeGrid: View {
         ScrollView {
             LazyVStack(spacing: Theme.Spacing.sm) {
                 ForEach(recipes) { recipe in
-                    ZStack(alignment: .leading) {
-                        NavigationLink(value: recipe) { EmptyView() }
-                            .opacity(0)
-
-                        DSRecipeCard(
-                            title: recipe.title,
-                            cuisine: recipe.cuisine,
-                            prepTime: recipe.prepTime,
-                            cookTime: recipe.cookTime,
-                            servings: recipe.servings,
-                            isFavorite: recipe.isFavorite,
-                            tags: recipe.userTags,
-                            onFavoriteTap: {
-                                onFavoriteTap(recipe)
-                            },
-                            suggestionReason: suggestionReasons[recipe.id],
-                            onDeleteTap: {
-                                onDeleteTap(recipe)
-                            },
-                            accessibilityID: "recipe-card-\(recipe.id)"
-                        )
-                    }
+                    DSRecipeCard(
+                        title: recipe.title,
+                        cuisine: recipe.cuisine,
+                        prepTime: recipe.prepTime,
+                        cookTime: recipe.cookTime,
+                        servings: recipe.servings,
+                        isFavorite: recipe.isFavorite,
+                        tags: recipe.userTags,
+                        onFavoriteTap: {
+                            onFavoriteTap(recipe)
+                        },
+                        suggestionReason: suggestionReasons[recipe.id],
+                        onDeleteTap: {
+                            onDeleteTap(recipe)
+                        },
+                        accessibilityID: "recipe-card-\(recipe.id)"
+                    )
                     .padding(.horizontal, Theme.Spacing.md)
                     .contentShape(Rectangle())
                     .onTapGesture {

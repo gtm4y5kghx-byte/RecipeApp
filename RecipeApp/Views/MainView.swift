@@ -56,7 +56,7 @@ struct MainView: View {
 
     private var iPhoneLayout: some View {
         TabView(selection: $selectedTab) {
-            RecipeListView(menuState: menuState)
+            RecipeListView(menuState: menuState, selectedRecipe: $selectedRecipe)
                 .tag(Tab.recipes)
                 .tabItem {
                     Label("Recipes", systemImage: "book")
