@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		480A5E722F0FD0C500762FB6 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 480A5E712F0FD0C500762FB6 /* Localizable.xcstrings */; };
+		488C3B512F239BFA00C5560A /* Swipy in Frameworks */ = {isa = PBXBuildFile; productRef = 488C3B502F239BFA00C5560A /* Swipy */; };
 		48A6C6A82ECF39F300C19EE6 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 48A6C69E2ECF39F200C19EE6 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -110,6 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				488C3B512F239BFA00C5560A /* Swipy in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +147,7 @@
 				48013D192E9E49550021EBF4 /* RecipeAppTests */,
 				48013D232E9E49550021EBF4 /* RecipeAppUITests */,
 				48A6C69F2ECF39F200C19EE6 /* ShareExtension */,
+				488C3B4F2F239BFA00C5560A /* Frameworks */,
 				48013D082E9E49540021EBF4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -158,6 +161,13 @@
 				48A6C69E2ECF39F200C19EE6 /* ShareExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		488C3B4F2F239BFA00C5560A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -182,6 +192,7 @@
 			);
 			name = RecipeApp;
 			packageProductDependencies = (
+				488C3B502F239BFA00C5560A /* Swipy */,
 			);
 			productName = RecipeApp;
 			productReference = 48013D072E9E49540021EBF4 /* RecipeApp.app */;
@@ -290,6 +301,9 @@
 			);
 			mainGroup = 48013CFE2E9E49540021EBF4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				488C3B4E2F239B6200C5560A /* XCRemoteSwiftPackageReference "Swipy" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 48013D082E9E49540021EBF4 /* Products */;
 			projectDirPath = "";
@@ -779,6 +793,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		488C3B4E2F239B6200C5560A /* XCRemoteSwiftPackageReference "Swipy" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rohanrhu/Swipy";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		488C3B502F239BFA00C5560A /* Swipy */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 488C3B4E2F239B6200C5560A /* XCRemoteSwiftPackageReference "Swipy" */;
+			productName = Swipy;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 48013CFF2E9E49540021EBF4 /* Project object */;
 }

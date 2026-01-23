@@ -1,24 +1,15 @@
 import SwiftUI
+import Swipy
 
-/// Test view to prototype programmatic navigation with binding
-/// Pattern: onTapGesture sets selectedItem -> .navigationDestination(item:) triggers navigation
+/// Test view to prototype programmatic navigation with binding + Swipy swipe-to-delete
 struct NavigationTestView: View {
-    @State private var selectedFolder: String? = "All"
     @State private var selectedItem: String?
     @State private var scrollPosition = ScrollPosition(edge: .top)
+    @State private var isSwipingAnItem = false
+    @State private var items: [String] = (1...50).map { "Item \($0)" }
 
     private var isIPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
-    }
-
-    let folders = [
-        "All": (1...50).map { "Item \($0)" },
-        "Favorites": (1...20).map { "Favorite \($0)" },
-        "Recent": (1...10).map { "Recent \($0)" }
-    ]
-
-    var currentItems: [String] {
-        folders[selectedFolder ?? "All"] ?? []
     }
 
     var body: some View {
@@ -46,20 +37,14 @@ struct NavigationTestView: View {
 
     private var iPadLayout: some View {
         NavigationSplitView {
-            List(selection: $selectedFolder) {
-                ForEach(Array(folders.keys.sorted()), id: \.self) { folder in
-                    Text(folder)
-                        .tag(folder)
-                }
+            List {
+                Text("All Items")
             }
             .navigationTitle("Folders")
         } content: {
             itemListView
-                .navigationTitle(selectedFolder ?? "Items")
+                .navigationTitle("Items")
                 .navigationBarTitleDisplayMode(.large)
-                .onChange(of: selectedFolder) { _, _ in
-                    scrollPosition.scrollTo(edge: .top)
-                }
         } detail: {
             if let selectedItem {
                 ItemDetailView(item: selectedItem)
@@ -75,17 +60,34 @@ struct NavigationTestView: View {
     private var itemListView: some View {
         ScrollView {
             LazyVStack(spacing: 8) {
-                ForEach(currentItems, id: \.self) { item in
-                    ItemCard(title: item)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedItem = item
+                ForEach(items, id: \.self) { item in
+                    Swipy(isSwipingAnItem: $isSwipingAnItem) { model in
+                        ItemCard(title: item)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedItem = item
+                            }
+                    } actions: {
+                        SwipyAction { model in
+                            Button {
+                                withAnimation {
+                                    items.removeAll { $0 == item }
+                                }
+                                model.unswipe()
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Color.red)
+                            }
                         }
+                    }
                 }
             }
             .scrollTargetLayout()
         }
         .scrollPosition($scrollPosition)
+        .scrollDisabled(isSwipingAnItem)
     }
 }
 
