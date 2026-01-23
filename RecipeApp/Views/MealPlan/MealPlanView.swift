@@ -3,10 +3,13 @@ import SwiftData
 
 struct MealPlanView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.isIPad) private var isIPad
     @Query private var recipes: [Recipe]
-    @State private var viewModel: MealPlanViewModel?
 
+    var selectedTab: Binding<MainView.Tab>?
+    var menuState: AppMenuState?
+
+    @State private var viewModel: MealPlanViewModel?
     @State private var selectedDate: Date?
     @State private var selectedMealType: MealType?
     @State private var selectedRecipe: Recipe?
@@ -14,7 +17,7 @@ struct MealPlanView: View {
 
     var body: some View {
         Group {
-            if horizontalSizeClass == .regular {
+            if isIPad {
                 iPadLayout
             } else {
                 iPhoneLayout
@@ -51,10 +54,32 @@ struct MealPlanView: View {
         }
     }
 
-    // MARK: - iPad Layout
+    // MARK: - iPad Layout (3-column: Sidebar | Calendar | Detail)
 
     private var iPadLayout: some View {
-        HStack(spacing: 0) {
+        NavigationSplitView {
+            RecipesMenuList(
+                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                selectedAppSection: .mealPlan,
+                onSelectAppSection: { tab in
+                    selectedTab?.wrappedValue = tab
+                },
+                filterOptions: menuState?.filterOptions ?? [],
+                tagOptions: menuState?.tagOptions ?? [],
+                selectedOptionID: nil,
+                onSelectOption: { optionId in
+                    menuState?.selectOption(optionId)
+                    selectedTab?.wrappedValue = .recipes
+                },
+                onNewRecipe: {
+                    menuState?.newRecipe()
+                },
+                onSettings: {
+                    menuState?.settings()
+                }
+            )
+            .navigationTitle("Menu")
+        } content: {
             Group {
                 if let viewModel = viewModel {
                     calendarContent(viewModel: viewModel)
@@ -62,16 +87,14 @@ struct MealPlanView: View {
                     DSLoadingSpinner(message: "Loading...")
                 }
             }
-            .frame(width: 350)
-
-            Divider()
-
+            .navigationTitle("Meal Plan")
+        } detail: {
             MealPlanDetailColumn(recipe: selectedRecipe)
         }
     }
 
     private func autoSelectFirstEntryIfNeeded() {
-        guard horizontalSizeClass == .regular, selectedRecipe == nil else { return }
+        guard isIPad, selectedRecipe == nil else { return }
         // Select recipe from first entry by date
         let sortedEntries = viewModel?.entries.sorted { $0.date < $1.date }
         selectedRecipe = sortedEntries?.first?.recipe

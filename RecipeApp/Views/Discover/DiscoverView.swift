@@ -4,36 +4,30 @@ import SwiftData
 struct DiscoverView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.isIPad) private var isIPad
 
     var menuState: AppMenuState?
+    var selectedTab: Binding<MainView.Tab>?
 
     @State private var viewModel: DiscoverViewModel?
+    @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
 
-    init(menuState: AppMenuState? = nil, previewViewModel: DiscoverViewModel? = nil) {
+    init(
+        menuState: AppMenuState? = nil,
+        selectedTab: Binding<MainView.Tab>? = nil,
+        previewViewModel: DiscoverViewModel? = nil
+    ) {
         self.menuState = menuState
+        self.selectedTab = selectedTab
         _viewModel = State(initialValue: previewViewModel)
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if let viewModel = viewModel {
-                    content(viewModel: viewModel)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Theme.Colors.background)
-            .navigationTitle("Discover")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        menuState?.showingMenu = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                    }
-                    .accessibilityIdentifier("discover-menu-button")
-                }
+        Group {
+            if isIPad {
+                iPadLayout
+            } else {
+                iPhoneLayout
             }
         }
         .onAppear {
@@ -46,6 +40,68 @@ struct DiscoverView: View {
                 Task { await viewModel?.loadGeneratedRecipes() }
             }
         }
+    }
+
+    // MARK: - iPhone Layout
+
+    private var iPhoneLayout: some View {
+        NavigationStack {
+            discoverContent
+                .navigationTitle("Discover")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            menuState?.showingMenu = true
+                        } label: {
+                            Image(systemName: "line.3.horizontal")
+                        }
+                        .accessibilityIdentifier("discover-menu-button")
+                    }
+                }
+        }
+    }
+
+    // MARK: - iPad Layout (2-column: Sidebar | Content)
+
+    private var iPadLayout: some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            RecipesMenuList(
+                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                selectedAppSection: .discover,
+                onSelectAppSection: { tab in
+                    selectedTab?.wrappedValue = tab
+                },
+                filterOptions: menuState?.filterOptions ?? [],
+                tagOptions: menuState?.tagOptions ?? [],
+                selectedOptionID: nil,
+                onSelectOption: { optionId in
+                    menuState?.selectOption(optionId)
+                    selectedTab?.wrappedValue = .recipes
+                },
+                onNewRecipe: {
+                    menuState?.newRecipe()
+                },
+                onSettings: {
+                    menuState?.settings()
+                }
+            )
+            .navigationTitle("Menu")
+        } detail: {
+            discoverContent
+                .navigationTitle("Discover")
+        }
+    }
+
+    @ViewBuilder
+    private var discoverContent: some View {
+        Group {
+            if let viewModel = viewModel {
+                content(viewModel: viewModel)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.Colors.background)
     }
     
     @ViewBuilder

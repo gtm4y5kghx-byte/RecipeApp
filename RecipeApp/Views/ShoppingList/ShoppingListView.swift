@@ -3,24 +3,22 @@ import SwiftData
 
 struct ShoppingListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.isIPad) private var isIPad
     @Query private var recipes: [Recipe]
+
+    var selectedTab: Binding<MainView.Tab>?
+    var menuState: AppMenuState?
+
     @State private var viewModel: ShoppingListViewModel?
-    
+    @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
+
     var body: some View {
-        NavigationStack {
-            Group {
-                if let viewModel = viewModel {
-                    if viewModel.hasItems {
-                        ShoppingListContent(viewModel: viewModel)
-                    } else {
-                        emptyState
-                    }
-                } else {
-                    DSLoadingSpinner(message: "Loading...")
-                }
+        Group {
+            if isIPad {
+                iPadLayout
+            } else {
+                iPhoneLayout
             }
-            .navigationTitle("Shopping List")
-            .navigationBarTitleDisplayMode(.large)
         }
         .onAppear {
             if viewModel == nil {
@@ -32,6 +30,60 @@ struct ShoppingListView: View {
         }
         .onChange(of: recipes) { _, newValue in
             viewModel?.updateRecipes(newValue)
+        }
+    }
+
+    // MARK: - iPhone Layout
+
+    private var iPhoneLayout: some View {
+        NavigationStack {
+            shoppingListContent
+                .navigationTitle("Shopping List")
+                .navigationBarTitleDisplayMode(.large)
+        }
+    }
+
+    // MARK: - iPad Layout (2-column: Sidebar | Content)
+
+    private var iPadLayout: some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            RecipesMenuList(
+                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                selectedAppSection: .shoppingList,
+                onSelectAppSection: { tab in
+                    selectedTab?.wrappedValue = tab
+                },
+                filterOptions: menuState?.filterOptions ?? [],
+                tagOptions: menuState?.tagOptions ?? [],
+                selectedOptionID: nil,
+                onSelectOption: { optionId in
+                    menuState?.selectOption(optionId)
+                    selectedTab?.wrappedValue = .recipes
+                },
+                onNewRecipe: {
+                    menuState?.newRecipe()
+                },
+                onSettings: {
+                    menuState?.settings()
+                }
+            )
+            .navigationTitle("Menu")
+        } detail: {
+            shoppingListContent
+                .navigationTitle("Shopping List")
+        }
+    }
+
+    @ViewBuilder
+    private var shoppingListContent: some View {
+        if let viewModel = viewModel {
+            if viewModel.hasItems {
+                ShoppingListContent(viewModel: viewModel)
+            } else {
+                emptyState
+            }
+        } else {
+            DSLoadingSpinner(message: "Loading...")
         }
     }
     

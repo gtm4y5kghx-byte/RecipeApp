@@ -4,7 +4,7 @@ import SwiftData
 struct RecipeDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.isIPad) private var isIPad
 
     @State private var viewModel: RecipeDetailViewModel?
     @State private var showingEditSheet = false
@@ -148,7 +148,7 @@ struct RecipeDetailView: View {
         }
         .onChange(of: recipe) { _, newRecipe in
             // Only needed on iPad where detail view persists across selections
-            guard horizontalSizeClass == .regular else { return }
+            guard isIPad else { return }
             viewModel?.updateRecipe(newRecipe)
         }
         .onDisappear {

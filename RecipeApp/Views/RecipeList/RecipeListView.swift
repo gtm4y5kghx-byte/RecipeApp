@@ -4,9 +4,11 @@ import SwiftData
 struct RecipeListView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
-    
+    @Environment(\.isIPad) private var isIPad
+
     var menuState: AppMenuState?
     var selectedRecipe: Binding<Recipe?>?
+    var selectedTab: Binding<MainView.Tab>?
 
     @State private var viewModel: RecipeListViewModel?
     @State private var showImportBanner = false
@@ -21,17 +23,19 @@ struct RecipeListView: View {
     private var effectiveSelectedRecipe: Binding<Recipe?> {
         selectedRecipe ?? $localSelectedRecipe
     }
-    
-    init(menuState: AppMenuState? = nil, selectedRecipe: Binding<Recipe?>? = nil, previewViewModel: RecipeListViewModel? = nil) {
+
+    init(
+        menuState: AppMenuState? = nil,
+        selectedRecipe: Binding<Recipe?>? = nil,
+        selectedTab: Binding<MainView.Tab>? = nil,
+        previewViewModel: RecipeListViewModel? = nil
+    ) {
         self.menuState = menuState
         self.selectedRecipe = selectedRecipe
+        self.selectedTab = selectedTab
         _viewModel = State(initialValue: previewViewModel)
     }
     
-    private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
-
     var body: some View {
         Group {
             if isIPad {
@@ -128,29 +132,58 @@ struct RecipeListView: View {
         }
     }
     
-    // MARK: - iPad Layout
+    // MARK: - iPad Layout (3-column: Sidebar | Recipe List | Detail)
 
     private var iPadLayout: some View {
-        recipeContent
-            .navigationTitle(viewModel?.filterTitle ?? "Recipes")
-            .navigationBarTitleDisplayMode(.large)
-            .safeAreaInset(edge: .bottom) {
-                ScopedSearchBar(
-                    searchText: $searchText,
-                    searchScope: $searchScope,
-                    onSubmit: {
-                        viewModel?.performSearch(query: searchText, scope: searchScope)
-                    }
-                )
-            }
-            .overlay(alignment: .top) {
-                if showImportBanner {
-                    RecipeImportBanner {
-                        importedRecipe = recipes.first
+        NavigationSplitView {
+            RecipesMenuList(
+                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                selectedAppSection: .recipes,
+                onSelectAppSection: { tab in
+                    selectedTab?.wrappedValue = tab
+                },
+                filterOptions: menuState?.filterOptions ?? [],
+                tagOptions: menuState?.tagOptions ?? [],
+                selectedOptionID: nil,
+                onSelectOption: { optionId in
+                    menuState?.selectOption(optionId)
+                },
+                onNewRecipe: {
+                    menuState?.newRecipe()
+                },
+                onSettings: {
+                    menuState?.settings()
+                }
+            )
+            .navigationTitle("Menu")
+        } content: {
+            recipeContent
+                .navigationTitle(viewModel?.filterTitle ?? "Recipes")
+                .navigationBarTitleDisplayMode(.large)
+                .safeAreaInset(edge: .bottom) {
+                    ScopedSearchBar(
+                        searchText: $searchText,
+                        searchScope: $searchScope,
+                        onSubmit: {
+                            viewModel?.performSearch(query: searchText, scope: searchScope)
+                        }
+                    )
+                }
+                .overlay(alignment: .top) {
+                    if showImportBanner {
+                        RecipeImportBanner {
+                            importedRecipe = recipes.first
+                        }
                     }
                 }
+                .background(Theme.Colors.background)
+        } detail: {
+            if let recipe = effectiveSelectedRecipe.wrappedValue {
+                RecipeDetailView(recipe: recipe)
+            } else {
+                ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
             }
-            .background(Theme.Colors.background)
+        }
     }
     
     @ViewBuilder

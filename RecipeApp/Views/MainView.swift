@@ -2,9 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct MainView: View {
+    @Environment(\.isIPad) private var isIPad
     @State private var selectedTab: Tab = .recipes
     @State private var menuState = AppMenuState()
-    @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
     @State private var selectedRecipe: Recipe?
 
     enum Tab: Hashable {
@@ -30,10 +30,6 @@ struct MainView: View {
             case .shoppingList: return "cart"
             }
         }
-    }
-
-    private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
     }
 
     var body: some View {
@@ -102,58 +98,25 @@ struct MainView: View {
         }
     }
 
-    // MARK: - iPad Layout
+    // MARK: - iPad Layout (Each view owns its NavigationSplitView)
 
     private var iPadLayout: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
-            RecipesMenuList(
-                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
-                selectedAppSection: selectedTab,
-                onSelectAppSection: { tab in
-                    selectedTab = tab
-                    columnVisibility = .doubleColumn
-                },
-                filterOptions: menuState.filterOptions,
-                tagOptions: menuState.tagOptions,
-                selectedOptionID: nil, // TODO: Track selected filter
-                onSelectOption: { optionId in
-                    menuState.selectOption(optionId)
-                    selectedTab = .recipes
-                    columnVisibility = .doubleColumn
-                },
-                onNewRecipe: {
-                    menuState.newRecipe()
-                },
-                onSettings: {
-                    menuState.settings()
-                }
-            )
-            .navigationTitle(selectedTab.title)
-        } content: {
+        Group {
             switch selectedTab {
             case .recipes:
-                RecipeListView(menuState: menuState, selectedRecipe: $selectedRecipe)
-            case .discover, .mealPlan, .shoppingList:
-                // These tabs don't use three-column layout
-                EmptyView()
-            }
-        } detail: {
-            switch selectedTab {
-            case .recipes:
-                if let recipe = selectedRecipe {
-                    RecipeDetailView(recipe: recipe)
-                } else {
-                    ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
-                }
+                RecipeListView(
+                    menuState: menuState,
+                    selectedRecipe: $selectedRecipe,
+                    selectedTab: $selectedTab
+                )
             case .discover:
-                DiscoverView(menuState: menuState)
+                DiscoverView(menuState: menuState, selectedTab: $selectedTab)
             case .mealPlan:
-                MealPlanView()
+                MealPlanView(selectedTab: $selectedTab, menuState: menuState)
             case .shoppingList:
-                ShoppingListView()
+                ShoppingListView(selectedTab: $selectedTab, menuState: menuState)
             }
         }
-        .navigationSplitViewStyle(.balanced)
     }
 }
 
