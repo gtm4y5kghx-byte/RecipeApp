@@ -190,6 +190,30 @@ struct RecipeListView: View {
                 ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
             }
         }
+#if DEBUG
+        .overlay(alignment: .bottomTrailing) {
+            Menu {
+                Button("Load Suggestions") {
+                    Task { await viewModel?.loadSuggestionsDev() }
+                }
+                Button("Load Sample Data") {
+                    SampleData.loadSampleRecipes(into: modelContext)
+                }
+                Button("Invalidate AI Cache") {
+                    AICache.invalidateAll()
+                }
+            } label: {
+                Image(systemName: "hammer.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .padding()
+                    .background(Color.orange)
+                    .clipShape(Circle())
+                    .shadow(radius: 4)
+            }
+            .padding()
+        }
+#endif
     }
     
     @ViewBuilder
@@ -256,6 +280,9 @@ struct RecipeListView: View {
         Menu {
             Button("Load Suggestions") {
                 Task { await viewModel?.loadSuggestionsDev() }
+            }
+            Button("Load Sample Data") {
+                SampleData.loadSampleRecipes(into: modelContext)
             }
             Button("Invalidate AI Cache") {
                 AICache.invalidateAll()

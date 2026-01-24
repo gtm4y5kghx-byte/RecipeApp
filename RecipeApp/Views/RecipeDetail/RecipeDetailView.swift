@@ -10,11 +10,18 @@ struct RecipeDetailView: View {
     @State private var showingEditSheet = false
     @State private var showingCookingMode = false
     @State private var showingDeleteConfirmation = false
+    @State private var showingRemoveConfirmation = false
     @State private var showingCannotCookAlert = false
     @State private var error: Error?
-    
+
     let recipe: Recipe
-    
+    var onRemoveFromContext: (() -> Void)?
+
+    init(recipe: Recipe, onRemoveFromContext: (() -> Void)? = nil) {
+        self.recipe = recipe
+        self.onRemoveFromContext = onRemoveFromContext
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -105,8 +112,13 @@ struct RecipeDetailView: View {
                     .accessibilityIdentifier("recipe-detail-add-to-shopping-list-button")
                     Button("Edit") { showingEditSheet = true }
                         .accessibilityIdentifier("recipe-detail-edit-button")
-                    Button("Delete", role: .destructive) { showingDeleteConfirmation = true }
-                        .accessibilityIdentifier("recipe-detail-delete-button")
+                    if onRemoveFromContext != nil {
+                        Button("Remove from Calendar", role: .destructive) { showingRemoveConfirmation = true }
+                            .accessibilityIdentifier("recipe-detail-remove-from-calendar-button")
+                    } else {
+                        Button("Delete", role: .destructive) { showingDeleteConfirmation = true }
+                            .accessibilityIdentifier("recipe-detail-delete-button")
+                    }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
@@ -126,6 +138,13 @@ struct RecipeDetailView: View {
                 if viewModel.deleteRecipe() {
                     dismiss()
                 }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { }
+        }
+        .alert(String(localized: "Remove from Calendar?"), isPresented: $showingRemoveConfirmation) {
+            Button(String(localized: "Remove"), role: .destructive) {
+                HapticFeedback.light.trigger()
+                onRemoveFromContext?()
             }
             Button(String(localized: "Cancel"), role: .cancel) { }
         }

@@ -12,7 +12,7 @@ struct MealPlanView: View {
     @State private var viewModel: MealPlanViewModel?
     @State private var selectedDate: Date?
     @State private var selectedMealType: MealType?
-    @State private var selectedRecipe: Recipe?
+    @State private var selectedEntry: MealPlanEntry?
     @State private var showingGeneratePlan = false
 
     var body: some View {
@@ -48,8 +48,16 @@ struct MealPlanView: View {
             }
             .navigationTitle("Meal Plan")
             .navigationBarTitleDisplayMode(.large)
-            .navigationDestination(item: $selectedRecipe) { recipe in
-                RecipeDetailView(recipe: recipe)
+            .navigationDestination(item: $selectedEntry) { entry in
+                if let recipe = entry.recipe {
+                    RecipeDetailView(
+                        recipe: recipe,
+                        onRemoveFromContext: {
+                            viewModel?.removeEntry(entry)
+                            selectedEntry = nil
+                        }
+                    )
+                }
             }
         }
     }
@@ -89,15 +97,23 @@ struct MealPlanView: View {
             }
             .navigationTitle("Meal Plan")
         } detail: {
-            MealPlanDetailColumn(recipe: selectedRecipe)
+            MealPlanDetailColumn(
+                entry: selectedEntry,
+                onRemove: {
+                    if let entry = selectedEntry {
+                        viewModel?.removeEntry(entry)
+                        selectedEntry = nil
+                    }
+                }
+            )
         }
     }
 
     private func autoSelectFirstEntryIfNeeded() {
-        guard isIPad, selectedRecipe == nil else { return }
-        // Select recipe from first entry by date
+        guard isIPad, selectedEntry == nil else { return }
+        // Select first entry by date
         let sortedEntries = viewModel?.entries.sorted { $0.date < $1.date }
-        selectedRecipe = sortedEntries?.first?.recipe
+        selectedEntry = sortedEntries?.first
     }
     
     private var showingRecipePicker: Binding<Bool> {
@@ -122,7 +138,7 @@ struct MealPlanView: View {
                                 ForEach(entries) { entry in
                                     MealPlanEntryRow(
                                         entry: entry,
-                                        onTap: { selectedRecipe = entry.recipe },
+                                        onTap: { selectedEntry = entry },
                                         onRemove: { viewModel.removeEntry(entry) }
                                     )
                                 }
@@ -204,12 +220,17 @@ struct MealPlanView: View {
 // MARK: - Detail Column
 
 private struct MealPlanDetailColumn: View {
-    let recipe: Recipe?
+    let entry: MealPlanEntry?
+    let onRemove: () -> Void
 
     var body: some View {
-        if let recipe = recipe {
-            RecipeDetailView(recipe: recipe)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        if let entry = entry,
+           let recipe = entry.recipe {
+            RecipeDetailView(
+                recipe: recipe,
+                onRemoveFromContext: onRemove
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ContentUnavailableView("Select a Meal", systemImage: "fork.knife")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
