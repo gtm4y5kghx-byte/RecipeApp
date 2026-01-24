@@ -667,4 +667,169 @@ struct RecipeListViewModelTests {
         #expect(savedRecipe?.title == "AI Pasta")
         #expect(savedRecipe?.userTags.contains("AI Generated") == true)
     }
+
+    // MARK: - Displayed Items Tests
+
+    @Test("displayedItems returns RecipeListItem array")
+    func testDisplayedItemsReturnsRecipeListItemArray() {
+        let recipes = RecipeTestFixtures.createSampleRecipes()
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        let items = viewModel.displayedItems
+
+        #expect(!items.isEmpty)
+        #expect(items.count >= recipes.count)
+    }
+
+    @Test("displayedItems places collection suggestions at top with reasons")
+    func testDisplayedItemsCollectionSuggestionsAtTop() {
+        let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
+
+        let items = viewModel.displayedItems
+
+        // First 2 items should be the suggested recipes with reasons
+        #expect(items[0].recipe?.id == recipes[0].id)
+        #expect(items[0].suggestionReason == "Try this again!")
+        #expect(items[1].recipe?.id == recipes[1].id)
+        #expect(items[1].suggestionReason == "Try this again!")
+    }
+
+    @Test("displayedItems regular recipes have no suggestion reason")
+    func testDisplayedItemsRegularRecipesNoReason() {
+        let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
+
+        let items = viewModel.displayedItems
+
+        // Find a non-suggested recipe item
+        let regularItems = items.filter { item in
+            guard let recipe = item.recipe else { return false }
+            return recipe.id != recipes[0].id && recipe.id != recipes[1].id
+        }
+
+        #expect(!regularItems.isEmpty)
+        #expect(regularItems.allSatisfy { $0.suggestionReason == nil })
+    }
+
+    @Test("displayedItems intersperses AI-generated recipes among regular recipes")
+    func testDisplayedItemsInterspersesAIGenerated() {
+        let (viewModel, recipes, generatedRecipes) = RecipeTestFixtures.createViewModelWithMixedSuggestions(
+            collectionCount: 2,
+            aiGeneratedCount: 2
+        )
+
+        let items = viewModel.displayedItems
+
+        // Should contain both recipe and generatedRecipe items
+        let recipeItems = items.filter { $0.recipe != nil }
+        let generatedItems = items.filter { $0.generatedRecipe != nil }
+
+        #expect(recipeItems.count == recipes.count)
+        #expect(generatedItems.count == generatedRecipes.count)
+
+        // AI-generated should NOT be at the very top (collection suggestions are)
+        #expect(items[0].isGenerated == false)
+        #expect(items[1].isGenerated == false)
+    }
+
+    @Test("displayedItems excludes AI-generated when searching")
+    func testDisplayedItemsExcludesAIGeneratedWhenSearching() async {
+        let recipes = [
+            RecipeTestFixtures.createRecipe(title: "Chicken Soup"),
+            RecipeTestFixtures.createRecipe(title: "Beef Stew"),
+            RecipeTestFixtures.createRecipe(title: "Chicken Curry")
+        ]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // Add AI-generated suggestion
+        let generated = RecipeTestFixtures.createGeneratedRecipe(title: "AI Chicken Recipe")
+        viewModel.suggestions = [.aiGenerated(generated, reason: "Made for you")]
+
+        // Search for "chicken"
+        viewModel.performSearch(query: "chicken", scope: .title)
+        await waitForSearch()
+
+        let items = viewModel.displayedItems
+
+        // Should only have matching recipes, no AI-generated
+        #expect(items.count == 2)
+        #expect(items.allSatisfy { $0.recipe != nil })
+        #expect(items.allSatisfy { $0.generatedRecipe == nil })
+    }
+
+    @Test("displayedItems shows matching collection suggestions at top when searching")
+    func testDisplayedItemsShowsMatchingSuggestionsWhenSearching() async {
+        let recipes = [
+            RecipeTestFixtures.createRecipe(title: "Chicken Soup"),
+            RecipeTestFixtures.createRecipe(title: "Beef Stew"),
+            RecipeTestFixtures.createRecipe(title: "Chicken Curry")
+        ]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // Suggest Chicken Soup
+        let suggestion = RecipeSuggestion(recipeID: recipes[0].id, aiGeneratedReason: "You haven't made this lately")
+        viewModel.suggestions = [.fromCollection(suggestion)]
+
+        // Search for "chicken"
+        viewModel.performSearch(query: "chicken", scope: .title)
+        await waitForSearch()
+
+        let items = viewModel.displayedItems
+
+        // Should have 2 results, with Chicken Soup (suggested) at top
+        #expect(items.count == 2)
+        #expect(items[0].recipe?.title == "Chicken Soup")
+        #expect(items[0].suggestionReason == "You haven't made this lately")
+    }
+
+    @Test("displayedItems excludes AI-generated when filtering by section")
+    func testDisplayedItemsExcludesAIGeneratedWhenFiltering() {
+        let recipes = [
+            RecipeTestFixtures.createRecipe(title: "Favorite Recipe", isFavorite: true),
+            RecipeTestFixtures.createRecipe(title: "Regular Recipe", isFavorite: false)
+        ]
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // Add AI-generated suggestion
+        let generated = RecipeTestFixtures.createGeneratedRecipe(title: "AI Recipe")
+        viewModel.suggestions = [.aiGenerated(generated, reason: "Made for you")]
+
+        // Filter by favorites
+        viewModel.selectedSection = .favorites
+
+        let items = viewModel.displayedItems
+
+        // Should only have the favorite recipe, no AI-generated
+        #expect(items.count == 1)
+        #expect(items[0].recipe?.title == "Favorite Recipe")
+        #expect(items[0].generatedRecipe == nil)
+    }
+
+    @Test("displayedItems with no suggestions returns all recipes without reasons")
+    func testDisplayedItemsNoSuggestions() {
+        let recipes = RecipeTestFixtures.createSampleRecipes()
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        // No suggestions set
+        viewModel.suggestions = []
+
+        let items = viewModel.displayedItems
+
+        #expect(items.count == recipes.count)
+        #expect(items.allSatisfy { $0.recipe != nil })
+        #expect(items.allSatisfy { $0.suggestionReason == nil })
+    }
+
+    @Test("displayedItems with only collection suggestions has no AI-generated items")
+    func testDisplayedItemsOnlyCollectionSuggestions() {
+        let (viewModel, _) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 3)
+
+        let items = viewModel.displayedItems
+
+        #expect(items.allSatisfy { $0.generatedRecipe == nil })
+    }
 }

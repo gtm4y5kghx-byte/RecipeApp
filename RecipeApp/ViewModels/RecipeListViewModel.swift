@@ -146,7 +146,16 @@ class RecipeListViewModel {
     var aiGeneratedSuggestions: [UnifiedSuggestion] {
         suggestions.filter { $0.isAIGenerated }
     }
-    
+
+    var displayedItems: [RecipeListItem] {
+        let isFilteringOrSearching = isSearching || selectedSection != .all
+
+        if isFilteringOrSearching {
+            return buildFilteredItems()
+        } else {
+            return buildAllItems()
+        }
+    }
 
     // MARK: - Methods
     
@@ -305,12 +314,73 @@ class RecipeListViewModel {
     private func substringMatch(query: String, in text: String) -> Bool {
         let query = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         let text = text.lowercased()
-        
+
         guard !query.isEmpty else { return false }
-        
+
         return text.contains(query)
     }
-    
+
+    private func buildFilteredItems() -> [RecipeListItem] {
+        let recipes = displayedRecipes
+
+        // Suggested recipes at top with reasons, regular recipes below
+        // No AI-generated when filtering/searching
+        return recipes.map { recipe in
+            let reason = suggestionReasons[recipe.id]
+            return .recipe(recipe, suggestionReason: reason)
+        }
+    }
+
+    private func buildAllItems() -> [RecipeListItem] {
+        let recipes = displayedRecipes
+        let aiGenerated = aiGeneratedSuggestions
+
+        // Separate suggested and regular recipes
+        let suggestedRecipes = recipes.filter { suggestedRecipeIDs.contains($0.id) }
+        let regularRecipes = recipes.filter { !suggestedRecipeIDs.contains($0.id) }
+
+        var items: [RecipeListItem] = []
+
+        // 1. Collection suggestions at top with reasons
+        for recipe in suggestedRecipes {
+            let reason = suggestionReasons[recipe.id]
+            items.append(.recipe(recipe, suggestionReason: reason))
+        }
+
+        // 2. Intersperse AI-generated among regular recipes
+        items.append(contentsOf: interleaveItems(regularRecipes: regularRecipes, aiGenerated: aiGenerated))
+
+        return items
+    }
+
+    private func interleaveItems(regularRecipes: [Recipe], aiGenerated: [UnifiedSuggestion]) -> [RecipeListItem] {
+        let interval = 5 // Insert 1 AI-generated every 5 regular recipes
+        var items: [RecipeListItem] = []
+        var aiIndex = 0
+
+        for (index, recipe) in regularRecipes.enumerated() {
+            items.append(.recipe(recipe, suggestionReason: nil))
+
+            // After every `interval` recipes, insert an AI-generated if available
+            if (index + 1) % interval == 0 && aiIndex < aiGenerated.count {
+                if let generated = aiGenerated[aiIndex].generatedRecipe {
+                    items.append(.generatedRecipe(generated, reason: aiGenerated[aiIndex].reason))
+                    aiIndex += 1
+                }
+            }
+        }
+
+        // Append any remaining AI-generated at the end
+        while aiIndex < aiGenerated.count {
+            if let generated = aiGenerated[aiIndex].generatedRecipe {
+                items.append(.generatedRecipe(generated, reason: aiGenerated[aiIndex].reason))
+            }
+            aiIndex += 1
+        }
+
+        return items
+    }
+
     func handlePendingImport() {
         do {
             if let importData = try checkForPendingImport() {
