@@ -67,7 +67,7 @@ struct MealPlanView: View {
     private var iPadLayout: some View {
         NavigationSplitView {
             RecipesMenuList(
-                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                appSections: [.recipes, .mealPlan, .shoppingList],
                 selectedAppSection: .mealPlan,
                 onSelectAppSection: { tab in
                     selectedTab?.wrappedValue = tab

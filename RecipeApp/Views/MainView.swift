@@ -9,14 +9,12 @@ struct MainView: View {
 
     enum Tab: Hashable {
         case recipes
-        case discover
         case mealPlan
         case shoppingList
 
         var title: String {
             switch self {
             case .recipes: return String(localized: "Recipes")
-            case .discover: return String(localized: "Discover")
             case .mealPlan: return String(localized: "Meal Plan")
             case .shoppingList: return String(localized: "Shopping List")
             }
@@ -25,7 +23,6 @@ struct MainView: View {
         var icon: String {
             switch self {
             case .recipes: return "book"
-            case .discover: return "sparkles"
             case .mealPlan: return "calendar"
             case .shoppingList: return "cart"
             }
@@ -58,13 +55,6 @@ struct MainView: View {
                     Label("Recipes", systemImage: "book")
                 }
                 .accessibilityIdentifier("tab-recipes")
-
-            DiscoverView(menuState: menuState)
-                .tag(Tab.discover)
-                .tabItem {
-                    Label("Discover", systemImage: "sparkles")
-                }
-                .accessibilityIdentifier("tab-discover")
 
             MealPlanView()
                 .tag(Tab.mealPlan)
@@ -109,8 +99,6 @@ struct MainView: View {
                     selectedRecipe: $selectedRecipe,
                     selectedTab: $selectedTab
                 )
-            case .discover:
-                DiscoverView(menuState: menuState, selectedTab: $selectedTab)
             case .mealPlan:
                 MealPlanView(selectedTab: $selectedTab, menuState: menuState)
             case .shoppingList:

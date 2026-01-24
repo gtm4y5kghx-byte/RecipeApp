@@ -48,7 +48,7 @@ struct ShoppingListView: View {
     private var iPadLayout: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             RecipesMenuList(
-                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                appSections: [.recipes, .mealPlan, .shoppingList],
                 selectedAppSection: .shoppingList,
                 onSelectAppSection: { tab in
                     selectedTab?.wrappedValue = tab

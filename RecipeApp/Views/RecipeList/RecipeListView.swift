@@ -143,7 +143,7 @@ struct RecipeListView: View {
     private var iPadLayout: some View {
         NavigationSplitView {
             RecipesMenuList(
-                appSections: [.recipes, .discover, .mealPlan, .shoppingList],
+                appSections: [.recipes, .mealPlan, .shoppingList],
                 selectedAppSection: .recipes,
                 onSelectAppSection: { tab in
                     selectedTab?.wrappedValue = tab
@@ -220,12 +220,11 @@ struct RecipeListView: View {
     private var recipeContent: some View {
         if let viewModel = viewModel {
             RecipeListContent(
-                recipes: viewModel.displayedRecipes,
+                items: viewModel.displayedItems,
                 isSearching: viewModel.isSearching,
                 searchText: searchText,
                 selectedSectionTitle: viewModel.filterTitle,
                 selectedSectionIcon: viewModel.filterIcon,
-                suggestionReasons: viewModel.suggestionReasons,
                 scrollPosition: $scrollPosition,
                 selectedRecipe: selectedRecipe,
                 onFavoriteTap: { recipe in
@@ -233,6 +232,11 @@ struct RecipeListView: View {
                 },
                 onDeleteTap: { recipe in
                     viewModel.deleteRecipe(recipe)
+                },
+                onSaveGeneratedRecipe: { generatedRecipe in
+                    if let savedRecipe = viewModel.saveGeneratedRecipe(generatedRecipe) {
+                        effectiveSelectedRecipe.wrappedValue = savedRecipe
+                    }
                 },
                 onClearSearch: {
                     searchText = ""

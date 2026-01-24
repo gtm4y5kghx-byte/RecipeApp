@@ -1,30 +1,30 @@
 import SwiftUI
 
 struct RecipeListContent: View {
-    let recipes: [Recipe]
+    let items: [RecipeListItem]
     let isSearching: Bool
     let searchText: String
     let selectedSectionTitle: String?
     let selectedSectionIcon: String?
-    let suggestionReasons: [UUID: String]
     @Binding var scrollPosition: ScrollPosition
     var selectedRecipe: Binding<Recipe?>?
     let onFavoriteTap: (Recipe) -> Void
     let onDeleteTap: (Recipe) -> Void
+    let onSaveGeneratedRecipe: (GeneratedRecipe) -> Void
     let onClearSearch: () -> Void
     let onAddRecipe: () -> Void
 
     var body: some View {
-        if recipes.isEmpty {
+        if items.isEmpty {
             emptyState
         } else {
             RecipeGrid(
-                recipes: recipes,
-                suggestionReasons: suggestionReasons,
+                items: items,
                 scrollPosition: $scrollPosition,
                 selectedRecipe: selectedRecipe,
                 onFavoriteTap: onFavoriteTap,
-                onDeleteTap: onDeleteTap
+                onDeleteTap: onDeleteTap,
+                onSaveGeneratedRecipe: onSaveGeneratedRecipe
             )
         }
     }
@@ -64,15 +64,15 @@ struct RecipeListContent: View {
     @Previewable @State var scrollPosition = ScrollPosition(edge: .top)
 
     RecipeListContent(
-        recipes: [],
+        items: [],
         isSearching: false,
         searchText: "",
         selectedSectionTitle: nil,
         selectedSectionIcon: nil,
-        suggestionReasons: [:],
         scrollPosition: $scrollPosition,
         onFavoriteTap: { _ in },
         onDeleteTap: { _ in },
+        onSaveGeneratedRecipe: { _ in },
         onClearSearch: {},
         onAddRecipe: {}
     )
