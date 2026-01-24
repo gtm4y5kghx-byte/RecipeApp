@@ -609,7 +609,7 @@ struct RecipeListViewModelTests {
             tags: ["quick", "dinner"]
         )
 
-        viewModel.saveGeneratedRecipe(generatedRecipe)
+        let _ = viewModel.saveGeneratedRecipe(generatedRecipe)
 
         let descriptor = FetchDescriptor<Recipe>()
         let savedRecipes = try modelContext.fetch(descriptor)
@@ -631,7 +631,7 @@ struct RecipeListViewModelTests {
         #expect(viewModel.suggestions.count == 4)
 
         // Save the first AI-generated recipe
-        viewModel.saveGeneratedRecipe(generatedRecipes[0])
+        let _ = viewModel.saveGeneratedRecipe(generatedRecipes[0])
 
         // Should have removed that suggestion
         #expect(viewModel.suggestions.count == 3)
@@ -646,11 +646,25 @@ struct RecipeListViewModelTests {
 
         let generatedRecipe = RecipeTestFixtures.createGeneratedRecipe(title: "AI Recipe")
 
-        viewModel.saveGeneratedRecipe(generatedRecipe)
+        let _ = viewModel.saveGeneratedRecipe(generatedRecipe)
 
         let descriptor = FetchDescriptor<Recipe>()
         let savedRecipes = try modelContext.fetch(descriptor)
 
         #expect(savedRecipes[0].sourceType == .ai_generated)
+    }
+
+    @Test("saveGeneratedRecipe returns saved recipe for navigation")
+    func testSaveGeneratedRecipeReturnsRecipe() throws {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: [], modelContext: modelContext)
+
+        let generatedRecipe = RecipeTestFixtures.createGeneratedRecipe(title: "AI Pasta")
+
+        let savedRecipe = viewModel.saveGeneratedRecipe(generatedRecipe)
+
+        #expect(savedRecipe != nil)
+        #expect(savedRecipe?.title == "AI Pasta")
+        #expect(savedRecipe?.userTags.contains("AI Generated") == true)
     }
 }

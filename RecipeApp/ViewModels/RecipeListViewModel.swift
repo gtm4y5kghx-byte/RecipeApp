@@ -342,7 +342,8 @@ class RecipeListViewModel {
         }
     }
 
-    func saveGeneratedRecipe(_ generatedRecipe: GeneratedRecipe) {
+    @discardableResult
+    func saveGeneratedRecipe(_ generatedRecipe: GeneratedRecipe) -> Recipe? {
         let recipe = generatedRecipe.toRecipe()
 
         // Add "AI Generated" tag if not already present
@@ -355,11 +356,13 @@ class RecipeListViewModel {
             try modelContext.save()
         } catch {
             self.error = error
-            return
+            return nil
         }
 
         // Remove from suggestions list
         suggestions.removeAll { $0.generatedRecipe?.id == generatedRecipe.id }
+
+        return recipe
     }
     
     func deleteRecipe(_ recipe: Recipe) {
