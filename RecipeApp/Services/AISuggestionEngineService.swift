@@ -1,7 +1,12 @@
 import Foundation
 
 @MainActor
-class AISuggestionEngineService {
+protocol AISuggestionProviding {
+    func getSuggestions(recipes: [Recipe], forceRefresh: Bool) async throws -> [RecipeSuggestion]
+}
+
+@MainActor
+class AISuggestionEngineService: AISuggestionProviding {
     
     private let claudeClient: ClaudeAPIClient
     private let minimumRecipeCount = 10

@@ -3,6 +3,7 @@ import Foundation
 @MainActor
 protocol RecipeGenerating {
     func getGeneratedRecipes(recipes: [Recipe]) async throws -> [GeneratedRecipe]
+    func getGeneratedRecipes(recipes: [Recipe], forceRefresh: Bool) async throws -> [GeneratedRecipe]
 }
 
 @MainActor
