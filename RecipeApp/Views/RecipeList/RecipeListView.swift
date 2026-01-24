@@ -49,6 +49,12 @@ struct RecipeListView: View {
         }
         .onChange(of: recipes) { oldValue, newValue in
             viewModel?.updateRecipes(newValue)
+
+            // Clear selection if the selected recipe was deleted
+            if let selected = effectiveSelectedRecipe.wrappedValue,
+               !newValue.contains(where: { $0.id == selected.id }) {
+                effectiveSelectedRecipe.wrappedValue = nil
+            }
         }
         .onChange(of: searchText) { oldValue, newValue in
             viewModel?.performSearch(query: newValue, scope: searchScope)
