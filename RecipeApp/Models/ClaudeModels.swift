@@ -20,12 +20,63 @@ struct RecipeSuggestion: Codable, Identifiable {
     let recipeID: UUID
     let aiGeneratedReason: String
     let generatedAt: Date
-    
+
     init(recipeID: UUID, aiGeneratedReason: String) {
         self.id = UUID()
         self.recipeID = recipeID
         self.aiGeneratedReason = aiGeneratedReason
         self.generatedAt = Date()
+    }
+}
+
+// MARK: - Unified Suggestion
+
+/// Represents either a suggestion from the user's collection or an AI-generated recipe
+enum UnifiedSuggestion: Identifiable {
+    case fromCollection(RecipeSuggestion)
+    case aiGenerated(GeneratedRecipe, reason: String)
+
+    var id: UUID {
+        switch self {
+        case .fromCollection(let suggestion):
+            return suggestion.id
+        case .aiGenerated(let recipe, _):
+            return recipe.id
+        }
+    }
+
+    var reason: String {
+        switch self {
+        case .fromCollection(let suggestion):
+            return suggestion.aiGeneratedReason
+        case .aiGenerated(_, let reason):
+            return reason
+        }
+    }
+
+    /// Returns the recipe ID for collection suggestions, nil for AI-generated
+    var recipeID: UUID? {
+        switch self {
+        case .fromCollection(let suggestion):
+            return suggestion.recipeID
+        case .aiGenerated:
+            return nil
+        }
+    }
+
+    /// Returns the generated recipe for AI-generated suggestions, nil for collection
+    var generatedRecipe: GeneratedRecipe? {
+        switch self {
+        case .fromCollection:
+            return nil
+        case .aiGenerated(let recipe, _):
+            return recipe
+        }
+    }
+
+    var isAIGenerated: Bool {
+        if case .aiGenerated = self { return true }
+        return false
     }
 }
 
