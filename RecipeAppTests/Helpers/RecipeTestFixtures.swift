@@ -217,12 +217,41 @@ struct RecipeTestFixtures {
         let recipes = createSampleRecipes()
         let modelContext = createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
-        let suggestions = recipes.prefix(suggestionCount).map { recipe in
-            createRecipeSuggestion(recipeID: recipe.id, reason: "Try this again!")
+
+        let suggestions: [UnifiedSuggestion] = recipes.prefix(suggestionCount).map { recipe in
+            let recipeSuggestion = createRecipeSuggestion(recipeID: recipe.id, reason: "Try this again!")
+            return .fromCollection(recipeSuggestion)
         }
-        
-        viewModel.suggestions = Array(suggestions)
+
+        viewModel.suggestions = suggestions
         return (viewModel, recipes)
+    }
+
+    static func createViewModelWithMixedSuggestions(
+        collectionCount: Int = 2,
+        aiGeneratedCount: Int = 2
+    ) -> (RecipeListViewModel, [Recipe], [GeneratedRecipe]) {
+        let recipes = createSampleRecipes()
+        let modelContext = createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+
+        var suggestions: [UnifiedSuggestion] = []
+
+        // Add collection suggestions
+        for recipe in recipes.prefix(collectionCount) {
+            let recipeSuggestion = createRecipeSuggestion(recipeID: recipe.id, reason: "Try this again!")
+            suggestions.append(.fromCollection(recipeSuggestion))
+        }
+
+        // Add AI-generated suggestions
+        var generatedRecipes: [GeneratedRecipe] = []
+        for i in 0..<aiGeneratedCount {
+            let generated = createGeneratedRecipe(title: "AI Recipe \(i + 1)", cuisine: "Italian")
+            generatedRecipes.append(generated)
+            suggestions.append(.aiGenerated(generated, reason: "Made for you • Italian"))
+        }
+
+        viewModel.suggestions = suggestions
+        return (viewModel, recipes, generatedRecipes)
     }
 }

@@ -8,22 +8,28 @@ class RecipeListViewModel {
     var filteredResults: [Recipe] = []
     var isSearching: Bool = false
     var searchTask: Task<Void, Never>?
-    var suggestions: [RecipeSuggestion] = []
+    var suggestions: [UnifiedSuggestion] = []
     var suggestionError: AIError?
     var selectedSection: MenuSection = .all
     var justImportedRecipe: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext
-    private let suggestionEngine = AISuggestionEngineService()
-    
+    private let suggestionService: UnifiedSuggestionProviding
+
     var error: Error?
 
     private var menuState: AppMenuState?
 
-    init(recipes: [Recipe], modelContext: ModelContext, menuState: AppMenuState? = nil) {
+    init(
+        recipes: [Recipe],
+        modelContext: ModelContext,
+        menuState: AppMenuState? = nil,
+        suggestionService: UnifiedSuggestionProviding? = nil
+    ) {
         self.recipes = recipes
         self.modelContext = modelContext
         self.menuState = menuState
+        self.suggestionService = suggestionService ?? UnifiedSuggestionService()
         updateMenuState()
     }
 
@@ -127,13 +133,18 @@ class RecipeListViewModel {
 
 
     var suggestedRecipeIDs: Set<UUID> {
-        Set(suggestions.map { $0.recipeID })
+        Set(suggestions.compactMap { $0.recipeID })
     }
 
     var suggestionReasons: [UUID: String] {
-        Dictionary(uniqueKeysWithValues: suggestions.map {
-            ($0.recipeID, $0.aiGeneratedReason)
+        Dictionary(uniqueKeysWithValues: suggestions.compactMap { suggestion -> (UUID, String)? in
+            guard let recipeID = suggestion.recipeID else { return nil }
+            return (recipeID, suggestion.reason)
         })
+    }
+
+    var aiGeneratedSuggestions: [UnifiedSuggestion] {
+        suggestions.filter { $0.isAIGenerated }
     }
     
 
@@ -314,21 +325,41 @@ class RecipeListViewModel {
     func loadSuggestionsDev() async {
         suggestionError = nil
         do {
-            suggestions = try await suggestionEngine.getSuggestions(recipes: recipes, forceRefresh: true)
+            suggestions = try await suggestionService.getUnifiedSuggestions(recipes: recipes, forceRefresh: true)
         } catch {
             suggestionError = .suggestionsFailed
             suggestions = []
         }
     }
-    
+
     func loadSuggestions() async {
         suggestionError = nil
         do {
-            suggestions = try await suggestionEngine.getSuggestions(recipes: recipes)
+            suggestions = try await suggestionService.getUnifiedSuggestions(recipes: recipes, forceRefresh: false)
         } catch {
             suggestionError = .suggestionsFailed
             suggestions = []
         }
+    }
+
+    func saveGeneratedRecipe(_ generatedRecipe: GeneratedRecipe) {
+        let recipe = generatedRecipe.toRecipe()
+
+        // Add "AI Generated" tag if not already present
+        if !recipe.userTags.contains("AI Generated") {
+            recipe.userTags.append("AI Generated")
+        }
+
+        modelContext.insert(recipe)
+        do {
+            try modelContext.save()
+        } catch {
+            self.error = error
+            return
+        }
+
+        // Remove from suggestions list
+        suggestions.removeAll { $0.generatedRecipe?.id == generatedRecipe.id }
     }
     
     func deleteRecipe(_ recipe: Recipe) {

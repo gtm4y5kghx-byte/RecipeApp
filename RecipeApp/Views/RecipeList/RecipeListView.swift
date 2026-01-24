@@ -313,17 +313,17 @@ private struct RecipeDetailColumn: View {
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Recipe.self, configurations: config)
-    
-    SampleData.loadSampleRecipes(into: container.mainContext)
+
+    let _ = SampleData.loadSampleRecipes(into: container.mainContext)
     let recipes = try! container.mainContext.fetch(FetchDescriptor<Recipe>())
-    
+
     let mockViewModel = RecipeListViewModel(recipes: recipes, modelContext: container.mainContext)
-    mockViewModel.suggestions = [
-        RecipeSuggestion(recipeID: recipes[0].id, aiGeneratedReason: "You haven't cooked this in a while"),
-        RecipeSuggestion(recipeID: recipes[1].id, aiGeneratedReason: "Quick weeknight dinner"),
-        RecipeSuggestion(recipeID: recipes[2].id, aiGeneratedReason: "Quick weekend dinner")
+    let _ = mockViewModel.suggestions = [
+        .fromCollection(RecipeSuggestion(recipeID: recipes[0].id, aiGeneratedReason: "You haven't cooked this in a while")),
+        .fromCollection(RecipeSuggestion(recipeID: recipes[1].id, aiGeneratedReason: "Quick weeknight dinner")),
+        .fromCollection(RecipeSuggestion(recipeID: recipes[2].id, aiGeneratedReason: "Quick weekend dinner"))
     ]
-    
-    return RecipeListView(previewViewModel: mockViewModel)
+
+    RecipeListView(previewViewModel: mockViewModel)
         .modelContainer(container)
 }

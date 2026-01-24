@@ -33,33 +33,39 @@ struct RecipeListViewModelTests {
     }
     
     // MARK: - Search Tests
-    
+
+    private func waitForSearch() async {
+        try? await Task.sleep(for: .milliseconds(350))
+    }
+
     @Test("Search filters recipes by title substring")
-    func testSearchByTitleSubstring() {
+    func testSearchByTitleSubstring() async {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         viewModel.performSearch(query: "pasta", scope: .title)
-        
+        await waitForSearch()
+
         #expect(viewModel.filteredResults.count == 1)
         #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
     }
-    
+
     @Test("Search with empty query returns no results")
-    func testSearchEmptyQuery() {
+    func testSearchEmptyQuery() async {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         viewModel.performSearch(query: "", scope: .all)
-        
+        await waitForSearch()
+
         #expect(viewModel.filteredResults.isEmpty)
         #expect(viewModel.isSearching == false)
     }
-    
+
     @Test("Search in all fields finds matches")
-    func testSearchAllFields() {
+    func testSearchAllFields() async {
         let recipe = RecipeTestFixtures.createRecipe(
             title: "Test Recipe",
             ingredients: [("2", "cups", "pasta")],
@@ -67,36 +73,40 @@ struct RecipeListViewModelTests {
         )
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: [recipe], modelContext: modelContext)
-        
+
         viewModel.performSearch(query: "pasta", scope: .all)
-        
+        await waitForSearch()
+
         #expect(viewModel.filteredResults.count == 1)
     }
-    
+
     @Test("Search is case insensitive")
-    func testSearchCaseInsensitive() {
+    func testSearchCaseInsensitive() async {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         viewModel.performSearch(query: "PASTA", scope: .title)
-        
+        await waitForSearch()
+
         #expect(viewModel.filteredResults.count == 1)
         #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
     }
-    
+
     @Test("Search does not match typos or fuzzy matches")
-    func testSearchNoFuzzyMatching() {
+    func testSearchNoFuzzyMatching() async {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         // "pasto" should NOT match "Pasta" (no fuzzy matching)
         viewModel.performSearch(query: "pasto", scope: .title)
+        await waitForSearch()
         #expect(viewModel.filteredResults.isEmpty)
-        
+
         // "past" SHOULD match "Pasta" (substring)
         viewModel.performSearch(query: "past", scope: .title)
+        await waitForSearch()
         #expect(viewModel.filteredResults.count == 1)
     }
     
@@ -265,9 +275,9 @@ struct RecipeListViewModelTests {
     }
     
     // MARK: - Search State Tests
-    
+
     @Test("Search with zero results shows empty array when favorites filter active")
-    func testSearchZeroResultsWithFavoritesFilter() {
+    func testSearchZeroResultsWithFavoritesFilter() async {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Italian Pasta", isFavorite: true),
             RecipeTestFixtures.createRecipe(title: "Mexican Tacos", isFavorite: true),
@@ -275,21 +285,22 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         // Set favorites filter
         viewModel.selectedSection = .favorites
-        
+
         // Search for something that won't match
         viewModel.performSearch(query: "zzzzz", scope: .title)
-        
+        await waitForSearch()
+
         // Should show zero results (not all favorites)
         let displayed = viewModel.displayedRecipes
         #expect(displayed.isEmpty)
         #expect(viewModel.isSearching == true)
     }
-    
+
     @Test("Clearing search shows all filtered recipes")
-    func testClearSearchShowsFilteredRecipes() {
+    func testClearSearchShowsFilteredRecipes() async {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Italian Pasta", isFavorite: true),
             RecipeTestFixtures.createRecipe(title: "Mexican Tacos", isFavorite: true),
@@ -297,25 +308,27 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         // Set favorites filter
         viewModel.selectedSection = .favorites
-        
+
         // Search for something
         viewModel.performSearch(query: "pasta", scope: .title)
+        await waitForSearch()
         #expect(viewModel.isSearching == true)
-        
+
         // Clear search (empty query)
         viewModel.performSearch(query: "", scope: .title)
-        
+        await waitForSearch()
+
         // Should show all favorites (2 recipes)
         let displayed = viewModel.displayedRecipes
         #expect(displayed.count == 2)
         #expect(viewModel.isSearching == false)
     }
-    
+
     @Test("Search with results respects active filter")
-    func testSearchWithResultsRespectsFilter() {
+    func testSearchWithResultsRespectsFilter() async {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Italian Pasta", isFavorite: true),
             RecipeTestFixtures.createRecipe(title: "Italian Pizza", isFavorite: false),
@@ -323,25 +336,26 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         // Set favorites filter
         viewModel.selectedSection = .favorites
-        
+
         // Search for "italian" - should find 2 recipes but only 1 is favorite
         viewModel.performSearch(query: "italian", scope: .title)
-        
+        await waitForSearch()
+
         let displayed = viewModel.displayedRecipes
         #expect(displayed.count == 1)
         #expect(displayed[0].title == "Italian Pasta")
         #expect(viewModel.isSearching == true)
     }
-    
+
     @Test("isSearching flag is false by default")
     func testIsSearchingDefaultFalse() {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         #expect(viewModel.isSearching == false)
     }
     
@@ -526,15 +540,117 @@ struct RecipeListViewModelTests {
     @Test("Should not trigger suggestions below threshold")
     func testShouldNotTriggerSuggestionsBelowThreshold() async throws {
         UserDefaults.standard.removeObject(forKey: "suggestions_threshold_met")
-        
+
         let recipes = Array(0..<5).map { i in
             RecipeTestFixtures.createRecipe(title: "Recipe \(i)")
         }
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         let shouldTrigger = viewModel.shouldTriggerSuggestionGeneration()
-        
+
         #expect(shouldTrigger == false)
+    }
+
+    // MARK: - AI Generated Suggestions Tests
+
+    @Test("aiGeneratedSuggestions filters only AI-generated suggestions")
+    func testAIGeneratedSuggestionsFilter() {
+        let (viewModel, _, generatedRecipes) = RecipeTestFixtures.createViewModelWithMixedSuggestions(
+            collectionCount: 2,
+            aiGeneratedCount: 2
+        )
+
+        let aiSuggestions = viewModel.aiGeneratedSuggestions
+
+        #expect(aiSuggestions.count == 2)
+        #expect(aiSuggestions.allSatisfy { $0.isAIGenerated })
+        #expect(aiSuggestions[0].generatedRecipe?.title == generatedRecipes[0].title)
+        #expect(aiSuggestions[1].generatedRecipe?.title == generatedRecipes[1].title)
+    }
+
+    @Test("suggestedRecipeIDs excludes AI-generated suggestions")
+    func testSuggestedRecipeIDsExcludesAIGenerated() {
+        let (viewModel, recipes, _) = RecipeTestFixtures.createViewModelWithMixedSuggestions(
+            collectionCount: 2,
+            aiGeneratedCount: 2
+        )
+
+        let suggestedIDs = viewModel.suggestedRecipeIDs
+
+        // Should only contain IDs from collection suggestions (first 2 recipes)
+        #expect(suggestedIDs.count == 2)
+        #expect(suggestedIDs.contains(recipes[0].id))
+        #expect(suggestedIDs.contains(recipes[1].id))
+    }
+
+    @Test("suggestionReasons excludes AI-generated suggestions")
+    func testSuggestionReasonsExcludesAIGenerated() {
+        let (viewModel, recipes, _) = RecipeTestFixtures.createViewModelWithMixedSuggestions(
+            collectionCount: 2,
+            aiGeneratedCount: 2
+        )
+
+        let reasons = viewModel.suggestionReasons
+
+        // Should only contain reasons for collection suggestions
+        #expect(reasons.count == 2)
+        #expect(reasons[recipes[0].id] == "Try this again!")
+        #expect(reasons[recipes[1].id] == "Try this again!")
+    }
+
+    @Test("saveGeneratedRecipe adds AI Generated tag")
+    func testSaveGeneratedRecipeAddsTag() throws {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: [], modelContext: modelContext)
+
+        let generatedRecipe = RecipeTestFixtures.createGeneratedRecipe(
+            title: "AI Pasta",
+            tags: ["quick", "dinner"]
+        )
+
+        viewModel.saveGeneratedRecipe(generatedRecipe)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let savedRecipes = try modelContext.fetch(descriptor)
+
+        #expect(savedRecipes.count == 1)
+        #expect(savedRecipes[0].title == "AI Pasta")
+        #expect(savedRecipes[0].userTags.contains("AI Generated"))
+        #expect(savedRecipes[0].userTags.contains("quick"))
+        #expect(savedRecipes[0].userTags.contains("dinner"))
+    }
+
+    @Test("saveGeneratedRecipe removes from suggestions list")
+    func testSaveGeneratedRecipeRemovesFromSuggestions() throws {
+        let (viewModel, _, generatedRecipes) = RecipeTestFixtures.createViewModelWithMixedSuggestions(
+            collectionCount: 2,
+            aiGeneratedCount: 2
+        )
+
+        #expect(viewModel.suggestions.count == 4)
+
+        // Save the first AI-generated recipe
+        viewModel.saveGeneratedRecipe(generatedRecipes[0])
+
+        // Should have removed that suggestion
+        #expect(viewModel.suggestions.count == 3)
+        #expect(viewModel.aiGeneratedSuggestions.count == 1)
+        #expect(viewModel.aiGeneratedSuggestions[0].generatedRecipe?.title == generatedRecipes[1].title)
+    }
+
+    @Test("saveGeneratedRecipe sets source type to ai_generated")
+    func testSaveGeneratedRecipeSourceType() throws {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: [], modelContext: modelContext)
+
+        let generatedRecipe = RecipeTestFixtures.createGeneratedRecipe(title: "AI Recipe")
+
+        viewModel.saveGeneratedRecipe(generatedRecipe)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let savedRecipes = try modelContext.fetch(descriptor)
+
+        #expect(savedRecipes[0].sourceType == .ai_generated)
     }
 }
