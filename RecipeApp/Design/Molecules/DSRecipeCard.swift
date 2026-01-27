@@ -75,7 +75,7 @@ struct DSRecipeCard: View {
 
             headerRow
 
-            if let subtitle = subtitle {
+            if subtitle != nil || showSuggestionBadge {
                 subtitleSection
             }
 
