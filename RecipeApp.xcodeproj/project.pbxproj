@@ -59,6 +59,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4823B8722F28E01000E936A4 /* Exceptions for "RecipeApp" folder in "RecipeApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 48013D062E9E49540021EBF4 /* RecipeApp */;
+		};
 		48A6C6A92ECF39F300C19EE6 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -81,6 +88,7 @@
 		48013D092E9E49540021EBF4 /* RecipeApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				4823B8722F28E01000E936A4 /* Exceptions for "RecipeApp" folder in "RecipeApp" target */,
 				48A6C6B82ED08E8200C19EE6 /* Exceptions for "RecipeApp" folder in "ShareExtension" target */,
 			);
 			path = RecipeApp;
