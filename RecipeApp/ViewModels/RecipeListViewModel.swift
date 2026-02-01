@@ -223,33 +223,8 @@ class RecipeListViewModel {
         }
     }
     
-    func checkSuggestionThreshold() {
-        if shouldTriggerSuggestionGeneration() {
-            markThresholdAsMet()
-            Task {
-                await loadSuggestions()
-            }
-        }
-    }
-
-    // MARK: - Testable Threshold Helpers
-    
-    func shouldTriggerSuggestionGeneration() -> Bool {
-        let currentCount = recipes.count
-        let thresholdMet = currentCount >= 10
-        let previouslyMetThreshold = UserDefaults.standard.bool(forKey: "suggestions_threshold_met")
-        
-        return thresholdMet && !previouslyMetThreshold
-    }
-    
-    private func markThresholdAsMet() {
-        UserDefaults.standard.set(true, forKey: "suggestions_threshold_met")
-    }
-
     func loadSuggestionsIfEligible() async {
-        let hasMetThreshold = UserDefaults.standard.bool(forKey: "suggestions_threshold_met")
-        guard hasMetThreshold && recipes.count >= 10 else { return }
-        
+        guard recipes.count >= 10 else { return }
         await loadSuggestions()
     }
     
@@ -515,7 +490,6 @@ class RecipeListViewModel {
         
         modelContext.insert(recipe)
         try modelContext.save()
-        checkSuggestionThreshold()
     }
 }
 

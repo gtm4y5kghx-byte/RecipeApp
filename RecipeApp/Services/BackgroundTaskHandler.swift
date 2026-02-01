@@ -26,10 +26,6 @@ actor BackgroundTaskHandler {
                 forceRefresh: false
             )
 
-            if !suggestions.isEmpty {
-                UserDefaults.standard.set(true, forKey: "suggestions_threshold_met")
-            }
-
             logger.info("Background AI generation completed - \(suggestions.count) suggestions")
         } catch {
             logger.error("Background AI generation failed: \(error.localizedDescription)")
