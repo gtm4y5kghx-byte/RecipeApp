@@ -53,6 +53,9 @@ struct SettingsContent: View {
                 .accessibilityIdentifier("settings-close-button")
             }
         }
+        .task {
+            await viewModel.loadProducts()
+        }
     }
     
     private var displaySettingsSection: some View {
@@ -110,39 +113,89 @@ struct SettingsContent: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             HStack {
                 DSIcon("star.fill", size: .medium, color: .accent)
-                DSLabel("Premium", style: .headline, color: .primary)
+                DSLabel(viewModel.hasActiveSubscription ? "Subscriber" : "Premium", style: .headline, color: .primary)
             }
-            
-            DSLabel("You have access to all premium features", style: .body, color: .secondary)
-            
-            DSButton(title: "Manage Subscription", style: .secondary, size: .medium) {
-                // TODO: Open subscription management
+
+            if viewModel.hasActiveSubscription {
+                DSLabel("You have access to all features including meal planning", style: .body, color: .secondary)
+
+                DSButton(title: "Manage Subscription", style: .secondary, size: .medium) {
+                    Task { await viewModel.openSubscriptionManagement() }
+                }
+                .accessibilityIdentifier("manage-subscription-button")
+            } else {
+                DSLabel("You have access to suggestions and recipe generation", style: .body, color: .secondary)
+
+                if let price = viewModel.subscriptionPrice {
+                    DSButton(
+                        title: "Add Meal Planning - \(price)/month",
+                        style: .primary,
+                        size: .medium
+                    ) {
+                        Task { await viewModel.purchaseSubscription() }
+                    }
+                    .disabled(viewModel.isPurchasing)
+                    .accessibilityIdentifier("add-subscription-button")
+                }
             }
-            .accessibilityIdentifier("manage-subscription-button")
+
+            DSButton(title: "Restore Purchases", style: .tertiary, size: .small) {
+                Task { await viewModel.restorePurchases() }
+            }
+            .disabled(viewModel.isPurchasing)
+            .accessibilityIdentifier("restore-purchases-button")
         }
     }
-    
+
     private var freeStatus: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             DSLabel("Free Plan", style: .headline, color: .primary)
-            
+
             DSLabel("Upgrade to unlock:", style: .body, color: .secondary)
-            
+
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                featureBullet("AI Suggestions")
                 featureBullet("AI Recipe Generation")
                 featureBullet("AI Meal Planning")
             }
             .padding(.leading, Theme.Spacing.md)
-            
-            DSButton(
-                title: "Upgrade to Premium",
-                style: .primary,
-                size: .medium,
-                icon: "star.fill"
-            ) {
-                // TODO: Open upgrade flow
+
+            if let price = viewModel.premiumPrice {
+                DSButton(
+                    title: "Upgrade to Premium - \(price)",
+                    style: .primary,
+                    size: .medium,
+                    icon: "star.fill"
+                ) {
+                    Task { await viewModel.purchasePremium() }
+                }
+                .disabled(viewModel.isPurchasing)
+                .accessibilityIdentifier("upgrade-premium-button")
             }
-            .accessibilityIdentifier("upgrade-premium-button")
+
+            if let subPrice = viewModel.subscriptionPrice {
+                DSButton(
+                    title: "Subscribe - \(subPrice)/month",
+                    style: .secondary,
+                    size: .medium
+                ) {
+                    Task { await viewModel.purchaseSubscription() }
+                }
+                .disabled(viewModel.isPurchasing)
+                .accessibilityIdentifier("subscribe-button")
+
+                DSLabel("Includes Premium forever, even if you cancel", style: .caption1, color: .tertiary)
+            }
+
+            DSButton(title: "Restore Purchases", style: .tertiary, size: .small) {
+                Task { await viewModel.restorePurchases() }
+            }
+            .disabled(viewModel.isPurchasing)
+            .accessibilityIdentifier("restore-purchases-button")
+
+            if let error = viewModel.purchaseError {
+                DSLabel(error.localizedDescription, style: .caption1, color: .error)
+            }
         }
     }
     

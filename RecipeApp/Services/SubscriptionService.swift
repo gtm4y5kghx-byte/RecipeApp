@@ -58,10 +58,6 @@ class SubscriptionService {
         transactionListener = listenForTransactions()
     }
 
-    deinit {
-        transactionListener?.cancel()
-    }
-
     // MARK: - Public Methods
 
     func loadProducts() async {

@@ -15,8 +15,8 @@ class UserSubscriptionService {
     // For previews/testing
     static var mockIsPremium: Bool = true
 
-    init(subscriptionService: SubscriptionService = SubscriptionService()) {
-        self.subscriptionService = subscriptionService
+    init(subscriptionService: SubscriptionService? = nil) {
+        self.subscriptionService = subscriptionService ?? SubscriptionService()
     }
 
     var currentTier: SubscriptionTier {
