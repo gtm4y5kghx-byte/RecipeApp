@@ -10,5 +10,5 @@ enum FeatureFlags {
 
     // MARK: - Premium Gating
     /// When false, all users get premium features (TestFlight mode)
-    static var isPremiumGatingEnabled: Bool { false }
+    static var isPremiumGatingEnabled: Bool { true }
 }

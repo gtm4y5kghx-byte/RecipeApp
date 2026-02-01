@@ -36,6 +36,15 @@ class SettingsViewModel {
         subscriptionService.store.subscriptionProduct?.displayPrice
     }
 
+    var subscriptionIntroPrice: String? {
+        subscriptionService.store.subscriptionProduct?.subscription?.introductoryOffer?.displayPrice
+    }
+
+    /// Whether the user is eligible for the intro offer
+    var isEligibleForIntroOffer: Bool {
+        subscriptionService.store.subscriptionProduct?.subscription?.introductoryOffer != nil
+    }
+
     init(
         subscriptionService: UserSubscriptionService,
         userDefaults: UserDefaults = .standard,

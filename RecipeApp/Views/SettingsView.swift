@@ -148,43 +148,62 @@ struct SettingsContent: View {
     }
 
     private var freeStatus: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             DSLabel("Free Plan", style: .headline, color: .primary)
 
-            DSLabel("Upgrade to unlock:", style: .body, color: .secondary)
-
+            // Subscription option (recommended)
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                featureBullet("AI Suggestions")
-                featureBullet("AI Recipe Generation")
-                featureBullet("AI Meal Planning")
-            }
-            .padding(.leading, Theme.Spacing.md)
+                DSLabel("Get everything:", style: .body, color: .secondary)
 
-            if let price = viewModel.premiumPrice {
-                DSButton(
-                    title: "Upgrade to Premium - \(price)",
-                    style: .primary,
-                    size: .medium,
-                    icon: "star.fill"
-                ) {
-                    Task { await viewModel.purchasePremium() }
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    featureBullet("AI Suggestions")
+                    featureBullet("AI Recipe Generation")
+                    featureBullet("AI Meal Planning")
                 }
-                .disabled(viewModel.isPurchasing)
-                .accessibilityIdentifier("upgrade-premium-button")
+                .padding(.leading, Theme.Spacing.md)
+
+                if let introPrice = viewModel.subscriptionIntroPrice,
+                   let monthlyPrice = viewModel.subscriptionPrice {
+                    DSButton(
+                        title: "Subscribe - \(introPrice) first month",
+                        style: .primary,
+                        size: .medium,
+                        icon: "star.fill"
+                    ) {
+                        Task { await viewModel.purchaseSubscription() }
+                    }
+                    .disabled(viewModel.isPurchasing)
+                    .accessibilityIdentifier("subscribe-button")
+
+                    DSLabel("Then \(monthlyPrice)/month. Premium included forever.", style: .caption1, color: .tertiary)
+                }
             }
 
-            if let subPrice = viewModel.subscriptionPrice {
-                DSButton(
-                    title: "Subscribe - \(subPrice)/month",
-                    style: .secondary,
-                    size: .medium
-                ) {
-                    Task { await viewModel.purchaseSubscription() }
-                }
-                .disabled(viewModel.isPurchasing)
-                .accessibilityIdentifier("subscribe-button")
+            DSDivider()
 
-                DSLabel("Includes Premium forever, even if you cancel", style: .caption1, color: .tertiary)
+            // Premium-only option
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                DSLabel("Or, just the essentials:", style: .body, color: .secondary)
+
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    featureBullet("AI Suggestions")
+                    featureBullet("AI Recipe Generation")
+                }
+                .padding(.leading, Theme.Spacing.md)
+
+                if let price = viewModel.premiumPrice {
+                    DSButton(
+                        title: "Buy Premium - \(price)",
+                        style: .secondary,
+                        size: .medium
+                    ) {
+                        Task { await viewModel.purchasePremium() }
+                    }
+                    .disabled(viewModel.isPurchasing)
+                    .accessibilityIdentifier("upgrade-premium-button")
+
+                    DSLabel("One-time purchase. No meal planning.", style: .caption1, color: .tertiary)
+                }
             }
 
             DSButton(title: "Restore Purchases", style: .tertiary, size: .small) {
