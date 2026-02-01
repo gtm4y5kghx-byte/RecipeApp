@@ -129,10 +129,8 @@ struct SettingsContent: View {
             DSLabel("Upgrade to unlock:", style: .body, color: .secondary)
             
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                featureBullet("Recipe Transformation")
-                featureBullet("Unlimited Recipe Discovery")
-                featureBullet("AI Meal Planning (Coming Soon)")
-                featureBullet("AI Recipe Generation (Coming Soon)")
+                featureBullet("AI Recipe Generation")
+                featureBullet("AI Meal Planning")
             }
             .padding(.leading, Theme.Spacing.md)
             
