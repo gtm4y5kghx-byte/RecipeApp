@@ -7,22 +7,58 @@ class UserSubscriptionService {
     enum SubscriptionTier {
         case free
         case premium
+        case subscriber
     }
 
+    private let subscriptionService: SubscriptionService
+
+    // For previews/testing
     static var mockIsPremium: Bool = true
-    
+
+    init(subscriptionService: SubscriptionService = SubscriptionService()) {
+        self.subscriptionService = subscriptionService
+    }
+
     var currentTier: SubscriptionTier {
-        Self.mockIsPremium ? .premium : .free
+        if subscriptionService.hasActiveSubscription {
+            return .subscriber
+        } else if subscriptionService.hasPremium {
+            return .premium
+        }
+        return .free
     }
-    
+
+    /// Has premium access (purchased or ever subscribed)
     var isPremium: Bool {
-        // TestFlight: everyone is premium when gating disabled
         guard FeatureFlags.isPremiumGatingEnabled else { return true }
-        return Self.mockIsPremium
+        return subscriptionService.hasPremium
     }
-    
+
+    /// Has active subscription for meal plan generation
+    var canGenerateMealPlan: Bool {
+        guard FeatureFlags.isPremiumGatingEnabled else { return true }
+        return subscriptionService.hasActiveSubscription
+    }
+
+    /// Access to underlying subscription service for purchases
+    var store: SubscriptionService {
+        subscriptionService
+    }
+
+    func loadProducts() async {
+        await subscriptionService.loadProducts()
+    }
+
     func requiresPremium(action: () -> Void, showPaywall: @escaping () -> Void) {
         if isPremium {
+            action()
+        } else {
+            showPaywall()
+        }
+    }
+
+    func requiresSubscription(action: () -> Void, showPaywall: @escaping () -> Void) {
+        if canGenerateMealPlan {
             action()
         } else {
             showPaywall()
