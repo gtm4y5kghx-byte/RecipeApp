@@ -25,6 +25,7 @@ class SubscriptionService {
 
     private var transactionListener: Task<Void, Error>?
     private let hasEverSubscribedKey = "has_ever_subscribed"
+    private let userDefaults: UserDefaults
 
     // MARK: - Computed Properties
 
@@ -48,14 +49,22 @@ class SubscriptionService {
 
     /// User has subscribed at least once (persisted)
     var hasEverSubscribed: Bool {
-        get { UserDefaults.standard.bool(forKey: hasEverSubscribedKey) }
-        set { UserDefaults.standard.set(newValue, forKey: hasEverSubscribedKey) }
+        get { userDefaults.bool(forKey: hasEverSubscribedKey) }
+        set { userDefaults.set(newValue, forKey: hasEverSubscribedKey) }
     }
 
     // MARK: - Initialization
 
-    init() {
-        transactionListener = listenForTransactions()
+    init(
+        userDefaults: UserDefaults = .standard,
+        initialPurchasedProductIDs: Set<String>? = nil
+    ) {
+        self.userDefaults = userDefaults
+        if let initialIDs = initialPurchasedProductIDs {
+            self.purchasedProductIDs = initialIDs
+        } else {
+            transactionListener = listenForTransactions()
+        }
     }
 
     // MARK: - Public Methods
