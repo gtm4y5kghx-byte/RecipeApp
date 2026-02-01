@@ -4,6 +4,7 @@ import Foundation
 class SettingsViewModel {
     private let subscriptionService: UserSubscriptionService
     private let userDefaults: UserDefaults
+    private let isPremiumOverride: Bool?
 
     var keepScreenOnInCookingMode: Bool {
         get { userDefaults.object(forKey: "keepScreenOnInCookingMode") as? Bool ?? true }
@@ -16,11 +17,16 @@ class SettingsViewModel {
     }
 
     var isPremium: Bool {
-        subscriptionService.isPremium
+        isPremiumOverride ?? subscriptionService.isPremium
     }
 
-    init(subscriptionService: UserSubscriptionService, userDefaults: UserDefaults = .standard) {
+    init(
+        subscriptionService: UserSubscriptionService,
+        userDefaults: UserDefaults = .standard,
+        isPremiumOverride: Bool? = nil
+    ) {
         self.subscriptionService = subscriptionService
         self.userDefaults = userDefaults
+        self.isPremiumOverride = isPremiumOverride
     }
 }

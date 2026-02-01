@@ -3,7 +3,11 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: SettingsViewModel?
-    
+
+    init(previewViewModel: SettingsViewModel? = nil) {
+        _viewModel = State(initialValue: previewViewModel)
+    }
+
     var body: some View {
         NavigationStack {
             if let viewModel = viewModel {
@@ -25,6 +29,7 @@ struct SettingsView: View {
 struct SettingsContent: View {
     @Bindable var viewModel: SettingsViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     
     var body: some View {
         ScrollView {
@@ -153,23 +158,29 @@ struct SettingsContent: View {
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             DSLabel("About", style: .title3, color: .primary)
-            
-            aboutRow(icon: "info.circle", title: "Version", value: "1.0.0")
+
+            aboutRow(icon: "info.circle", title: "Version", value: AppConstants.appVersion)
             DSDivider()
-            aboutRow(icon: "doc.text", title: "Privacy Policy")
+            aboutRow(icon: "doc.text", title: "Privacy Policy") {
+                openURL(AppConstants.privacyPolicyURL)
+            }
             DSDivider()
-            aboutRow(icon: "doc.text", title: "Terms of Service")
+            aboutRow(icon: "doc.text", title: "Terms of Service") {
+                openURL(AppConstants.termsOfServiceURL)
+            }
             DSDivider()
-            aboutRow(icon: "envelope", title: "Contact Support")
+            aboutRow(icon: "envelope", title: "Contact Support") {
+                openURL(AppConstants.supportEmailURL)
+            }
         }
         .padding(Theme.Spacing.md)
         .background(Theme.Colors.backgroundLight)
         .cornerRadius(Theme.CornerRadius.md)
     }
-    
-    private func aboutRow(icon: String, title: String, value: String? = nil) -> some View {
+
+    private func aboutRow(icon: String, title: String, value: String? = nil, action: (() -> Void)? = nil) -> some View {
         Button {
-            // TODO: Handle navigation for each row
+            action?()
         } label: {
             HStack {
                 DSIcon(icon, size: .medium, color: .primary)
@@ -183,17 +194,22 @@ struct SettingsContent: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        .disabled(action == nil)
     }
 }
 
-#Preview("Settings View") {
-    SettingsView()
-}
-
 #Preview("Settings - Premium User") {
-    SettingsView()
+    let viewModel = SettingsViewModel(
+        subscriptionService: UserSubscriptionService(),
+        isPremiumOverride: true
+    )
+    return SettingsView(previewViewModel: viewModel)
 }
 
 #Preview("Settings - Free User") {
-    SettingsView()
+    let viewModel = SettingsViewModel(
+        subscriptionService: UserSubscriptionService(),
+        isPremiumOverride: false
+    )
+    return SettingsView(previewViewModel: viewModel)
 }
