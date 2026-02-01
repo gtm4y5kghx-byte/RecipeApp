@@ -74,6 +74,12 @@
             ReferencedContainer = "container:RecipeApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "RESET_USER_DEFAULTS"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "SPOONACULAR_API_KEY"

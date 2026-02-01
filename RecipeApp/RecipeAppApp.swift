@@ -5,6 +5,7 @@ import BackgroundTasks
 @main
 struct RecipeAppApp: App {
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("has_completed_onboarding") private var hasCompletedOnboarding = false
 
     init() {
         if ProcessInfo.processInfo.arguments.contains("RESET_USER_DEFAULTS") {
@@ -36,7 +37,13 @@ struct RecipeAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainView()
+            if hasCompletedOnboarding {
+                MainView()
+            } else {
+                OnboardingView {
+                    hasCompletedOnboarding = true
+                }
+            }
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
