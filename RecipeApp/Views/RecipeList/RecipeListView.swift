@@ -5,6 +5,7 @@ struct RecipeListView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.isIPad) private var isIPad
+    @Environment(\.scenePhase) private var scenePhase
 
     var menuState: AppMenuState?
     var selectedRecipe: Binding<Recipe?>?
@@ -64,6 +65,13 @@ struct RecipeListView: View {
         }
         .onChange(of: viewModel?.selectedSection) { _, _ in
             scrollPosition.scrollTo(edge: .top)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    await viewModel?.loadSuggestionsIfEligible()
+                }
+            }
         }
         .onAppear {
             handleViewAppear()
