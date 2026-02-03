@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GeneratePlanConfigSection: View {
     @Bindable var viewModel: GeneratePlanViewModel
+    let onShowPaywall: () -> Void
 
     var body: some View {
         VStack(spacing: Theme.Spacing.md) {
@@ -60,23 +61,41 @@ struct GeneratePlanConfigSection: View {
 
     private var generateButton: some View {
         VStack(spacing: Theme.Spacing.xs) {
-            DSButton(
-                title: viewModel.hasResults ? "Regenerate" : "Generate Plan",
-                style: .primary,
-                icon: "sparkles",
-                fullWidth: true
-            ) {
-                Task { await viewModel.generatePlan() }
-            }
-            .disabled(!viewModel.canGenerate || viewModel.hasReachedWeeklyLimit)
-            .accessibilityIdentifier("generate-plan-generate-button")
+            if viewModel.canAccessGeneration {
+                DSButton(
+                    title: viewModel.hasResults ? "Regenerate" : "Generate Plan",
+                    style: .primary,
+                    icon: "sparkles",
+                    fullWidth: true
+                ) {
+                    Task { await viewModel.generatePlan() }
+                }
+                .disabled(!viewModel.canGenerate || viewModel.hasReachedWeeklyLimit)
+                .accessibilityIdentifier("generate-plan-generate-button")
 
-            DSLabel(
-                "\(viewModel.remainingGenerations) generation\(viewModel.remainingGenerations == 1 ? "" : "s") left this week",
-                style: .caption1,
-                color: viewModel.hasReachedWeeklyLimit ? .warning : .tertiary,
-                alignment: .center
-            )
+                DSLabel(
+                    "\(viewModel.remainingGenerations) generation\(viewModel.remainingGenerations == 1 ? "" : "s") left this week",
+                    style: .caption1,
+                    color: viewModel.hasReachedWeeklyLimit ? .warning : .tertiary,
+                    alignment: .center
+                )
+            } else {
+                DSButton(
+                    title: "Generate Plan",
+                    style: .primary,
+                    icon: "lock.fill",
+                    fullWidth: true,
+                    action: onShowPaywall
+                )
+                .accessibilityIdentifier("generate-plan-subscribe-button")
+
+                DSLabel(
+                    "Subscription required for AI meal planning",
+                    style: .caption1,
+                    color: .tertiary,
+                    alignment: .center
+                )
+            }
         }
     }
 }

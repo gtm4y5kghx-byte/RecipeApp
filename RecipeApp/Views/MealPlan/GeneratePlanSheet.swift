@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import StoreKit
 
 struct GeneratePlanSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -7,6 +8,8 @@ struct GeneratePlanSheet: View {
     @Query private var recipes: [Recipe]
 
     @State private var viewModel: GeneratePlanViewModel?
+    @State private var showingPaywall = false
+    @State private var subscriptionService: UserSubscriptionService?
 
     private let previewViewModel: GeneratePlanViewModel?
 
@@ -27,7 +30,26 @@ struct GeneratePlanSheet: View {
                 }
         }
         .presentationDetents([.large])
-        .onAppear { initializeViewModel() }
+        .onAppear {
+            initializeViewModel()
+            if subscriptionService == nil {
+                subscriptionService = UserSubscriptionService()
+            }
+        }
+        .task {
+            await subscriptionService?.loadProducts()
+        }
+        .sheet(isPresented: $showingPaywall) {
+            OnboardingPremiumPage(
+                subscriptionPrice: subscriptionService?.store.subscriptionProduct?.displayPrice,
+                subscriptionIntroPrice: subscriptionService?.store.subscriptionProduct?.subscription?.introductoryOffer?.displayPrice,
+                premiumPrice: subscriptionService?.store.premiumProduct?.displayPrice,
+                isPurchasing: false,
+                onSubscribe: { Task { await purchaseSubscription() } },
+                onPurchasePremium: { Task { await purchasePremium() } },
+                onSkip: { showingPaywall = false }
+            )
+        }
     }
 
     // MARK: - Content
@@ -43,7 +65,7 @@ struct GeneratePlanSheet: View {
 
     private func sheetContent(_ viewModel: GeneratePlanViewModel) -> some View {
         VStack(spacing: 0) {
-            GeneratePlanConfigSection(viewModel: viewModel)
+            GeneratePlanConfigSection(viewModel: viewModel, onShowPaywall: { showingPaywall = true })
             Divider()
 
             if viewModel.isLoading {
@@ -86,6 +108,22 @@ struct GeneratePlanSheet: View {
             message: "Configure your preferences above and tap Generate Plan.",
             accessibilityID: "generate-plan-empty-state"
         )
+    }
+
+    // MARK: - Purchases
+
+    private func purchaseSubscription() async {
+        do {
+            let success = try await subscriptionService?.store.purchaseSubscription() ?? false
+            if success { showingPaywall = false }
+        } catch {}
+    }
+
+    private func purchasePremium() async {
+        do {
+            let success = try await subscriptionService?.store.purchasePremium() ?? false
+            if success { showingPaywall = false }
+        } catch {}
     }
 
     // MARK: - Initialization

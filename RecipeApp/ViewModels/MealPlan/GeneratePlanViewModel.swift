@@ -56,6 +56,10 @@ class GeneratePlanViewModel {
     var canGenerate: Bool {
         !recipes.isEmpty && !isLoading
     }
+
+    var canAccessGeneration: Bool {
+        UserSubscriptionService.shared.canGenerateMealPlan
+    }
     
     var remainingResults: [MealPlanGenerationResult] {
         results.filter { !addedResultIDs.contains($0.id) }
