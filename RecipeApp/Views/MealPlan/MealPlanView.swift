@@ -24,8 +24,11 @@ struct MealPlanView: View {
         .onAppear {
             if viewModel == nil {
                 viewModel = MealPlanViewModel(modelContext: modelContext)
+                viewModel?.loadEntries()
+            } else if MealPlanViewModel.needsReload {
+                viewModel?.loadEntries()
+                MealPlanViewModel.needsReload = false
             }
-            viewModel?.loadEntries()
             autoSelectFirstEntryIfNeeded()
         }
         .onChange(of: viewModel?.entries) { _, _ in

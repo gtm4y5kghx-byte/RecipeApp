@@ -6,6 +6,8 @@ import SwiftData
 class MealPlanViewModel {
     private let service: MealPlanService
 
+    static var needsReload = false
+
     var entries: [MealPlanEntry] = []
     var error: MealPlanError?
 
