@@ -477,9 +477,97 @@ struct GeneratePlanViewModelTests {
         #expect(viewModel.hasResults == true)
     }
 
+    // MARK: - Weekly Limit
+
+    @Test("remainingGenerations is 3 initially")
+    func remainingGenerationsInitially() throws {
+        let defaults = freshUserDefaults()
+        let (viewModel, _, _, _) = try createViewModel(defaults: defaults)
+
+        #expect(viewModel.remainingGenerations == 3)
+    }
+
+    @Test("hasReachedWeeklyLimit is false initially")
+    func hasReachedWeeklyLimitFalseInitially() throws {
+        let defaults = freshUserDefaults()
+        let (viewModel, _, _, _) = try createViewModel(defaults: defaults)
+
+        #expect(viewModel.hasReachedWeeklyLimit == false)
+    }
+
+    @Test("successful generation decrements remaining count")
+    func successfulGenerationDecrements() async throws {
+        let defaults = freshUserDefaults()
+        let (viewModel, mockService, recipes, _) = try createViewModel(defaults: defaults)
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[0])]
+
+        await viewModel.generatePlan()
+
+        #expect(viewModel.remainingGenerations == 2)
+    }
+
+    @Test("failed generation does not decrement remaining count")
+    func failedGenerationDoesNotDecrement() async throws {
+        let defaults = freshUserDefaults()
+        let (viewModel, mockService, _, _) = try createViewModel(defaults: defaults)
+        mockService.shouldThrowError = true
+
+        await viewModel.generatePlan()
+
+        #expect(viewModel.remainingGenerations == 3)
+    }
+
+    @Test("generatePlan sets error when weekly limit reached")
+    func generatePlanSetsErrorWhenLimitReached() async throws {
+        let defaults = freshUserDefaults()
+        let (viewModel, mockService, recipes, _) = try createViewModel(defaults: defaults)
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[0])]
+
+        await viewModel.generatePlan()
+        await viewModel.generatePlan()
+        await viewModel.generatePlan()
+
+        #expect(viewModel.remainingGenerations == 0)
+        #expect(viewModel.hasReachedWeeklyLimit == true)
+
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[1])]
+        await viewModel.generatePlan()
+
+        #expect(viewModel.error is AIError)
+    }
+
+    @Test("limit resets after 7 days")
+    func limitResetsAfterSevenDays() async throws {
+        let defaults = freshUserDefaults()
+        let (viewModel, mockService, recipes, _) = try createViewModel(defaults: defaults)
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[0])]
+
+        await viewModel.generatePlan()
+        await viewModel.generatePlan()
+        await viewModel.generatePlan()
+        #expect(viewModel.remainingGenerations == 0)
+
+        let eightDaysAgo = Date(timeIntervalSinceNow: -8 * 24 * 60 * 60)
+        defaults.set(eightDaysAgo, forKey: "meal_plan_week_start")
+
+        #expect(viewModel.remainingGenerations == 3)
+        #expect(viewModel.hasReachedWeeklyLimit == false)
+    }
+
+    @Test("empty results do not count toward limit")
+    func emptyResultsDoNotCount() async throws {
+        let defaults = freshUserDefaults()
+        let (viewModel, mockService, _, _) = try createViewModel(defaults: defaults)
+        mockService.mockResults = []
+
+        await viewModel.generatePlan()
+
+        #expect(viewModel.remainingGenerations == 3)
+    }
+
     // MARK: - Helpers
 
-    private func createViewModel() throws -> (
+    private func createViewModel(defaults: UserDefaults? = nil) throws -> (
         GeneratePlanViewModel,
         MockMealPlanAIService,
         [Recipe],
@@ -492,7 +580,8 @@ struct GeneratePlanViewModelTests {
         let viewModel = GeneratePlanViewModel(
             recipes: recipes,
             mealPlanService: mealPlanService,
-            aiService: mockService
+            aiService: mockService,
+            defaults: defaults ?? freshUserDefaults()
         )
         return (viewModel, mockService, recipes, context)
     }
@@ -503,5 +592,12 @@ struct GeneratePlanViewModelTests {
         }
         recipes.forEach { context.insert($0) }
         return recipes
+    }
+
+    private func freshUserDefaults() -> UserDefaults {
+        let suiteName = "test.generate.plan.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        return defaults
     }
 }

@@ -20,21 +20,31 @@ class GeneratePlanViewModel {
     private var addedEntries: [UUID: MealPlanEntry] = [:]
     
     // MARK: - Dependencies
-    
+
     private let aiService: MealPlanAIService
     private let mealPlanService: MealPlanService
     private let recipes: [Recipe]
-    
+    private let defaults: UserDefaults
+
+    // MARK: - Weekly Limit Constants
+
+    private let weeklyLimit = 3
+    private let generationCountKey = "meal_plan_generation_count"
+    private let weekStartKey = "meal_plan_week_start"
+    private let weekDuration: TimeInterval = 7 * 24 * 60 * 60
+
     // MARK: - Init
-    
+
     init(
         recipes: [Recipe],
         mealPlanService: MealPlanService,
-        aiService: MealPlanAIService
+        aiService: MealPlanAIService,
+        defaults: UserDefaults = .standard
     ) {
         self.recipes = recipes
         self.mealPlanService = mealPlanService
         self.aiService = aiService
+        self.defaults = defaults
     }
     
     // MARK: - Computed Properties
@@ -64,6 +74,35 @@ class GeneratePlanViewModel {
         return String(localized: "Generated \(results.count) of \(selectedDayCount) days based on your recipes")
     }
 
+    // MARK: - Weekly Limit
+
+    var remainingGenerations: Int {
+        resetIfNewWeek()
+        let count = defaults.integer(forKey: generationCountKey)
+        return max(0, weeklyLimit - count)
+    }
+
+    var hasReachedWeeklyLimit: Bool {
+        remainingGenerations <= 0
+    }
+
+    private func resetIfNewWeek() {
+        guard let weekStart = defaults.object(forKey: weekStartKey) as? Date else { return }
+        if Date().timeIntervalSince(weekStart) >= weekDuration {
+            defaults.set(0, forKey: generationCountKey)
+            defaults.removeObject(forKey: weekStartKey)
+        }
+    }
+
+    private func incrementGenerationCount() {
+        resetIfNewWeek()
+        if defaults.object(forKey: weekStartKey) == nil {
+            defaults.set(Date(), forKey: weekStartKey)
+        }
+        let count = defaults.integer(forKey: generationCountKey)
+        defaults.set(count + 1, forKey: generationCountKey)
+    }
+
     // MARK: - Actions
     
     func generatePlan() async {
@@ -72,20 +111,28 @@ class GeneratePlanViewModel {
             return
         }
 
+        guard !hasReachedWeeklyLimit else {
+            error = AIError.weeklyLimitReached
+            return
+        }
+
         isLoading = true
         error = nil
-        
+
         do {
             results = try await aiService.generatePlan(
                 for: selectedMealType,
                 recipes: recipes,
                 dayCount: selectedDayCount
             )
+            if !results.isEmpty {
+                incrementGenerationCount()
+            }
         } catch {
             self.error = error
             results = []
         }
-        
+
         isLoading = false
     }
     

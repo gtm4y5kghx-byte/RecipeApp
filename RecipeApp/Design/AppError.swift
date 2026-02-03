@@ -109,6 +109,7 @@ enum AIError: AppError {
     case emptyCollection
     case insufficientRecipes(available: Int, required: Int)
     case parsingFailed
+    case weeklyLimitReached
 
     var title: String {
         switch self {
@@ -120,6 +121,7 @@ enum AIError: AppError {
         case .emptyCollection: return String(localized: "No Recipes")
         case .insufficientRecipes: return String(localized: "Not Enough Recipes")
         case .parsingFailed: return String(localized: "Processing Failed")
+        case .weeklyLimitReached: return String(localized: "Weekly Limit Reached")
         }
     }
 
@@ -141,6 +143,8 @@ enum AIError: AppError {
             return String(localized: "You have \(available) recipes, but need at least \(required) for this feature.")
         case .parsingFailed:
             return String(localized: "We couldn't process the AI response.")
+        case .weeklyLimitReached:
+            return String(localized: "You've used all 3 meal plan generations for this week.")
         }
     }
 
@@ -152,6 +156,8 @@ enum AIError: AppError {
             return String(localized: "Try again later. Your recipe collection helps us personalize suggestions.")
         case .apiError, .parsingFailed:
             return String(localized: "Please try again. If the problem persists, contact support.")
+        case .weeklyLimitReached:
+            return String(localized: "Create a plan manually or wait for your limit to reset.")
         case .networkError:
             return String(localized: "Check your internet connection and try again.")
         case .premiumRequired:
