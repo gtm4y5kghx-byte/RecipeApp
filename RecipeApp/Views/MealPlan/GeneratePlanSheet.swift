@@ -40,14 +40,13 @@ struct GeneratePlanSheet: View {
             await subscriptionService?.loadProducts()
         }
         .sheet(isPresented: $showingPaywall) {
-            OnboardingPremiumPage(
+            SubscriptionUpsellSheet(
                 subscriptionPrice: subscriptionService?.store.subscriptionProduct?.displayPrice,
-                subscriptionIntroPrice: subscriptionService?.store.subscriptionProduct?.subscription?.introductoryOffer?.displayPrice,
-                premiumPrice: subscriptionService?.store.premiumProduct?.displayPrice,
+                introPrice: subscriptionService?.store.subscriptionProduct?.subscription?.introductoryOffer?.displayPrice,
+                hasPremium: UserSubscriptionService.shared.isPremium,
                 isPurchasing: false,
                 onSubscribe: { Task { await purchaseSubscription() } },
-                onPurchasePremium: { Task { await purchasePremium() } },
-                onSkip: { showingPaywall = false }
+                onDismiss: { showingPaywall = false }
             )
         }
     }
@@ -115,13 +114,6 @@ struct GeneratePlanSheet: View {
     private func purchaseSubscription() async {
         do {
             let success = try await subscriptionService?.store.purchaseSubscription() ?? false
-            if success { showingPaywall = false }
-        } catch {}
-    }
-
-    private func purchasePremium() async {
-        do {
-            let success = try await subscriptionService?.store.purchasePremium() ?? false
             if success { showingPaywall = false }
         } catch {}
     }
