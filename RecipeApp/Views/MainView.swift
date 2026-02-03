@@ -30,13 +30,20 @@ struct MainView: View {
     }
 
     var body: some View {
-        Group {
-            if isIPad {
-                iPadLayout
-            } else {
-                iPhoneLayout
+        VStack(spacing: 0) {
+            if !NetworkMonitor.shared.isConnected {
+                DSBanner(message: "No Internet Connection", icon: "wifi.slash", style: .warning)
+            }
+
+            Group {
+                if isIPad {
+                    iPadLayout
+                } else {
+                    iPhoneLayout
+                }
             }
         }
+        .animation(.easeInOut, value: NetworkMonitor.shared.isConnected)
         .sheet(isPresented: $menuState.showingNewRecipe) {
             RecipeFormView(recipe: nil)
         }
