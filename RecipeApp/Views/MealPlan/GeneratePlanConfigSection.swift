@@ -59,15 +59,24 @@ struct GeneratePlanConfigSection: View {
     // MARK: - Generate Button
 
     private var generateButton: some View {
-        DSButton(
-            title: viewModel.hasResults ? "Regenerate" : "Generate Plan",
-            style: .primary,
-            icon: "sparkles",
-            fullWidth: true
-        ) {
-            Task { await viewModel.generatePlan() }
+        VStack(spacing: Theme.Spacing.xs) {
+            DSButton(
+                title: viewModel.hasResults ? "Regenerate" : "Generate Plan",
+                style: .primary,
+                icon: "sparkles",
+                fullWidth: true
+            ) {
+                Task { await viewModel.generatePlan() }
+            }
+            .disabled(!viewModel.canGenerate || viewModel.hasReachedWeeklyLimit)
+            .accessibilityIdentifier("generate-plan-generate-button")
+
+            DSLabel(
+                "\(viewModel.remainingGenerations) generation\(viewModel.remainingGenerations == 1 ? "" : "s") left this week",
+                style: .caption1,
+                color: viewModel.hasReachedWeeklyLimit ? .warning : .tertiary,
+                alignment: .center
+            )
         }
-        .disabled(!viewModel.canGenerate)
-        .accessibilityIdentifier("generate-plan-generate-button")
     }
 }
