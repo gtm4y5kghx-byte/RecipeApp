@@ -41,7 +41,11 @@ struct MealPlanView: View {
         NavigationStack {
             Group {
                 if let viewModel = viewModel {
-                    calendarContent(viewModel: viewModel)
+                    if let error = viewModel.error {
+                        loadErrorState(error, viewModel: viewModel)
+                    } else {
+                        calendarContent(viewModel: viewModel)
+                    }
                 } else {
                     DSLoadingSpinner(message: "Loading...")
                 }
@@ -90,7 +94,11 @@ struct MealPlanView: View {
         } content: {
             Group {
                 if let viewModel = viewModel {
-                    calendarContent(viewModel: viewModel)
+                    if let error = viewModel.error {
+                        loadErrorState(error, viewModel: viewModel)
+                    } else {
+                        calendarContent(viewModel: viewModel)
+                    }
                 } else {
                     DSLoadingSpinner(message: "Loading...")
                 }
@@ -123,6 +131,20 @@ struct MealPlanView: View {
         )
     }
     
+    private func loadErrorState(_ error: MealPlanError, viewModel: MealPlanViewModel) -> some View {
+        DSEmptyState(
+            icon: "exclamationmark.triangle",
+            title: error.title,
+            message: error.message,
+            actionTitle: "Try Again",
+            action: {
+                viewModel.error = nil
+                viewModel.loadEntries()
+            },
+            accessibilityID: "meal-plan-error-state"
+        )
+    }
+
     private func calendarContent(viewModel: MealPlanViewModel) -> some View {
         ScrollViewReader { proxy in
             ZStack(alignment: .bottomTrailing) {

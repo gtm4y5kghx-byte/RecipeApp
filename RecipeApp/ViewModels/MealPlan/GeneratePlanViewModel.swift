@@ -67,6 +67,11 @@ class GeneratePlanViewModel {
     // MARK: - Actions
     
     func generatePlan() async {
+        guard NetworkMonitor.shared.isConnected else {
+            error = AIError.networkError
+            return
+        }
+
         isLoading = true
         error = nil
         
