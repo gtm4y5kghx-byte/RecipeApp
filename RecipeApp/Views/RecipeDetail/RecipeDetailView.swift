@@ -12,6 +12,7 @@ struct RecipeDetailView: View {
     @State private var showingDeleteConfirmation = false
     @State private var showingRemoveConfirmation = false
     @State private var showingCannotCookAlert = false
+    @State private var showingAddToMealPlan = false
     @State private var error: Error?
 
     let recipe: Recipe
@@ -110,6 +111,10 @@ struct RecipeDetailView: View {
                         viewModel?.addToShoppingList()
                     }
                     .accessibilityIdentifier("recipe-detail-add-to-shopping-list-button")
+                    Button("Add to Meal Plan") {
+                        showingAddToMealPlan = true
+                    }
+                    .accessibilityIdentifier("recipe-detail-add-to-meal-plan-button")
                     Button("Edit") { showingEditSheet = true }
                         .accessibilityIdentifier("recipe-detail-edit-button")
                     if onRemoveFromContext != nil {
@@ -130,6 +135,9 @@ struct RecipeDetailView: View {
         }
         .sheet(isPresented: $showingCookingMode) {
             CookingModeView(recipe: recipe)
+        }
+        .sheet(isPresented: $showingAddToMealPlan) {
+            MealPlanCalendarSheet(recipe: recipe)
         }
         .alert(String(localized: "Delete Recipe?"), isPresented: $showingDeleteConfirmation) {
             Button(String(localized: "Delete"), role: .destructive) {

@@ -10,8 +10,6 @@ struct MealPlanView: View {
     var menuState: AppMenuState?
 
     @State private var viewModel: MealPlanViewModel?
-    @State private var selectedDate: Date?
-    @State private var selectedMealType: MealType?
     @State private var selectedEntry: MealPlanEntry?
     @State private var showingGeneratePlan = false
 
@@ -26,8 +24,8 @@ struct MealPlanView: View {
         .onAppear {
             if viewModel == nil {
                 viewModel = MealPlanViewModel(modelContext: modelContext)
-                viewModel?.loadEntries()
             }
+            viewModel?.loadEntries()
             autoSelectFirstEntryIfNeeded()
         }
         .onChange(of: viewModel?.entries) { _, _ in
@@ -124,13 +122,6 @@ struct MealPlanView: View {
         selectedEntry = sortedEntries?.first
     }
     
-    private var showingRecipePicker: Binding<Bool> {
-        Binding(
-            get: { selectedDate != nil && selectedMealType != nil },
-            set: { if !$0 { selectedDate = nil; selectedMealType = nil } }
-        )
-    }
-    
     private func loadErrorState(_ error: MealPlanError, viewModel: MealPlanViewModel) -> some View {
         DSEmptyState(
             icon: "exclamationmark.triangle",
@@ -146,95 +137,28 @@ struct MealPlanView: View {
     }
 
     private func calendarContent(viewModel: MealPlanViewModel) -> some View {
-        ScrollViewReader { proxy in
-            ZStack(alignment: .bottomTrailing) {
-                List {
-                    ForEach(viewModel.dateRange, id: \.self) { date in
-                        Section {
-                            let entries = viewModel.entries(for: date)
-                            if entries.isEmpty {
-                                Text("No meals planned")
-                                    .font(Theme.Typography.subheadline)
-                                    .foregroundStyle(Theme.Colors.textTertiary)
-                            } else {
-                                ForEach(entries) { entry in
-                                    MealPlanEntryRow(
-                                        entry: entry,
-                                        onTap: { selectedEntry = entry },
-                                        onRemove: { viewModel.removeEntry(entry) }
-                                    )
-                                }
-                            }
-                        } header: {
-                            dayHeader(date: date, isToday: Calendar.current.isDateInToday(date))
-                        }
-                        .id(date)
-                    }
-                }
-                .listStyle(.plain)
-
-                VStack(spacing: Theme.Spacing.sm) {
-                    DSButton(
-                        title: "Generate",
-                        style: .primary,
-                        size: .small,
-                        icon: "sparkles",
-                        fullWidth: false
-                    ) {
-                        showingGeneratePlan = true
-                    }
-                    .accessibilityIdentifier("meal-plan-generate-button")
-
-                    DSButton(
-                        title: "Today",
-                        style: .secondary,
-                        size: .small,
-                        icon: "calendar",
-                        fullWidth: false
-                    ) {
-                        withAnimation {
-                            proxy.scrollTo(viewModel.today, anchor: .top)
-                        }
-                    }
-                    .accessibilityIdentifier("meal-plan-today-button")
-                }
-                .padding()
-            }
-            .onAppear {
-                proxy.scrollTo(viewModel.today, anchor: .top)
-            }
-            .sheet(isPresented: showingRecipePicker) {
-                RecipePickerSheet { recipe in
-                    if let date = selectedDate, let mealType = selectedMealType {
-                        viewModel.addEntry(date: date, mealType: mealType, recipe: recipe)
-                    }
-                }
-            }
-            .sheet(isPresented: $showingGeneratePlan) {
-                GeneratePlanSheet()
-            }
-        }
-    }
-
-    private func dayHeader(date: Date, isToday: Bool) -> some View {
-        HStack {
-            DSLabel(
-                date.formatted(.dateTime.weekday(.wide).month().day()),
-                style: .headline,
-                color: isToday ? .accent : .primary
+        ZStack(alignment: .bottomTrailing) {
+            MealPlanCalendarContent(
+                viewModel: viewModel,
+                recipeToAdd: nil,
+                onEntryTap: { entry in selectedEntry = entry },
+                onRecipeAdded: nil
             )
-            Spacer()
-            Menu {
-                ForEach(MealType.allCases, id: \.self) { mealType in
-                    Button(mealType.rawValue.capitalized) {
-                        selectedDate = date
-                        selectedMealType = mealType
-                    }
-                }
-            } label: {
-                Label("Add", systemImage: "plus")
-                    .font(Theme.Typography.subheadline)
+
+            DSButton(
+                title: "Generate",
+                style: .primary,
+                size: .small,
+                icon: "sparkles",
+                fullWidth: false
+            ) {
+                showingGeneratePlan = true
             }
+            .padding()
+            .accessibilityIdentifier("meal-plan-generate-button")
+        }
+        .sheet(isPresented: $showingGeneratePlan) {
+            GeneratePlanSheet()
         }
     }
 }

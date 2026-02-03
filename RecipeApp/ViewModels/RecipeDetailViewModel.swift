@@ -62,6 +62,7 @@ class RecipeDetailViewModel {
         }
     }
 
+
     var formattedTotalTime: String? {
         guard let totalTime = recipe.totalTime else { return nil }
         if totalTime < 60 {
