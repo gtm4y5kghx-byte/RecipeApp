@@ -28,31 +28,13 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "48013D152E9E49550021EBF4"
-               BuildableName = "RecipeAppTests.xctest"
-               BlueprintName = "RecipeAppTests"
-               ReferencedContainer = "container:RecipeApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "48013D1F2E9E49550021EBF4"
-               BuildableName = "RecipeAppUITests.xctest"
-               BlueprintName = "RecipeAppUITests"
-               ReferencedContainer = "container:RecipeApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+      shouldAutocreateTestPlan = "NO">
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:RecipeApp.xcodeproj/xcshareddata/TestPlans/UnitTests.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+      </TestPlans>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -82,13 +64,8 @@
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "SPOONACULAR_API_KEY"
-            value = "d04395df078d4269b2e889511c614e48"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
             key = "CLAUDE_API_KEY"
-            value = "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"
+            value = ""
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

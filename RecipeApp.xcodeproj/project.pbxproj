@@ -532,6 +532,8 @@
 		};
 		48013D2B2E9E49550021EBF4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 48013D092E9E49540021EBF4 /* RecipeApp */;
+			baseConfigurationReferenceRelativePath = Configuration/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -572,6 +574,8 @@
 		};
 		48013D2C2E9E49550021EBF4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 48013D092E9E49540021EBF4 /* RecipeApp */;
+			baseConfigurationReferenceRelativePath = Configuration/Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

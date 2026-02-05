@@ -10,21 +10,21 @@ enum Config {
             return "mock-claude-api-key-for-testing"
         }
 
-        if let key = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"], !key.isEmpty {
+        // Primary: read from Info.plist (populated by Secrets.xcconfig)
+        if let key = Bundle.main.infoDictionary?["ClaudeAPIKey"] as? String, !key.isEmpty {
             return key
         }
 
-        if let key = UserDefaults.standard.string(forKey: "claude_api_key"), !key.isEmpty {
+        // Fallback: environment variable (for running integration tests locally)
+        if let key = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"], !key.isEmpty {
             return key
         }
 
         fatalError("""
         Claude API key not configured.
 
-        To set the key, run this in your app:
-        UserDefaults.standard.set("your-api-key", forKey: "claude_api_key")
-
-        Or set CLAUDE_API_KEY environment variable.
+        Copy Secrets.xcconfig.template to Secrets.xcconfig and add your key.
+        Then set the xcconfig in Project > Info > Configurations.
         """)
     }
 
