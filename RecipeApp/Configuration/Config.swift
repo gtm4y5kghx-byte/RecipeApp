@@ -5,6 +5,10 @@ enum Config {
         ProcessInfo.processInfo.arguments.contains("UI_TESTING")
     }
 
+    static var isTesting: Bool {
+        NSClassFromString("XCTestCase") != nil
+    }
+
     static var claudeAPIKey: String {
         if isUITesting {
             return "mock-claude-api-key-for-testing"
@@ -18,6 +22,11 @@ enum Config {
         // Fallback: environment variable (for running integration tests locally)
         if let key = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"], !key.isEmpty {
             return key
+        }
+
+        // Unit tests use mocks and don't need a real key
+        if isTesting {
+            return "test-placeholder-key"
         }
 
         fatalError("""
