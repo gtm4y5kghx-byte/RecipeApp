@@ -39,7 +39,7 @@ struct RecipeListViewModelTests {
     }
 
     @Test("Search filters recipes by title substring")
-    func testSearchByTitleSubstring() async {
+    func testSearchByTitleSubstring() async throws {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
@@ -47,7 +47,7 @@ struct RecipeListViewModelTests {
         viewModel.performSearch(query: "pasta", scope: .title)
         await waitForSearch()
 
-        #expect(viewModel.filteredResults.count == 1)
+        try #require(viewModel.filteredResults.count == 1)
         #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
     }
 
@@ -81,7 +81,7 @@ struct RecipeListViewModelTests {
     }
 
     @Test("Search is case insensitive")
-    func testSearchCaseInsensitive() async {
+    func testSearchCaseInsensitive() async throws {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
@@ -89,7 +89,7 @@ struct RecipeListViewModelTests {
         viewModel.performSearch(query: "PASTA", scope: .title)
         await waitForSearch()
 
-        #expect(viewModel.filteredResults.count == 1)
+        try #require(viewModel.filteredResults.count == 1)
         #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
     }
 
@@ -141,10 +141,10 @@ struct RecipeListViewModelTests {
     }
     
     @Test("Displayed recipes returns recently cooked only")
-    func testDisplayedRecipesRecentlyCooked() {
+    func testDisplayedRecipesRecentlyCooked() throws {
         let fiveDaysAgo = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
         let thirtyFiveDaysAgo = Calendar.current.date(byAdding: .day, value: -35, to: Date())!
-        
+
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Recent", lastMade: fiveDaysAgo),
             RecipeTestFixtures.createRecipe(title: "Old", lastMade: thirtyFiveDaysAgo),
@@ -152,11 +152,11 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         viewModel.selectedSection = .recentlyCooked
         let displayed = viewModel.displayedRecipes
-        
-        #expect(displayed.count == 1)
+
+        try #require(displayed.count == 1)
         #expect(displayed[0].title == "Recent")
     }
     
@@ -242,7 +242,7 @@ struct RecipeListViewModelTests {
     // MARK: - Sorted Tags Tests
     
     @Test("Sorted tags returns tags by count descending")
-    func testSortedTags() {
+    func testSortedTags() throws {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "R1", tags: ["dinner", "pasta"]),
             RecipeTestFixtures.createRecipe(title: "R2", tags: ["dinner"]),
@@ -250,10 +250,10 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
-        
+
         let tags = viewModel.sortedTags
-        
-        #expect(tags.count == 3)
+
+        try #require(tags.count == 3)
         #expect(tags[0].0 == "dinner")  // Most common (2)
         #expect(tags[0].1 == 2)
         #expect(tags[1].1 == 1)  // pasta (1)
@@ -328,7 +328,7 @@ struct RecipeListViewModelTests {
     }
 
     @Test("Search with results respects active filter")
-    func testSearchWithResultsRespectsFilter() async {
+    func testSearchWithResultsRespectsFilter() async throws {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Italian Pasta", isFavorite: true),
             RecipeTestFixtures.createRecipe(title: "Italian Pizza", isFavorite: false),
@@ -345,7 +345,7 @@ struct RecipeListViewModelTests {
         await waitForSearch()
 
         let displayed = viewModel.displayedRecipes
-        #expect(displayed.count == 1)
+        try #require(displayed.count == 1)
         #expect(displayed[0].title == "Italian Pasta")
         #expect(viewModel.isSearching == true)
     }
@@ -467,39 +467,41 @@ struct RecipeListViewModelTests {
     // MARK: - Suggested Recipes
     
     @Test("Suggestions are always prioritized at top of displayed recipes")
-    func testSuggestionsAlwaysPrioritized() async throws {
+    func testSuggestionsAlwaysPrioritized() throws {
         // Given: ViewModel with suggestions for first 2 recipes
         let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
-        
+
         // When: Getting displayed recipes
         let displayed = viewModel.displayedRecipes
-        
+
         // Then: First 2 recipes should be the suggested ones
-        #expect(displayed.count == recipes.count) // Same total count
+        try #require(displayed.count == recipes.count) // Same total count
         #expect(displayed[0].id == recipes[0].id)  // First suggested recipe first
         #expect(displayed[1].id == recipes[1].id)  // Second suggested recipe second
     }
     
     @Test("Tracks suggested recipe IDs from suggestions")
-    func testSuggestedRecipeIDsTracking() async throws {
+    func testSuggestedRecipeIDsTracking() throws {
         let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
-        
+
         let suggestedIDs = viewModel.suggestedRecipeIDs
-        
-        #expect(suggestedIDs.count == 2)
+
+        try #require(suggestedIDs.count == 2)
+        try #require(recipes.count >= 2)
         #expect(suggestedIDs.contains(recipes[0].id))
         #expect(suggestedIDs.contains(recipes[1].id))
     }
     
-    @Test("Suggestion reasons are accessible by recipe ID") 
-    func testSuggestionReasonsMapping() async throws {
+    @Test("Suggestion reasons are accessible by recipe ID")
+    func testSuggestionReasonsMapping() throws {
         // Given: ViewModel with loaded suggestions
         let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
-        
+
         // When: Looking up reason for suggested recipe
+        try #require(recipes.count >= 3)
         let firstRecipeReason = viewModel.suggestionReasons[recipes[0].id]
         let nonSuggestedReason = viewModel.suggestionReasons[recipes[2].id]
-        
+
         // Then: Should return correct AI-generated reason for suggested recipes only
         #expect(firstRecipeReason == "Try this again!")
         #expect(nonSuggestedReason == nil)
@@ -508,7 +510,7 @@ struct RecipeListViewModelTests {
     // MARK: - AI Generated Suggestions Tests
 
     @Test("aiGeneratedSuggestions filters only AI-generated suggestions")
-    func testAIGeneratedSuggestionsFilter() {
+    func testAIGeneratedSuggestionsFilter() throws {
         let (viewModel, _, generatedRecipes) = RecipeTestFixtures.createViewModelWithMixedSuggestions(
             collectionCount: 2,
             aiGeneratedCount: 2
@@ -516,7 +518,7 @@ struct RecipeListViewModelTests {
 
         let aiSuggestions = viewModel.aiGeneratedSuggestions
 
-        #expect(aiSuggestions.count == 2)
+        try #require(aiSuggestions.count == 2)
         #expect(aiSuggestions.allSatisfy { $0.isAIGenerated })
         #expect(aiSuggestions[0].generatedRecipe?.title == generatedRecipes[0].title)
         #expect(aiSuggestions[1].generatedRecipe?.title == generatedRecipes[1].title)
@@ -636,12 +638,13 @@ struct RecipeListViewModelTests {
     }
 
     @Test("displayedItems places collection suggestions at top with reasons")
-    func testDisplayedItemsCollectionSuggestionsAtTop() {
+    func testDisplayedItemsCollectionSuggestionsAtTop() throws {
         let (viewModel, recipes) = RecipeTestFixtures.createViewModelWithSuggestions(suggestionCount: 2)
 
         let items = viewModel.displayedItems
 
         // First 2 items should be the suggested recipes with reasons
+        try #require(items.count >= 2)
         #expect(items[0].recipe?.id == recipes[0].id)
         #expect(items[0].suggestionReason == "Try this again!")
         #expect(items[1].recipe?.id == recipes[1].id)
@@ -665,7 +668,7 @@ struct RecipeListViewModelTests {
     }
 
     @Test("displayedItems intersperses AI-generated recipes among regular recipes")
-    func testDisplayedItemsInterspersesAIGenerated() {
+    func testDisplayedItemsInterspersesAIGenerated() throws {
         let (viewModel, recipes, generatedRecipes) = RecipeTestFixtures.createViewModelWithMixedSuggestions(
             collectionCount: 2,
             aiGeneratedCount: 2
@@ -681,6 +684,7 @@ struct RecipeListViewModelTests {
         #expect(generatedItems.count == generatedRecipes.count)
 
         // AI-generated should NOT be at the very top (collection suggestions are)
+        try #require(items.count >= 2)
         #expect(items[0].isGenerated == false)
         #expect(items[1].isGenerated == false)
     }
@@ -712,7 +716,7 @@ struct RecipeListViewModelTests {
     }
 
     @Test("displayedItems shows matching collection suggestions at top when searching")
-    func testDisplayedItemsShowsMatchingSuggestionsWhenSearching() async {
+    func testDisplayedItemsShowsMatchingSuggestionsWhenSearching() async throws {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Chicken Soup"),
             RecipeTestFixtures.createRecipe(title: "Beef Stew"),
@@ -732,13 +736,13 @@ struct RecipeListViewModelTests {
         let items = viewModel.displayedItems
 
         // Should have 2 results, with Chicken Soup (suggested) at top
-        #expect(items.count == 2)
+        try #require(items.count == 2)
         #expect(items[0].recipe?.title == "Chicken Soup")
         #expect(items[0].suggestionReason == "You haven't made this lately")
     }
 
     @Test("displayedItems excludes AI-generated when filtering by section")
-    func testDisplayedItemsExcludesAIGeneratedWhenFiltering() {
+    func testDisplayedItemsExcludesAIGeneratedWhenFiltering() throws {
         let recipes = [
             RecipeTestFixtures.createRecipe(title: "Favorite Recipe", isFavorite: true),
             RecipeTestFixtures.createRecipe(title: "Regular Recipe", isFavorite: false)
@@ -756,7 +760,7 @@ struct RecipeListViewModelTests {
         let items = viewModel.displayedItems
 
         // Should only have the favorite recipe, no AI-generated
-        #expect(items.count == 1)
+        try #require(items.count == 1)
         #expect(items[0].recipe?.title == "Favorite Recipe")
         #expect(items[0].generatedRecipe == nil)
     }
