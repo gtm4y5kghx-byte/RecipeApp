@@ -34,8 +34,9 @@ struct RecipeListViewModelTests {
     
     // MARK: - Search Tests
 
-    private func waitForSearch() async {
-        try? await Task.sleep(for: .milliseconds(350))
+    /// Configure viewModel for instant search (no debounce delay)
+    private func configureForInstantSearch(_ viewModel: RecipeListViewModel) {
+        viewModel.searchDebounceDelay = .zero
     }
 
     @Test("Search filters recipes by title substring")
@@ -43,9 +44,10 @@ struct RecipeListViewModelTests {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         viewModel.performSearch(query: "pasta", scope: .title)
-        await waitForSearch()
+        await Task.yield()
 
         try #require(viewModel.filteredResults.count == 1)
         #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
@@ -56,9 +58,10 @@ struct RecipeListViewModelTests {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         viewModel.performSearch(query: "", scope: .all)
-        await waitForSearch()
+        await Task.yield()
 
         #expect(viewModel.filteredResults.isEmpty)
         #expect(viewModel.isSearching == false)
@@ -73,9 +76,10 @@ struct RecipeListViewModelTests {
         )
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: [recipe], modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         viewModel.performSearch(query: "pasta", scope: .all)
-        await waitForSearch()
+        await Task.yield()
 
         #expect(viewModel.filteredResults.count == 1)
     }
@@ -85,9 +89,10 @@ struct RecipeListViewModelTests {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         viewModel.performSearch(query: "PASTA", scope: .title)
-        await waitForSearch()
+        await Task.yield()
 
         try #require(viewModel.filteredResults.count == 1)
         #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
@@ -98,15 +103,16 @@ struct RecipeListViewModelTests {
         let recipes = RecipeTestFixtures.createSampleRecipes()
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         // "pasto" should NOT match "Pasta" (no fuzzy matching)
         viewModel.performSearch(query: "pasto", scope: .title)
-        await waitForSearch()
+        await Task.yield()
         #expect(viewModel.filteredResults.isEmpty)
 
         // "past" SHOULD match "Pasta" (substring)
         viewModel.performSearch(query: "past", scope: .title)
-        await waitForSearch()
+        await Task.yield()
         #expect(viewModel.filteredResults.count == 1)
     }
     
@@ -285,13 +291,14 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         // Set favorites filter
         viewModel.selectedSection = .favorites
 
         // Search for something that won't match
         viewModel.performSearch(query: "zzzzz", scope: .title)
-        await waitForSearch()
+        await Task.yield()
 
         // Should show zero results (not all favorites)
         let displayed = viewModel.displayedRecipes
@@ -308,18 +315,19 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         // Set favorites filter
         viewModel.selectedSection = .favorites
 
         // Search for something
         viewModel.performSearch(query: "pasta", scope: .title)
-        await waitForSearch()
+        await Task.yield()
         #expect(viewModel.isSearching == true)
 
         // Clear search (empty query)
         viewModel.performSearch(query: "", scope: .title)
-        await waitForSearch()
+        await Task.yield()
 
         // Should show all favorites (2 recipes)
         let displayed = viewModel.displayedRecipes
@@ -336,13 +344,14 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         // Set favorites filter
         viewModel.selectedSection = .favorites
 
         // Search for "italian" - should find 2 recipes but only 1 is favorite
         viewModel.performSearch(query: "italian", scope: .title)
-        await waitForSearch()
+        await Task.yield()
 
         let displayed = viewModel.displayedRecipes
         try #require(displayed.count == 1)
@@ -698,6 +707,7 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         // Add AI-generated suggestion
         let generated = RecipeTestFixtures.createGeneratedRecipe(title: "AI Chicken Recipe")
@@ -705,7 +715,7 @@ struct RecipeListViewModelTests {
 
         // Search for "chicken"
         viewModel.performSearch(query: "chicken", scope: .title)
-        await waitForSearch()
+        await Task.yield()
 
         let items = viewModel.displayedItems
 
@@ -724,6 +734,7 @@ struct RecipeListViewModelTests {
         ]
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeListViewModel(recipes: recipes, modelContext: modelContext)
+        configureForInstantSearch(viewModel)
 
         // Suggest Chicken Soup
         let suggestion = RecipeSuggestion(recipeID: recipes[0].id, aiGeneratedReason: "You haven't made this lately")
@@ -731,7 +742,7 @@ struct RecipeListViewModelTests {
 
         // Search for "chicken"
         viewModel.performSearch(query: "chicken", scope: .title)
-        await waitForSearch()
+        await Task.yield()
 
         let items = viewModel.displayedItems
 

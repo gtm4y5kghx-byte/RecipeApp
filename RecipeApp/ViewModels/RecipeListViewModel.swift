@@ -16,6 +16,9 @@ class RecipeListViewModel {
     private let modelContext: ModelContext
     private let suggestionService: UnifiedSuggestionProviding
 
+    /// Debounce delay for search. Set to `.zero` in tests for immediate execution.
+    var searchDebounceDelay: Duration = .milliseconds(300)
+
     var error: Error?
 
     private var menuState: AppMenuState?
@@ -191,7 +194,9 @@ class RecipeListViewModel {
     func performSearch(query: String, scope: SearchScope) {
         searchTask?.cancel()
         searchTask = Task {
-            try? await Task.sleep(for: .milliseconds(300))
+            if searchDebounceDelay > .zero {
+                try? await Task.sleep(for: searchDebounceDelay)
+            }
             guard !Task.isCancelled else { return }
             
             guard !query.isEmpty else {
