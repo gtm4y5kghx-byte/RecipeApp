@@ -12,9 +12,6 @@ class UserSubscriptionService {
 
     private let subscriptionService: SubscriptionService
 
-    // For previews/testing
-    static var mockIsPremium: Bool = true
-
     #if DEBUG
     static var debugTierOverride: SubscriptionTier?
 
