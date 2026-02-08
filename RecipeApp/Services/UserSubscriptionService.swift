@@ -15,6 +15,28 @@ class UserSubscriptionService {
     // For previews/testing
     static var mockIsPremium: Bool = true
 
+    #if DEBUG
+    static var debugTierOverride: SubscriptionTier?
+
+    @discardableResult
+    static func cycleDebugTier() -> String {
+        switch debugTierOverride {
+        case .none, .some(.free): debugTierOverride = .premium
+        case .some(.premium): debugTierOverride = .subscriber
+        case .some(.subscriber): debugTierOverride = .free
+        }
+        return debugTierLabel
+    }
+
+    static var debugTierLabel: String {
+        switch debugTierOverride {
+        case .none, .some(.free): return "Free"
+        case .some(.premium): return "Premium"
+        case .some(.subscriber): return "Subscriber"
+        }
+    }
+    #endif
+
     init(subscriptionService: SubscriptionService? = nil) {
         self.subscriptionService = subscriptionService ?? SubscriptionService()
     }
@@ -31,12 +53,22 @@ class UserSubscriptionService {
     /// Has premium access (purchased or ever subscribed)
     var isPremium: Bool {
         guard FeatureFlags.isPremiumGatingEnabled else { return true }
+        #if DEBUG
+        if let override = Self.debugTierOverride {
+            return override != .free
+        }
+        #endif
         return subscriptionService.hasPremium
     }
 
     /// Has active subscription for meal plan generation
     var canGenerateMealPlan: Bool {
         guard FeatureFlags.isPremiumGatingEnabled else { return true }
+        #if DEBUG
+        if let override = Self.debugTierOverride {
+            return override == .subscriber
+        }
+        #endif
         return subscriptionService.hasActiveSubscription
     }
 

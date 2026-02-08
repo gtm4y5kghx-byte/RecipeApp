@@ -19,6 +19,9 @@ struct RecipeListView: View {
     @State private var scrollPosition = ScrollPosition(edge: .top)
     @State private var localSelectedRecipe: Recipe?
     @State private var error: Error?
+    #if DEBUG
+    @State private var debugTierLabel = UserSubscriptionService.debugTierLabel
+    #endif
 
     /// Returns the passed-in binding or falls back to local state (for previews)
     private var effectiveSelectedRecipe: Binding<Recipe?> {
@@ -201,6 +204,9 @@ struct RecipeListView: View {
 #if DEBUG
         .overlay(alignment: .bottomTrailing) {
             Menu {
+                Button("Tier: \(UserSubscriptionService.debugTierLabel)") {
+                    UserSubscriptionService.cycleDebugTier()
+                }
                 Button("Load Suggestions") {
                     Task { await viewModel?.loadSuggestionsDev() }
                 }
@@ -290,6 +296,9 @@ struct RecipeListView: View {
 #if DEBUG
     private var devToolsMenu: some View {
         Menu {
+            Button("Tier: \(debugTierLabel)") {
+                debugTierLabel = UserSubscriptionService.cycleDebugTier()
+            }
             Button("Load Suggestions") {
                 Task { await viewModel?.loadSuggestionsDev() }
             }
