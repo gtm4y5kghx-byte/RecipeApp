@@ -54,14 +54,6 @@ struct DSButton: View {
             case .large: return Theme.Spacing.lg
             }
         }
-
-        var cornerRadius: CGFloat {
-            switch self {
-            case .small: return Theme.CornerRadius.sm
-            case .medium: return Theme.CornerRadius.md
-            case .large: return Theme.CornerRadius.md
-            }
-        }
     }
 
     // MARK: - Initializer
@@ -102,11 +94,11 @@ struct DSButton: View {
             .padding(.horizontal, customHorizontalPadding ?? size.horizontalPadding)
             .padding(.vertical, customVerticalPadding ?? size.verticalPadding)
             .frame(maxWidth: fullWidth ? .infinity : nil)
-            .background(backgroundColor)
+            .background(backgroundView)
             .foregroundColor(foregroundColor)
-            .cornerRadius(size.cornerRadius)
+            .clipShape(Capsule())
             .overlay(
-                RoundedRectangle(cornerRadius: size.cornerRadius)
+                Capsule()
                     .stroke(borderColor, lineWidth: borderWidth)
             )
         }
@@ -116,20 +108,35 @@ struct DSButton: View {
 
     // MARK: - Style Properties
 
-    private var backgroundColor: Color {
-        guard isEnabled else {
-            return Theme.Colors.backgroundDark
-        }
-
-        switch style {
-        case .primary:
-            return Theme.Colors.primary
-        case .secondary:
-            return .clear
-        case .tertiary:
-            return .clear
-        case .destructive:
-            return Theme.Colors.error
+    @ViewBuilder
+    private var backgroundView: some View {
+        if !isEnabled {
+            Theme.Colors.backgroundDark
+        } else {
+            switch style {
+            case .primary:
+                ZStack {
+                    Theme.Colors.primary
+                    LinearGradient(
+                        colors: [.white.opacity(0.10), .clear],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+            case .secondary:
+                Color.clear
+            case .tertiary:
+                Color.clear
+            case .destructive:
+                ZStack {
+                    Theme.Colors.error
+                    LinearGradient(
+                        colors: [.white.opacity(0.10), .clear],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+            }
         }
     }
 
