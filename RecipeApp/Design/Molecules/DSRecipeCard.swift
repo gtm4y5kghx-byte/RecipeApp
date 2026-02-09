@@ -98,6 +98,7 @@ struct DSRecipeCard: View {
 
             if case .save(let onTap) = action {
                 DSButton(title: "Save to Collection", style: .primary, action: onTap)
+                    .padding(.top, Theme.Spacing.sm)
                     .accessibilityIdentifier("\(accessibilityID)-save-button")
             }
         }
@@ -142,7 +143,7 @@ struct DSRecipeCard: View {
             }
 
             if let subtitle = subtitle {
-                DSLabel(subtitle, style: .caption2, color: .secondary)
+                DSLabel(subtitle, style: .footnote, color: .secondary)
                     .lineLimit(2)
             }
         }
