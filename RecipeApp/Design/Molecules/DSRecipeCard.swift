@@ -86,6 +86,7 @@ struct DSRecipeCard: View {
 
             if subtitle != nil || showSuggestionBadge {
                 subtitleSection
+                    .padding(.bottom, Theme.Spacing.xs)
             }
 
             if totalTime != nil || servings != nil || cuisine != nil {
