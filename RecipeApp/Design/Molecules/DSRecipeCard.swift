@@ -168,6 +168,7 @@ struct DSRecipeCard: View {
                 HStack(spacing: Theme.Spacing.xs) {
                     DSIcon("fork.knife", size: .small, color: .secondary)
                     DSLabel(cuisine, style: .caption1, color: .secondary)
+                        .lineLimit(1)
                 }
             }
         }
@@ -192,7 +193,7 @@ struct DSRecipeCard: View {
     VStack(spacing: Theme.Spacing.md) {
         DSRecipeCard(
             title: "Spaghetti Carbonara",
-            cuisine: "Italian",
+            cuisine: "Italian Mexican Fusion + Korean Fusion + Indian Fusion",
             prepTime: 10,
             cookTime: 20,
             servings: 4,
