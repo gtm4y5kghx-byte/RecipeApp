@@ -123,6 +123,7 @@ struct DSTag: View {
 
             Text(text)
                 .font(size.font)
+                .lineLimit(1)
         }
         .padding(.horizontal, size.horizontalPadding)
         .padding(.vertical, size.verticalPadding)
@@ -172,6 +173,15 @@ struct DSTag: View {
     }
     .padding()
     .background(Theme.Colors.background)
+}
+
+#Preview("Long Tags") {
+    VStack(spacing: Theme.Spacing.md) {
+        DSTag("Mediterranean Fusion Cuisine", style: .secondary, size: .small)
+        DSTag("This Is An Extremely Long Tag Name", style: .primary, size: .medium)
+    }
+    .frame(width: 200)  // Constrain to see truncation
+    .padding()
 }
 
 #Preview("Tags with Icons") {

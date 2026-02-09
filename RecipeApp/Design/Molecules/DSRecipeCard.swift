@@ -71,6 +71,15 @@ struct DSRecipeCard: View {
             if let imageURL = imageURL {
                 DSImage(url: imageURL, height: 160)
                     .cornerRadius(Theme.CornerRadius.md)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                        .fill(Theme.Colors.backgroundDark)
+                    Image(systemName: "fork.knife")
+                        .font(.system(size: 40))
+                        .foregroundColor(Theme.Colors.textTertiary)
+                }
+                .frame(height: 160)
             }
 
             headerRow
@@ -96,10 +105,7 @@ struct DSRecipeCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.Colors.backgroundLight)
         .cornerRadius(Theme.CornerRadius.md)
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
-                .stroke(Theme.Colors.border, lineWidth: 1)
-        )
+        .shadow(color: .black.opacity(0.10), radius: 8, x: 0, y: 2)
         .contentShape(Rectangle())
         .accessibilityIdentifier(accessibilityID)
     }
@@ -174,7 +180,7 @@ struct DSRecipeCard: View {
             }
 
             if tags.count > 3 {
-                DSLabel("+\(tags.count - 3)", style: .caption2, color: .tertiary)
+                DSLabel("+\(tags.count - 3)", style: .caption2, color: .primary)
             }
         }
     }
@@ -190,13 +196,14 @@ struct DSRecipeCard: View {
             prepTime: 10,
             cookTime: 20,
             servings: 4,
-            tags: ["Pasta", "Quick", "Dinner"],
+            tags: ["Mediterranean Fusion Cuisine", "Mediterranean Fusion Cuisine", "Dinner", "Tag", "Tag2"],
             action: .favorite(isFavorite: false, onTap: {}),
             accessibilityID: "preview-card-1"
         )
 
         DSRecipeCard(
             title: "Chicken Tikka Masala",
+            imageURL: "https://placehold.co/400x300",
             cuisine: "Indian",
             prepTime: 30,
             cookTime: 45,
