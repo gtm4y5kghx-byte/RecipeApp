@@ -68,23 +68,29 @@ struct DSRecipeCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            if let imageURL = imageURL {
-                DSImage(url: imageURL, height: 160)
-                    .cornerRadius(Theme.CornerRadius.md)
-            } else {
-                ZStack {
-                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
-                        .fill(Theme.Colors.backgroundDark)
-                    Image(systemName: "fork.knife")
-                        .font(.system(size: 40))
-                        .foregroundColor(Theme.Colors.textTertiary)
+            ZStack(alignment: .topLeading) {
+                if let imageURL = imageURL {
+                    DSImage(url: imageURL, height: 160)
+                        .cornerRadius(Theme.CornerRadius.md)
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                            .fill(Theme.Colors.backgroundDark)
+                        Image(systemName: "fork.knife")
+                            .font(.system(size: 40))
+                            .foregroundColor(Theme.Colors.textTertiary)
+                    }
+                    .frame(height: 160)
                 }
-                .frame(height: 160)
+
+                if showSuggestionBadge, let reason = subtitle {
+                    suggestionBadge(reason: reason)
+                }
             }
 
             headerRow
 
-            if subtitle != nil || showSuggestionBadge {
+            if subtitle != nil && !showSuggestionBadge {
                 subtitleSection
                     .padding(.bottom, Theme.Spacing.xs)
             }
@@ -134,20 +140,41 @@ struct DSRecipeCard: View {
         }
     }
 
+    @ViewBuilder
     private var subtitleSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-            if showSuggestionBadge {
-                HStack(spacing: Theme.Spacing.xs) {
-                    DSIcon("sparkles", size: .small, color: .accent)
-                    DSLabel("Suggested", style: .caption1, color: .accent)
-                }
-            }
-
-            if let subtitle = subtitle {
-                DSLabel(subtitle, style: .footnote, color: .secondary)
-                    .lineLimit(2)
-            }
+        if let subtitle = subtitle {
+            DSLabel(subtitle, style: .footnote, color: .secondary)
+                .lineLimit(2)
         }
+    }
+
+    private func suggestionBadge(reason: String) -> some View {
+        HStack(spacing: Theme.Spacing.xs) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 12))
+                .foregroundColor(Theme.Colors.accent)
+
+            Text(suggestionBadgeText(reason: reason))
+                .font(Theme.Typography.caption1)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, Theme.Spacing.sm + 2)
+        .padding(.vertical, Theme.Spacing.xs + 2)
+        .background(Theme.Colors.backgroundLight.opacity(0.95))
+        .cornerRadius(Theme.CornerRadius.full)
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .padding(Theme.Spacing.sm)
+    }
+
+    private func suggestionBadgeText(reason: String) -> AttributedString {
+        var forYou = AttributedString("For You: ")
+        forYou.foregroundColor = Theme.Colors.accent
+        forYou.inlinePresentationIntent = .stronglyEmphasized
+
+        var reasonText = AttributedString(reason)
+        reasonText.foregroundColor = Theme.Colors.textSecondary
+
+        return forYou + reasonText
     }
 
     private var metadataRow: some View {
