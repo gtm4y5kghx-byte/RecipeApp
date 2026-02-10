@@ -31,18 +31,10 @@ struct RecipesMenuSheet: View {
             )
             .navigationTitle("Recipes")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        DSIcon("xmark", size: .medium, color: .accent)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .accessibilityIdentifier("recipes-menu-close-button")
-                }
-            }
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
+        .presentationDragIndicator(.visible)
     }
 }
 

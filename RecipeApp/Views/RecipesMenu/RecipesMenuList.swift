@@ -17,86 +17,124 @@ struct RecipesMenuList: View {
     var body: some View {
         List {
             if let appSections = appSections {
-                Section("Sections") {
+                Section {
                     ForEach(appSections, id: \.self) { tab in
+                        let isSelected = selectedAppSection == tab
                         Button {
                             onSelectAppSection?(tab)
                         } label: {
                             Label(tab.title, systemImage: tab.icon)
+                                .fontWeight(isSelected ? .semibold : .regular)
                         }
-                        .listRowBackground(selectedAppSection == tab ? Color.accentColor.opacity(0.15) : nil)
+                        .foregroundColor(Theme.Colors.backgroundLight)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                         .accessibilityIdentifier("menu-section-\(tab.title.lowercased().replacingOccurrences(of: " ", with: "-"))")
-                    }
-                }
-            }
-            
-            Section("Actions") {
-                Button {
-                    onNewRecipe()
-                } label: {
-                    Label("New Recipe", systemImage: "plus")
-                }
-                .accessibilityIdentifier("menu-new-recipe-button")
-            }
-            
-            Section("Filters") {
-                ForEach(filterOptions) { option in
-                    Button {
-                        onSelectOption(option.id)
-                    } label: {
-                        Label {
-                            HStack {
-                                Text(option.title)
-                                Spacer()
-                                if let count = option.count {
-                                    Text("\(count)")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                        } icon: {
-                            Image(systemName: option.icon)
-                        }
-                    }
-                    .listRowBackground(selectedOptionID == option.id ? Color.accentColor.opacity(0.15) : nil)
-                    .accessibilityIdentifier("menu-filter-\(option.id)")
-                }
-            }
-            
-            if !tagOptions.isEmpty {
-                Section("Tags") {
-                    ForEach(tagOptions) { option in
-                        Button {
-                            onSelectOption(option.id)
-                        } label: {
-                            Label {
-                                HStack {
-                                    Text(option.title)
-                                    Spacer()
-                                    if let count = option.count {
-                                        Text("\(count)")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                            } icon: {
-                                Image(systemName: option.icon)
-                            }
-                        }
-                        .listRowBackground(selectedOptionID == option.id ? Color.accentColor.opacity(0.15) : nil)
-                        .accessibilityIdentifier("menu-tag-\(option.id)")
                     }
                 }
             }
             
             Section {
                 Button {
+                    onNewRecipe()
+                } label: {
+                    Label("New Recipe", systemImage: "plus")
+                }
+                .foregroundColor(Theme.Colors.backgroundLight)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .accessibilityIdentifier("menu-new-recipe-button")
+
+                DSDivider(color: .prominent, spacing: .none)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: Theme.Spacing.sm, bottom: 0, trailing: Theme.Spacing.sm))
+            }
+
+            Section {
+                ForEach(filterOptions) { option in
+                    let isSelected = selectedOptionID == option.id
+                    Button {
+                        onSelectOption(option.id)
+                    } label: {
+                        Label {
+                            HStack {
+                                Text(option.title)
+                                    .fontWeight(isSelected ? .semibold : .regular)
+                                Spacer()
+                                if let count = option.count {
+                                    Text("\(count)")
+                                        .foregroundStyle(Theme.Colors.backgroundLight.opacity(0.7))
+                                }
+                            }
+                        } icon: {
+                            Image(systemName: option.icon)
+                        }
+                    }
+                    .foregroundColor(Theme.Colors.backgroundLight)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .accessibilityIdentifier("menu-filter-\(option.id)")
+                }
+
+                DSDivider(color: .prominent, spacing: .none)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: Theme.Spacing.sm, bottom: 0, trailing: Theme.Spacing.sm))
+            }
+
+            if !tagOptions.isEmpty {
+                Section {
+                    ForEach(tagOptions) { option in
+                        let isSelected = selectedOptionID == option.id
+                        Button {
+                            onSelectOption(option.id)
+                        } label: {
+                            Label {
+                                HStack {
+                                    Text(option.title)
+                                        .fontWeight(isSelected ? .semibold : .regular)
+                                    Spacer()
+                                    if let count = option.count {
+                                        Text("\(count)")
+                                            .foregroundStyle(Theme.Colors.backgroundLight.opacity(0.7))
+                                    }
+                                }
+                            } icon: {
+                                Image(systemName: option.icon)
+                            }
+                        }
+                        .foregroundColor(Theme.Colors.backgroundLight)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .accessibilityIdentifier("menu-tag-\(option.id)")
+                    }
+
+                    DSDivider(color: .prominent, spacing: .none)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: Theme.Spacing.sm, bottom: 0, trailing: Theme.Spacing.sm))
+                }
+            }
+
+            Section {
+                Button {
                     onSettings()
                 } label: {
                     Label("Settings", systemImage: "gear")
                 }
+                .foregroundColor(Theme.Colors.backgroundLight)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
                 .accessibilityIdentifier("menu-settings-button")
             }
         }
-        .listStyle(.sidebar)
+        .listStyle(.plain)
+        .listSectionSpacing(0)
+        .environment(\.defaultMinListRowHeight, 40)
+        .scrollContentBackground(.hidden)
+        .background(Theme.Colors.primary)
+        .tint(Theme.Colors.accent)
     }
 }
 
