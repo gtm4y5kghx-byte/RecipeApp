@@ -11,7 +11,7 @@ struct RecipeDetailNutrition: View {
                     HStack {
                         DSLabel(item.label)
                         Spacer()
-                        DSLabel(item.value)
+                        DSLabel(item.value, style: .headline)
                     }
 
                     if index < items.count - 1 {
