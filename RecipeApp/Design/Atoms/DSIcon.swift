@@ -9,6 +9,7 @@ struct DSIcon: View {
     let name: String
     let size: IconSize
     let color: IconColor
+    let bounceValue: Bool?
 
     // MARK: - Icon Size
 
@@ -59,11 +60,13 @@ struct DSIcon: View {
     init(
         _ name: String,
         size: IconSize = .medium,
-        color: IconColor = .primary
+        color: IconColor = .primary,
+        bounceValue: Bool? = nil
     ) {
         self.name = name
         self.size = size
         self.color = color
+        self.bounceValue = bounceValue
     }
 
     // MARK: - Body
@@ -72,6 +75,7 @@ struct DSIcon: View {
         Image(systemName: name)
             .font(.system(size: size.points))
             .foregroundColor(color.color)
+            .symbolEffect(.bounce, value: bounceValue ?? false)
     }
 }
 

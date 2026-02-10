@@ -131,6 +131,7 @@ struct DSRecipeCard: View {
                     isFavorite ? "heart.fill" : "heart",
                     size: .medium,
                     color: isFavorite ? .error : .secondary,
+                    bounceValue: isFavorite,
                     accessibilityID: "\(accessibilityID)-favorite-button"
                 ) {
                     HapticFeedback.light.trigger()

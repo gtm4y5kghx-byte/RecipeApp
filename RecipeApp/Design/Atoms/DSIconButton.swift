@@ -10,6 +10,7 @@ struct DSIconButton: View {
     let size: DSIcon.IconSize
     let color: DSIcon.IconColor
     let style: ButtonStyle
+    let bounceValue: Bool?
     let accessibilityID: String
     let action: () -> Void
 
@@ -31,6 +32,7 @@ struct DSIconButton: View {
         size: DSIcon.IconSize = .medium,
         color: DSIcon.IconColor = .primary,
         style: ButtonStyle = .plain,
+        bounceValue: Bool? = nil,
         accessibilityID: String,
         action: @escaping () -> Void
     ) {
@@ -38,6 +40,7 @@ struct DSIconButton: View {
         self.size = size
         self.color = color
         self.style = style
+        self.bounceValue = bounceValue
         self.accessibilityID = accessibilityID
         self.action = action
     }
@@ -56,23 +59,23 @@ struct DSIconButton: View {
     private var iconContent: some View {
         switch style {
         case .plain:
-            DSIcon(icon, size: size, color: color)
+            DSIcon(icon, size: size, color: color, bounceValue: bounceValue)
 
         case .filled:
-            DSIcon(icon, size: size, color: color)
+            DSIcon(icon, size: size, color: color, bounceValue: bounceValue)
                 .padding(padding)
                 .background(Theme.Colors.backgroundLight)
                 .clipShape(Circle())
 
         case .filledPrimary:
-            DSIcon(icon, size: size, color: .white)
+            DSIcon(icon, size: size, color: .white, bounceValue: bounceValue)
                 .padding(padding)
                 .background(Theme.Colors.primary)
                 .clipShape(Circle())
                 .shadow(color: Theme.Colors.primary.opacity(0.3), radius: 4, x: 0, y: 2)
 
         case .filledAccent:
-            DSIcon(icon, size: size, color: .white)
+            DSIcon(icon, size: size, color: .white, bounceValue: bounceValue)
                 .padding(padding)
                 .background(Theme.Colors.accent)
                 .clipShape(Circle())
