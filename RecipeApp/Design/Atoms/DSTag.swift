@@ -24,7 +24,7 @@ struct DSTag: View {
         var backgroundColor: Color {
             switch self {
             case .primary: return Theme.Colors.primary
-            case .secondary: return Theme.Colors.primary.opacity(0.1)
+            case .secondary: return Theme.Colors.tagSecondaryBackground
             case .accent: return Theme.Colors.accent
             case .neutral: return Theme.Colors.backgroundDark
             case .success: return Theme.Colors.success.opacity(0.15)
@@ -35,7 +35,7 @@ struct DSTag: View {
         var foregroundColor: Color {
             switch self {
             case .primary: return .white
-            case .secondary: return Theme.Colors.primary
+            case .secondary: return Theme.Colors.tagSecondaryText
             case .accent: return .white
             case .neutral: return Theme.Colors.textSecondary
             case .success: return Theme.Colors.success

@@ -34,6 +34,8 @@ enum Theme {
 
         static let border = Color("Colors/Border")
         static let divider = Color("Colors/Divider")
+        static let tagSecondaryText = Color("Colors/TagSecondaryText")
+        static let tagSecondaryBackground = Color("Colors/TagSecondaryBackground")
     }
 
     // MARK: - Typography

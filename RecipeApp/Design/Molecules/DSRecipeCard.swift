@@ -164,6 +164,7 @@ struct DSRecipeCard: View {
         .cornerRadius(Theme.CornerRadius.full)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         .padding(Theme.Spacing.sm)
+        .environment(\.colorScheme, .light)
     }
 
     private func suggestionBadgeText(reason: String) -> AttributedString {
@@ -172,7 +173,7 @@ struct DSRecipeCard: View {
         forYou.inlinePresentationIntent = .stronglyEmphasized
 
         var reasonText = AttributedString(reason)
-        reasonText.foregroundColor = Theme.Colors.textSecondary
+        reasonText.foregroundColor = Theme.Colors.textPrimary
 
         return forYou + reasonText
     }
@@ -379,31 +380,46 @@ struct DSRecipeCard: View {
 }
 
 #Preview("Dark: Recipe Card") {
-    VStack(spacing: Theme.Spacing.md) {
-        DSRecipeCard(
-            title: "Chicken Tikka Masala",
-            cuisine: "Indian",
-            prepTime: 15,
-            cookTime: 30,
-            servings: 4,
-            tags: ["Spicy", "Dinner"],
-            action: .favorite(isFavorite: true, onTap: {}),
-            accessibilityID: "dark-preview-1"
-        )
+    ScrollView {
+        VStack(spacing: Theme.Spacing.md) {
+            DSRecipeCard(
+                title: "Chicken Tikka Masala",
+                cuisine: "Indian",
+                prepTime: 15,
+                cookTime: 30,
+                servings: 4,
+                tags: ["Spicy", "Dinner"],
+                action: .favorite(isFavorite: true, onTap: {}),
+                accessibilityID: "dark-preview-1"
+            )
 
-        DSRecipeCard(
-            title: "AI Generated Recipe",
-            subtitle: "Made for you based on your preferences",
-            cuisine: "Mediterranean",
-            prepTime: 10,
-            cookTime: 20,
-            servings: 2,
-            tags: ["Healthy", "Quick"],
-            action: .save(onTap: {}),
-            accessibilityID: "dark-preview-2"
-        )
+            DSRecipeCard(
+                title: "AI Generated Recipe",
+                subtitle: "Made for you based on your preferences",
+                cuisine: "Mediterranean",
+                prepTime: 10,
+                cookTime: 20,
+                servings: 2,
+                tags: ["Healthy", "Quick"],
+                action: .save(onTap: {}),
+                accessibilityID: "dark-preview-2"
+            )
+
+            DSRecipeCard(
+                title: "French Lemon Tart",
+                subtitle: "You haven't made your favorite French dessert in a while",
+                showSuggestionBadge: true,
+                cuisine: "French",
+                prepTime: 30,
+                cookTime: 45,
+                servings: 8,
+                tags: ["Dessert", "Baking"],
+                action: .favorite(isFavorite: false, onTap: {}),
+                accessibilityID: "dark-preview-3"
+            )
+        }
+        .padding()
     }
-    .padding()
     .background(Theme.Colors.background)
     .preferredColorScheme(.dark)
 }
