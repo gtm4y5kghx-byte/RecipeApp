@@ -55,6 +55,16 @@ struct RecipeFormView: View {
                     RecipeFormNotes(
                         notes: $viewModel.notes
                     )
+
+                    RecipeFormNutrition(
+                        calories: $viewModel.calories,
+                        protein: $viewModel.protein,
+                        carbohydrates: $viewModel.carbohydrates,
+                        fat: $viewModel.fat,
+                        fiber: $viewModel.fiber,
+                        sodium: $viewModel.sodium,
+                        sugar: $viewModel.sugar
+                    )
                 }
                 .navigationTitle(recipe == nil ? "New Recipe" : "Edit Recipe")
                 .navigationBarTitleDisplayMode(.inline)

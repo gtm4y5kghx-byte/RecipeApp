@@ -7,7 +7,7 @@ import SwiftData
 class RecipeFormViewModel {
     
     // MARK: - Form Fields
-    
+
     var title: String = ""
     var servings: String = ""
     var prepTime: String = ""
@@ -19,6 +19,15 @@ class RecipeFormViewModel {
     var tagInput: String = ""
     var selectedImageData: Data?
     var error: Error?
+
+    // MARK: - Nutrition fields
+    var calories: String = ""
+    var protein: String = ""
+    var carbohydrates: String = ""
+    var fat: String = ""
+    var fiber: String = ""
+    var sodium: String = ""
+    var sugar: String = ""
     
     // MARK: - Private Properties
     
@@ -199,7 +208,8 @@ class RecipeFormViewModel {
         updateRecipeIngredients(recipeToSave)
         updateRecipeInstructions(recipeToSave)
         updateRecipeImage(recipeToSave)
-        
+        updateRecipeNutrition(recipeToSave)
+
         return saveToContext()
     }
     
@@ -212,15 +222,25 @@ class RecipeFormViewModel {
         self.cookTime = recipe.cookTime.map { String($0) } ?? ""
         self.cuisine = recipe.cuisine ?? ""
         self.notes = recipe.notes ?? ""
-        
+
         let ingredientTexts = recipe.sortedIngredients.map { $0.item }
         self.ingredientFields = ingredientTexts.isEmpty ? [""] : ingredientTexts
-        
+
         let instructionTexts = recipe.sortedInstructions.map { $0.instruction }
         self.instructionFields = instructionTexts.isEmpty ? [""] : instructionTexts
-        
+
         self.tagInput = recipe.userTags.joined(separator: ", ")
         self.originalHasImage = recipe.imageURL != nil
+
+        if let nutrition = recipe.nutrition {
+            self.calories = nutrition.calories.map { String($0) } ?? ""
+            self.protein = nutrition.protein.map { String(Int($0)) } ?? ""
+            self.carbohydrates = nutrition.carbohydrates.map { String(Int($0)) } ?? ""
+            self.fat = nutrition.fat.map { String(Int($0)) } ?? ""
+            self.fiber = nutrition.fiber.map { String(Int($0)) } ?? ""
+            self.sodium = nutrition.sodium.map { String(Int($0)) } ?? ""
+            self.sugar = nutrition.sugar.map { String(Int($0)) } ?? ""
+        }
     }
     
     private func populateFromImportData(_ importData: RecipeImportData) {
@@ -281,12 +301,31 @@ class RecipeFormViewModel {
     
     private func updateRecipeInstructions(_ recipe: Recipe) {
         recipe.instructions.removeAll()
-        
+
         let nonEmptyInstructions = instructionFields.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
         for (index, instructionText) in nonEmptyInstructions.enumerated() {
             let step = Step(instruction: instructionText)
             step.order = index
             recipe.instructions.append(step)
+        }
+    }
+
+    private func updateRecipeNutrition(_ recipe: Recipe) {
+        let hasAnyNutrition = !calories.isEmpty || !protein.isEmpty || !carbohydrates.isEmpty ||
+                              !fat.isEmpty || !fiber.isEmpty || !sodium.isEmpty || !sugar.isEmpty
+
+        if hasAnyNutrition {
+            let nutrition = recipe.nutrition ?? NutritionInfo()
+            nutrition.calories = Int(calories)
+            nutrition.protein = Double(protein)
+            nutrition.carbohydrates = Double(carbohydrates)
+            nutrition.fat = Double(fat)
+            nutrition.fiber = Double(fiber)
+            nutrition.sodium = Double(sodium)
+            nutrition.sugar = Double(sugar)
+            recipe.nutrition = nutrition
+        } else {
+            recipe.nutrition = nil
         }
     }
     

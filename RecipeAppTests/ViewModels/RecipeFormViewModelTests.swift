@@ -442,22 +442,156 @@ struct RecipeFormViewModelTests {
     func testSaveRecipeWithoutImageDoesNotCreateFile() {
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
-        
+
         viewModel.title = "No Image Recipe"
         viewModel.ingredientFields = ["flour"]
         viewModel.instructionFields = ["mix"]
-        
+
         let success = viewModel.saveRecipe()
-        
+
         #expect(success == true)
-        
+
         let descriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(descriptor)
         let savedRecipe = recipes?.first
-        
+
         #expect(savedRecipe?.imageURL == nil)
     }
-    
+
+    // MARK: - Nutrition
+
+    @Test("Populates nutrition fields from existing recipe")
+    func testPopulatesNutritionFromRecipe() {
+        let nutrition = NutritionInfo(
+            calories: 320,
+            carbohydrates: 45,
+            protein: 12,
+            fat: 14,
+            fiber: 3,
+            sodium: 400,
+            sugar: 8
+        )
+        let recipe = RecipeTestFixtures.createRecipe(
+            title: "Recipe with Nutrition",
+            ingredients: [("", nil, "flour")],
+            instructions: ["Mix"],
+            nutrition: nutrition
+        )
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
+
+        #expect(viewModel.calories == "320")
+        #expect(viewModel.carbohydrates == "45")
+        #expect(viewModel.protein == "12")
+        #expect(viewModel.fat == "14")
+        #expect(viewModel.fiber == "3")
+        #expect(viewModel.sodium == "400")
+        #expect(viewModel.sugar == "8")
+    }
+
+    @Test("Saves nutrition to new recipe")
+    func testSavesNutritionToNewRecipe() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.title = "New Recipe"
+        viewModel.ingredientFields = ["flour"]
+        viewModel.instructionFields = ["mix"]
+        viewModel.calories = "350"
+        viewModel.protein = "15"
+        viewModel.carbohydrates = "50"
+        viewModel.fat = "12"
+
+        let success = viewModel.saveRecipe()
+
+        #expect(success == true)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let recipes = try? modelContext.fetch(descriptor)
+        let savedRecipe = recipes?.first
+
+        #expect(savedRecipe?.nutrition != nil)
+        #expect(savedRecipe?.nutrition?.calories == 350)
+        #expect(savedRecipe?.nutrition?.protein == 15)
+        #expect(savedRecipe?.nutrition?.carbohydrates == 50)
+        #expect(savedRecipe?.nutrition?.fat == 12)
+    }
+
+    @Test("Updates nutrition on existing recipe")
+    func testUpdatesNutritionOnExistingRecipe() {
+        let nutrition = NutritionInfo(calories: 200, protein: 10)
+        let recipe = RecipeTestFixtures.createRecipe(
+            title: "Existing Recipe",
+            ingredients: [("", nil, "flour")],
+            instructions: ["Mix"],
+            nutrition: nutrition
+        )
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        modelContext.insert(recipe)
+        try? modelContext.save()
+
+        let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
+        viewModel.calories = "400"
+        viewModel.protein = "25"
+
+        let success = viewModel.saveRecipe()
+
+        #expect(success == true)
+        #expect(recipe.nutrition?.calories == 400)
+        #expect(recipe.nutrition?.protein == 25)
+    }
+
+    @Test("Clears nutrition when all fields are empty")
+    func testClearsNutritionWhenEmpty() {
+        let nutrition = NutritionInfo(calories: 200, protein: 10)
+        let recipe = RecipeTestFixtures.createRecipe(
+            title: "Recipe with Nutrition",
+            ingredients: [("", nil, "flour")],
+            instructions: ["Mix"],
+            nutrition: nutrition
+        )
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        modelContext.insert(recipe)
+        try? modelContext.save()
+
+        let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
+        viewModel.calories = ""
+        viewModel.protein = ""
+        viewModel.carbohydrates = ""
+        viewModel.fat = ""
+        viewModel.fiber = ""
+        viewModel.sodium = ""
+        viewModel.sugar = ""
+
+        let success = viewModel.saveRecipe()
+
+        #expect(success == true)
+        #expect(recipe.nutrition == nil)
+    }
+
+    @Test("Does not create nutrition when no fields are filled")
+    func testDoesNotCreateNutritionWhenEmpty() {
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.title = "No Nutrition Recipe"
+        viewModel.ingredientFields = ["flour"]
+        viewModel.instructionFields = ["mix"]
+
+        let success = viewModel.saveRecipe()
+
+        #expect(success == true)
+
+        let descriptor = FetchDescriptor<Recipe>()
+        let recipes = try? modelContext.fetch(descriptor)
+        let savedRecipe = recipes?.first
+
+        #expect(savedRecipe?.nutrition == nil)
+    }
+
     private func createTestImageData() -> Data {
         let size = CGSize(width: 1, height: 1)
         let renderer = UIGraphicsImageRenderer(size: size)
