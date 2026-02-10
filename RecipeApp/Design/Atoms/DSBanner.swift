@@ -27,10 +27,17 @@ struct DSBanner: View {
             DSIcon(icon, size: .small, color: iconColor)
             DSLabel(message, style: .subheadline, color: labelColor)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.sm)
-        .background(style.backgroundColor)
+        .background(
+            LinearGradient(
+                colors: [style.backgroundColor, style.backgroundColor.opacity(0.7)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .cornerRadius(Theme.CornerRadius.full)
+        .shadow(color: .black.opacity(0.3), radius: 16, x: 0, y: 8)
     }
 
     private var iconColor: DSIcon.IconColor {
