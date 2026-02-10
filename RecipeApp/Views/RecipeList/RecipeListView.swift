@@ -5,6 +5,7 @@ struct RecipeListView: View {
     @Query(sort: \Recipe.createdAt, order: .reverse) private var recipes: [Recipe]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.isIPad) private var isIPad
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
 
     var menuState: AppMenuState?
@@ -19,6 +20,8 @@ struct RecipeListView: View {
     @State private var scrollPosition = ScrollPosition(edge: .top)
     @State private var localSelectedRecipe: Recipe?
     @State private var error: Error?
+    @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
+    @State private var containerWidth: CGFloat = 0
     #if DEBUG
     @State private var debugTierLabel = UserSubscriptionService.debugTierLabel
     #endif
@@ -151,24 +154,36 @@ struct RecipeListView: View {
     
     // MARK: - iPad Layout (3-column: Sidebar | Recipe List | Detail)
 
+    private func collapseSidebarIfNeeded() {
+        // Only collapse on smaller iPads where sidebar is overlay (11" and smaller)
+        // On larger iPads (13"), sidebar is persistent and should stay open
+        if containerWidth < 1024 {
+            columnVisibility = .doubleColumn
+        }
+    }
+
     private var iPadLayout: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             RecipesMenuList(
                 appSections: [.recipes, .mealPlan, .shoppingList],
                 selectedAppSection: .recipes,
                 onSelectAppSection: { tab in
+                    collapseSidebarIfNeeded()
                     selectedTab?.wrappedValue = tab
                 },
                 filterOptions: menuState?.filterOptions ?? [],
                 tagOptions: menuState?.tagOptions ?? [],
                 selectedOptionID: nil,
                 onSelectOption: { optionId in
+                    collapseSidebarIfNeeded()
                     menuState?.selectOption(optionId)
                 },
                 onNewRecipe: {
+                    collapseSidebarIfNeeded()
                     menuState?.newRecipe()
                 },
                 onSettings: {
+                    collapseSidebarIfNeeded()
                     menuState?.settings()
                 }
             )
@@ -201,6 +216,16 @@ struct RecipeListView: View {
                 ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
             }
         }
+        .background(
+            GeometryReader { geometry in
+                Color.clear.onAppear {
+                    containerWidth = geometry.size.width
+                }
+                .onChange(of: geometry.size.width) { _, newWidth in
+                    containerWidth = newWidth
+                }
+            }
+        )
 #if DEBUG
         .overlay(alignment: .bottomTrailing) {
             Menu {
