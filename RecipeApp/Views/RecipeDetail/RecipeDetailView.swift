@@ -47,24 +47,37 @@ struct RecipeDetailView: View {
                                 servings: viewModel.recipe.servings,
                                 cuisine: viewModel.recipe.cuisine,
                             )
-                            
+
                             Spacer()
-                            
-                            VStack {
+
+                            HStack(spacing: Theme.Spacing.sm) {
                                 DSButton(
-                                    title: "I Cooked This",
-                                    style: .secondary,
+                                    title: "Made It",
+                                    style: .primary,
                                     size: .small,
                                     fullWidth: false
                                 ) {
                                     HapticFeedback.success.trigger()
-                                    viewModel.markAsCooked()
+                                    withAnimation {
+                                        viewModel.markAsCooked()
+                                    }
                                 }
                                 .accessibilityIdentifier("recipe-detail-cooked-button")
+
+                                if viewModel.recipe.timesCooked > 0 {
+                                    Text("\(viewModel.recipe.timesCooked)")
+                                        .font(Theme.Typography.caption1.bold())
+                                        .foregroundColor(Theme.Colors.primary)
+                                        .frame(minWidth: 24, minHeight: 24)
+                                        .background(Theme.Colors.primary.opacity(0.15))
+                                        .clipShape(Circle())
+                                        .contentTransition(.numericText())
+                                }
                             }
                         }
                         .frame(maxWidth: .infinity)
                     }
+                    .padding(.top, Theme.Spacing.sm)
                     
                     RecipeDetailTags(
                         tags: viewModel.recipe.userTags

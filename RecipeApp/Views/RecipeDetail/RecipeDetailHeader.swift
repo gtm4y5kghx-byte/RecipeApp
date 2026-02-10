@@ -15,6 +15,7 @@ struct RecipeDetailHeader: View {
                     isFavorite ? "heart.fill" : "heart",
                     size: .large,
                     color: isFavorite ? .error : .secondary,
+                    bounceValue: isFavorite,
                     accessibilityID: "recipe-detail-favorite-button",
                     action: onFavoriteTap
                 )

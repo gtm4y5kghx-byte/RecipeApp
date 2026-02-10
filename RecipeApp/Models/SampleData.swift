@@ -131,7 +131,6 @@ struct SampleData {
         recipe.instructions = steps
         
         recipe.userTags = ["Dessert", "Baking", "Pie"]
-        recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 320, carbohydrates: 48, protein: 3, fat: 14, fiber: 2, sodium: 180, sugar: 28)
         
         return recipe
