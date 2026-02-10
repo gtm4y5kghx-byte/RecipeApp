@@ -333,10 +333,10 @@ struct RecipeFormViewModelTests {
         viewModel.instructionFields = ["mix"]
         viewModel.setImage(createTestImageData())
         
-        let success = viewModel.saveRecipe()
-        
-        #expect(success == true)
-        
+        let result = viewModel.saveRecipe()
+
+        #expect(result != nil)
+
         let descriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(descriptor)
         let savedRecipe = recipes?.first
@@ -365,9 +365,9 @@ struct RecipeFormViewModelTests {
         let viewModel = RecipeFormViewModel(recipe: recipe, importData: nil, modelContext: modelContext)
         viewModel.removeImage()
         
-        let success = viewModel.saveRecipe()
-        
-        #expect(success == true)
+        let savedRecipe = viewModel.saveRecipe()
+
+        #expect(savedRecipe != nil)
         #expect(recipe.imageURL == nil)
     }
     
@@ -447,9 +447,9 @@ struct RecipeFormViewModelTests {
         viewModel.ingredientFields = ["flour"]
         viewModel.instructionFields = ["mix"]
 
-        let success = viewModel.saveRecipe()
+        let result = viewModel.saveRecipe()
 
-        #expect(success == true)
+        #expect(result != nil)
 
         let descriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(descriptor)
@@ -503,9 +503,9 @@ struct RecipeFormViewModelTests {
         viewModel.carbohydrates = "50"
         viewModel.fat = "12"
 
-        let success = viewModel.saveRecipe()
+        let result = viewModel.saveRecipe()
 
-        #expect(success == true)
+        #expect(result != nil)
 
         let descriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(descriptor)
@@ -536,9 +536,9 @@ struct RecipeFormViewModelTests {
         viewModel.calories = "400"
         viewModel.protein = "25"
 
-        let success = viewModel.saveRecipe()
+        let result = viewModel.saveRecipe()
 
-        #expect(success == true)
+        #expect(result != nil)
         #expect(recipe.nutrition?.calories == 400)
         #expect(recipe.nutrition?.protein == 25)
     }
@@ -566,9 +566,9 @@ struct RecipeFormViewModelTests {
         viewModel.sodium = ""
         viewModel.sugar = ""
 
-        let success = viewModel.saveRecipe()
+        let result = viewModel.saveRecipe()
 
-        #expect(success == true)
+        #expect(result != nil)
         #expect(recipe.nutrition == nil)
     }
 
@@ -581,9 +581,9 @@ struct RecipeFormViewModelTests {
         viewModel.ingredientFields = ["flour"]
         viewModel.instructionFields = ["mix"]
 
-        let success = viewModel.saveRecipe()
+        let result = viewModel.saveRecipe()
 
-        #expect(success == true)
+        #expect(result != nil)
 
         let descriptor = FetchDescriptor<Recipe>()
         let recipes = try? modelContext.fetch(descriptor)

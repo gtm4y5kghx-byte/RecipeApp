@@ -45,7 +45,10 @@ struct MainView: View {
         }
         .animation(.easeInOut, value: NetworkMonitor.shared.isConnected)
         .sheet(isPresented: $menuState.showingNewRecipe) {
-            RecipeFormView(recipe: nil)
+            RecipeFormView(recipe: nil) { savedRecipe in
+                selectedRecipe = savedRecipe
+                selectedTab = .recipes
+            }
         }
         .sheet(isPresented: $menuState.showingSettings) {
             SettingsView()

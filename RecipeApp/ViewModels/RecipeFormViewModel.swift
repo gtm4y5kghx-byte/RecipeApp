@@ -193,16 +193,16 @@ class RecipeFormViewModel {
     
     // MARK: - Save Recipe
     
-    func saveRecipe() -> Bool {
+    func saveRecipe() -> Recipe? {
         let recipeToSave: Recipe
-        
+
         if let existingRecipe = recipe {
             recipeToSave = existingRecipe
         } else {
             recipeToSave = createNewRecipe()
             modelContext.insert(recipeToSave)
         }
-        
+
         updateRecipeProperties(recipeToSave)
         updateRecipeTags(recipeToSave)
         updateRecipeIngredients(recipeToSave)
@@ -210,7 +210,7 @@ class RecipeFormViewModel {
         updateRecipeImage(recipeToSave)
         updateRecipeNutrition(recipeToSave)
 
-        return saveToContext()
+        return saveToContext() ? recipeToSave : nil
     }
     
     // MARK: - Private Helpers (Population)

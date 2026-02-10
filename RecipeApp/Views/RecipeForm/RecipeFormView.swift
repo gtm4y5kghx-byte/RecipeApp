@@ -9,8 +9,9 @@ struct RecipeFormView: View {
     
     @State private var viewModel: RecipeFormViewModel?
     @State private var showingDiscardConfirmation = false
-    
+
     let recipe: Recipe?
+    var onSave: ((Recipe) -> Void)?
     
     var body: some View {
         NavigationStack {
@@ -82,8 +83,9 @@ struct RecipeFormView: View {
 
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Save") {
-                            if viewModel.saveRecipe() {
+                            if let savedRecipe = viewModel.saveRecipe() {
                                 HapticFeedback.success.trigger()
+                                onSave?(savedRecipe)
                                 dismiss()
                             } else {
                                 HapticFeedback.error.trigger()
