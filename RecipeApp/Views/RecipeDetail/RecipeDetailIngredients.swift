@@ -3,19 +3,25 @@ import SwiftData
 
 struct RecipeDetailIngredients: View {
     let groupedIngredients: [(section: String?, ingredients: [Ingredient])]
-    
+
     var body: some View {
         if !groupedIngredients.isEmpty {
-            DSSection("Ingredients") {
-                ForEach(groupedIngredients, id: \.section) { group in
+            DSSection("Ingredients", titleColor: .accent, verticalPadding: Theme.Spacing.md) {
+                ForEach(Array(groupedIngredients.enumerated()), id: \.element.section) { groupIndex, group in
                     if let section = group.section {
                         DSLabel(section, style: .headline)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, groupIndex > 0 ? Theme.Spacing.md : 0)
+                            .padding(.bottom, Theme.Spacing.xs)
                     }
+
                     ForEach(Array(group.ingredients.enumerated()), id: \.element.id) { index, ingredient in
-                        HStack(alignment: .top) {
-                            DSLabel(ingredient.displayText, style: .body, color: .primary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                        DSLabel(ingredient.displayText, style: .body, color: .primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if index < group.ingredients.count - 1 {
+                            DSDivider(thickness: .thin, color: .subtle, spacing: .compact)
+                                .opacity(0.5)
                         }
                     }
                 }

@@ -6,7 +6,7 @@ struct RecipeDetailNotes: View {
     
     var body: some View {
         if let notes = notes {
-            DSSection("Notes") {
+            DSSection("Notes", titleColor: .accent, verticalPadding: Theme.Spacing.md) {
                 DSLabel(notes)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
