@@ -135,6 +135,7 @@ struct RecipesMenuList: View {
         .scrollContentBackground(.hidden)
         .background(Theme.Colors.primary)
         .tint(Theme.Colors.accent)
+        .environment(\.colorScheme, .light)
     }
 }
 
