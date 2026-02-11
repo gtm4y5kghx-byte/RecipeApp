@@ -3,13 +3,23 @@ import SwiftUI
 struct CookingModeIngredientsSheet: View {
     let ingredients: [Ingredient]
     let onDismiss: () -> Void
-    
+
     var body: some View {
         NavigationStack {
-            List(ingredients) { ingredient in
-                DSLabel(IngredientFormatter.format(ingredient), style: .body)
+            ScrollView {
+                DSSection("Ingredients", titleColor: .accent, verticalPadding: Theme.Spacing.md) {
+                    ForEach(Array(ingredients.enumerated()), id: \.element.id) { index, ingredient in
+                        DSLabel(ingredient.displayText, style: .body, color: .primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if index < ingredients.count - 1 {
+                            DSDivider(thickness: .thin, color: .subtle, spacing: .compact)
+                                .opacity(0.7)
+                        }
+                    }
+                }
             }
-            .navigationTitle("Ingredients")
+            .background(Theme.Colors.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

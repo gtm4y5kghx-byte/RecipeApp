@@ -5,27 +5,33 @@ struct CookingModeStepsSheet: View {
     let currentIndex: Int
     let onSelectStep: (Int) -> Void
     let onDismiss: () -> Void
-    
+
     var body: some View {
         NavigationStack {
-            List(stepItems) { item in
-                Button {
-                    onSelectStep(item.id)
-                } label: {
-                    HStack {
-                        DSLabel("\(item.id + 1).", style: .headline)
-                        DSLabel(item.step.instruction, style: .body, color: .secondary)
-                            .lineLimit(2)
-                        Spacer()
-                        if item.id == currentIndex {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(Theme.Colors.primary)
+            ScrollView {
+                DSSection("Instructions", titleColor: .accent, verticalPadding: Theme.Spacing.md) {
+                    ForEach(Array(stepItems.enumerated()), id: \.element.id) { index, item in
+                        Button {
+                            onSelectStep(item.id)
+                        } label: {
+                            DSLabel(
+                                item.step.instruction,
+                                style: item.id == currentIndex ? .headline : .body,
+                                color: item.id == currentIndex ? .accent : .secondary
+                            )
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("cooking-mode-step-\(item.id)-button")
+
+                        if index < stepItems.count - 1 {
+                            DSDivider(thickness: .thin, color: .subtle, spacing: .compact)
+                                .opacity(0.7)
                         }
                     }
                 }
-                .accessibilityIdentifier("cooking-mode-step-\(item.id)-button")
             }
-            .navigationTitle("Steps")
+            .background(Theme.Colors.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
