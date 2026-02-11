@@ -6,7 +6,7 @@ struct RecipeFormIngredients : View {
     let onRemove: (Int) -> Void
     
     var body: some View {
-        DSSection("Ingredients") {
+        DSSection("Ingredients", titleColor: .accent, spacing: Theme.Spacing.md) {
             ForEach(ingredients.indices, id: \.self) { index in
                 HStack {
                     DSFormField(

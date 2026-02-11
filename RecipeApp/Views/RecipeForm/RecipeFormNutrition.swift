@@ -10,7 +10,7 @@ struct RecipeFormNutrition: View {
     @Binding var sugar: String
 
     var body: some View {
-        DSSection("Nutrition (per serving)") {
+        DSSection("Nutrition (per serving)", titleColor: .accent, spacing: Theme.Spacing.md) {
             DSFormField(
                 label: "Calories",
                 placeholder: "320",
@@ -22,61 +22,55 @@ struct RecipeFormNutrition: View {
 
             DSFormField(
                 label: "Protein",
-                placeholder: "12",
+                placeholder: "12g",
                 text: $protein,
                 icon: "leaf",
                 keyboardType: .numberPad,
-                helperText: "grams",
                 accessibilityID: "recipe-form-protein-field"
             )
 
             DSFormField(
                 label: "Carbohydrates",
-                placeholder: "45",
+                placeholder: "45g",
                 text: $carbohydrates,
                 icon: "circle.grid.3x3",
                 keyboardType: .numberPad,
-                helperText: "grams",
                 accessibilityID: "recipe-form-carbs-field"
             )
 
             DSFormField(
                 label: "Fat",
-                placeholder: "14",
+                placeholder: "14g",
                 text: $fat,
                 icon: "drop",
                 keyboardType: .numberPad,
-                helperText: "grams",
                 accessibilityID: "recipe-form-fat-field"
             )
 
             DSFormField(
                 label: "Fiber",
-                placeholder: "3",
+                placeholder: "3g",
                 text: $fiber,
                 icon: "leaf.arrow.circlepath",
                 keyboardType: .numberPad,
-                helperText: "grams",
                 accessibilityID: "recipe-form-fiber-field"
             )
 
             DSFormField(
                 label: "Sugar",
-                placeholder: "8",
+                placeholder: "8g",
                 text: $sugar,
                 icon: "cube",
                 keyboardType: .numberPad,
-                helperText: "grams",
                 accessibilityID: "recipe-form-sugar-field"
             )
 
             DSFormField(
                 label: "Sodium",
-                placeholder: "400",
+                placeholder: "400mg",
                 text: $sodium,
                 icon: "drop.triangle",
                 keyboardType: .numberPad,
-                helperText: "milligrams",
                 accessibilityID: "recipe-form-sodium-field"
             )
         }

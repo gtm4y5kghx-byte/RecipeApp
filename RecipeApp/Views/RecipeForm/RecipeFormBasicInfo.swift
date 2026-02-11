@@ -8,7 +8,7 @@ struct RecipeFormBasicInfo : View {
     @Binding var cuisine: String
     
     var body: some View {
-        DSSection("Basic Info") {
+        DSSection("Basic Info", titleColor: .accent, spacing: Theme.Spacing.md) {
             DSFormField(
                 label: "Title",
                 placeholder: "Enter recipe name",
@@ -39,7 +39,7 @@ struct RecipeFormBasicInfo : View {
 
             DSFormField(
                 label: "Prep Time",
-                placeholder: "15",
+                placeholder: "15 minutes",
                 text: $prepTime,
                 icon: "clock",
                 keyboardType: .numberPad,
@@ -48,11 +48,10 @@ struct RecipeFormBasicInfo : View {
 
             DSFormField(
                 label: "Cook Time",
-                placeholder: "30",
+                placeholder: "30 minutes",
                 text: $cookTime,
                 icon: "timer",
                 keyboardType: .numberPad,
-                helperText: "minutes",
                 accessibilityID: "recipe-form-cook-time-field"
             )
         }

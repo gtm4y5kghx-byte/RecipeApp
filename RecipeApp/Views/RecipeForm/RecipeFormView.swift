@@ -18,55 +18,59 @@ struct RecipeFormView: View {
             if let viewModel = viewModel {
                 @Bindable var viewModel = viewModel
                 
-                Form {
-                    
-                    RecipeFormImage(
-                        selectedImageData: $viewModel.selectedImageData,
-                        hasImage: viewModel.hasImage,
-                        onRemove: { viewModel.removeImage() }
-                    )
-                    
-                    
-                    RecipeFormBasicInfo(
-                        title: $viewModel.title,
-                        servings: $viewModel.servings,
-                        prepTime: $viewModel.prepTime,
-                        cookTime: $viewModel.cookTime,
-                        cuisine: $viewModel.cuisine
-                    )
-                    
-                    RecipeFormTags(
-                        tagInput: $viewModel.tagInput,
-                        suggestions: viewModel.getTagSuggestions(allRecipes: allRecipes),
-                        onSelectSuggestion: viewModel.applyTagSuggestion
-                    )
-                    
-                    RecipeFormIngredients(
-                        ingredients: $viewModel.ingredientFields,
-                        onAdd: { viewModel.addIngredient() },
-                        onRemove: { viewModel.removeIngredient(at: $0) }
-                    )
-                    
-                    RecipeFormIntstructions(
-                        instructions: $viewModel.instructionFields,
-                        onAdd: { viewModel.addInstruction() },
-                        onRemove: { viewModel.removeInstruction(at: $0) }
-                    )
-                    
-                    RecipeFormNotes(
-                        notes: $viewModel.notes
-                    )
+                ScrollView {
+                    VStack(spacing: 0) {
+                        RecipeFormImage(
+                            selectedImageData: $viewModel.selectedImageData,
+                            hasImage: viewModel.hasImage,
+                            onRemove: { viewModel.removeImage() }
+                        )
 
-                    RecipeFormNutrition(
-                        calories: $viewModel.calories,
-                        protein: $viewModel.protein,
-                        carbohydrates: $viewModel.carbohydrates,
-                        fat: $viewModel.fat,
-                        fiber: $viewModel.fiber,
-                        sodium: $viewModel.sodium,
-                        sugar: $viewModel.sugar
-                    )
+                        VStack(spacing: Theme.Spacing.xl) {
+                            RecipeFormBasicInfo(
+                            title: $viewModel.title,
+                            servings: $viewModel.servings,
+                            prepTime: $viewModel.prepTime,
+                            cookTime: $viewModel.cookTime,
+                            cuisine: $viewModel.cuisine
+                        )
+
+                        RecipeFormTags(
+                            tagInput: $viewModel.tagInput,
+                            suggestions: viewModel.getTagSuggestions(allRecipes: allRecipes),
+                            onSelectSuggestion: viewModel.applyTagSuggestion
+                        )
+
+                        RecipeFormIngredients(
+                            ingredients: $viewModel.ingredientFields,
+                            onAdd: { viewModel.addIngredient() },
+                            onRemove: { viewModel.removeIngredient(at: $0) }
+                        )
+
+                        RecipeFormIntstructions(
+                            instructions: $viewModel.instructionFields,
+                            onAdd: { viewModel.addInstruction() },
+                            onRemove: { viewModel.removeInstruction(at: $0) }
+                        )
+
+                        RecipeFormNotes(
+                            notes: $viewModel.notes
+                        )
+
+                        RecipeFormNutrition(
+                            calories: $viewModel.calories,
+                            protein: $viewModel.protein,
+                            carbohydrates: $viewModel.carbohydrates,
+                            fat: $viewModel.fat,
+                            fiber: $viewModel.fiber,
+                            sodium: $viewModel.sodium,
+                            sugar: $viewModel.sugar
+                        )
+                        }
+                    }
+                    .padding(.bottom, Theme.Spacing.xl)
                 }
+                .background(Theme.Colors.background)
                 .navigationTitle(recipe == nil ? "New Recipe" : "Edit Recipe")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -121,6 +125,16 @@ struct RecipeFormView: View {
     RecipeFormView(recipe: nil)
 }
 
+#Preview("Dark: Create Mode") {
+    RecipeFormView(recipe: nil)
+        .preferredColorScheme(.dark)
+}
+
 #Preview("Edit Mode") {
     RecipeFormView(recipe: SampleData.createApplePie())
+}
+
+#Preview("Dark: Edit Mode") {
+    RecipeFormView(recipe: SampleData.createApplePie())
+        .preferredColorScheme(.dark)
 }

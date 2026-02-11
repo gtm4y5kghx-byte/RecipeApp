@@ -4,7 +4,7 @@ struct RecipeFormNotes: View {
     @Binding var notes: String
 
     var body: some View {
-        DSSection("Notes") {
+        DSSection("Notes", titleColor: .accent, spacing: Theme.Spacing.md) {
             DSFormField(
                 label: "Notes",
                 placeholder: "Add notes",
