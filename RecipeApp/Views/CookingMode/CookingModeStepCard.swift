@@ -4,12 +4,13 @@ struct CookingModeStepCard: View {
     let item: CookingModeViewModel.StepItem
     
     var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            DSLabel(item.label, style: .metadata, color: .secondary, alignment: .center)
-            
+        VStack(spacing: Theme.Spacing.md) {
+            DSLabel(item.label, style: .metadata, color: .accent, alignment: .center)
+
             DSLabel(item.step.instruction, style: .title2, alignment: .center)
         }
-        .padding(Theme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

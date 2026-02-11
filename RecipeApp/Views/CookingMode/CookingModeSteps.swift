@@ -3,9 +3,9 @@ import SwiftUI
 struct CookingModeSteps: View {
     let stepItems: [CookingModeViewModel.StepItem]
     @Binding var currentIndex: Int
-    
+
     @State private var scrolledID: Int?
-    
+
     var body: some View {
         TabView(selection: $currentIndex) {
             ForEach(stepItems) { item in
@@ -13,6 +13,11 @@ struct CookingModeSteps: View {
                     .tag(item.id)
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .tabViewStyle(.page(indexDisplayMode: .always))
+        .background(Theme.Colors.background)
+        .onAppear {
+            UIPageControl.appearance().currentPageIndicatorTintColor = UIColor(Theme.Colors.primary)
+            UIPageControl.appearance().pageIndicatorTintColor = UIColor(Theme.Colors.textSecondary)
+        }
     }
 }

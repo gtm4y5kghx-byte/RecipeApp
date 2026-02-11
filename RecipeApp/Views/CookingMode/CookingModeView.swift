@@ -30,7 +30,7 @@ struct CookingModeView: View {
                             Button {
                                 dismiss()
                             } label: {
-                                Image(systemName: "xmark")
+                                Image(systemName: "xmark.circle")
                             }
                             .accessibilityIdentifier("cooking-mode-close-button")
                         }
@@ -125,4 +125,9 @@ struct CookingModeView: View {
 
 #Preview {
     CookingModeView(recipe: SampleData.createChickenStirFry())
+}
+
+#Preview("Dark: Cooking Mode") {
+    CookingModeView(recipe: SampleData.createChickenStirFry())
+        .preferredColorScheme(.dark)
 }
