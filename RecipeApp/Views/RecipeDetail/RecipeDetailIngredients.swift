@@ -21,7 +21,7 @@ struct RecipeDetailIngredients: View {
 
                         if index < group.ingredients.count - 1 {
                             DSDivider(thickness: .thin, color: .subtle, spacing: .compact)
-                                .opacity(0.5)
+                                .opacity(0.7)
                         }
                     }
                 }

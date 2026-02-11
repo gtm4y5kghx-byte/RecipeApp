@@ -67,9 +67,9 @@ struct RecipeDetailView: View {
                                 if viewModel.recipe.timesCooked > 0 {
                                     Text("\(viewModel.recipe.timesCooked)")
                                         .font(Theme.Typography.caption1.bold())
-                                        .foregroundColor(Theme.Colors.primary)
+                                        .foregroundColor(Theme.Colors.tagSecondaryText)
                                         .frame(minWidth: 24, minHeight: 24)
-                                        .background(Theme.Colors.primary.opacity(0.15))
+                                        .background(Theme.Colors.tagSecondaryBackground)
                                         .clipShape(Circle())
                                         .contentTransition(.numericText())
                                 }
@@ -107,6 +107,7 @@ struct RecipeDetailView: View {
                 }
             }
         }
+        .background(Theme.Colors.background)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -201,4 +202,11 @@ struct RecipeDetailView: View {
     NavigationStack {
         RecipeDetailView(recipe: SampleData.createApplePie())
     }
+}
+
+#Preview("Dark: Recipe Detail") {
+    NavigationStack {
+        RecipeDetailView(recipe: SampleData.createApplePie())
+    }
+    .preferredColorScheme(.dark)
 }
