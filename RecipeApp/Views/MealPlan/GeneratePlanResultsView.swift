@@ -76,7 +76,17 @@ struct GeneratePlanResultsView: View {
 
     private var footerActions: some View {
         HStack(spacing: Theme.Spacing.md) {
-            if viewModel.allResultsAdded {
+            if viewModel.hasAddedAny {
+                if !viewModel.allResultsAdded {
+                    DSButton(
+                        title: "Add All (\(viewModel.remainingResults.count))",
+                        style: .secondary,
+                        fullWidth: true
+                    ) {
+                        viewModel.addAllRemaining()
+                    }
+                    .accessibilityIdentifier("generate-plan-add-all-button")
+                }
                 DSButton(title: "Done", style: .primary, fullWidth: true) {
                     onDone()
                 }

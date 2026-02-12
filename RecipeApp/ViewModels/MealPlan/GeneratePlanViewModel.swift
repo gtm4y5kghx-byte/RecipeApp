@@ -65,6 +65,10 @@ class GeneratePlanViewModel {
         results.filter { !addedResultIDs.contains($0.id) }
     }
     
+    var hasAddedAny: Bool {
+        !addedResultIDs.isEmpty
+    }
+
     var allResultsAdded: Bool {
         !results.isEmpty && remainingResults.isEmpty
     }
@@ -149,6 +153,7 @@ class GeneratePlanViewModel {
             )
             addedEntries[result.id] = entry
             addedResultIDs.insert(result.id)
+            MealPlanViewModel.needsReload = true
         } catch {
             self.error = MealPlanError.saveFailed
         }

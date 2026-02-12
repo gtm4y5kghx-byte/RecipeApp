@@ -181,6 +181,12 @@ struct MealPlanView: View {
         .sheet(isPresented: $showingGeneratePlan) {
             GeneratePlanSheet()
         }
+        .onChange(of: showingGeneratePlan) { _, isShowing in
+            if !isShowing && MealPlanViewModel.needsReload {
+                viewModel.loadEntries()
+                MealPlanViewModel.needsReload = false
+            }
+        }
     }
 }
 
