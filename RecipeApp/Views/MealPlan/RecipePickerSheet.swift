@@ -70,12 +70,12 @@ struct RecipePickerSheet: View {
                     } label: {
                         HStack(spacing: Theme.Spacing.md) {
                             if let imageURL = recipe.imageURL {
-                                DSImage(url: imageURL, height: 44)
-                                    .frame(width: 44)
+                                DSImage(url: imageURL, height: 60)
+                                    .frame(width: 60)
                                     .cornerRadius(Theme.CornerRadius.sm)
                             } else {
-                                DSImagePlaceholder(height: 44, cornerRadius: Theme.CornerRadius.sm)
-                                    .frame(width: 44)
+                                DSImagePlaceholder(height: 60, cornerRadius: Theme.CornerRadius.sm)
+                                    .frame(width: 60)
                             }
 
                             DSLabel(recipe.title, style: .body)
