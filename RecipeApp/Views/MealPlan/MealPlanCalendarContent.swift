@@ -83,9 +83,7 @@ struct MealPlanCalendarContent: View {
                     }
                 }
             } label: {
-                Image(systemName: "plus")
-                    .font(Theme.Typography.subheadline)
-                    .foregroundStyle(Theme.Colors.accent)
+                DSIcon("plus", size: .small, color: .adaptiveBrand)
             }
         }
     }
