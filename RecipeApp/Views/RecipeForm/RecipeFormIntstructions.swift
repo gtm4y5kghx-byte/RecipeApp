@@ -9,8 +9,7 @@ struct RecipeFormIntstructions : View {
         DSSection("Instructions", titleColor: .brand, spacing: Theme.Spacing.md, titleSpacing: Theme.Spacing.xs) {
             ForEach(instructions.indices, id: \.self) { index in
                 HStack {
-                    DSFormField(
-                        label: "Step \(index + 1)",
+                    DSTextField(
                         placeholder: "Enter instruction",
                         text: $instructions[index],
                         accessibilityID: "recipe-form-instruction-\(index)-field"

@@ -9,8 +9,7 @@ struct RecipeFormIngredients : View {
         DSSection("Ingredients", titleColor: .brand, spacing: Theme.Spacing.md, titleSpacing: Theme.Spacing.xs) {
             ForEach(ingredients.indices, id: \.self) { index in
                 HStack {
-                    DSFormField(
-                        label: "Ingredient",
+                    DSTextField(
                         placeholder: "Enter ingredient",
                         text: $ingredients[index],
                         accessibilityID: "recipe-form-ingredient-\(index)-field"
