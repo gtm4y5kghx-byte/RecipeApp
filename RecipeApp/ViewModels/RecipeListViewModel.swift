@@ -58,7 +58,11 @@ class RecipeListViewModel {
     }
 
     // MARK: - Computed Properties
-    
+
+    var hasRecipes: Bool {
+        !recipes.isEmpty
+    }
+
     var displayedRecipes: [Recipe] {
         let filtered = isSearching ? filteredResults : recipes
         
@@ -193,18 +197,20 @@ class RecipeListViewModel {
     
     func performSearch(query: String, scope: SearchScope) {
         searchTask?.cancel()
+
+        // Clear search immediately without debounce
+        guard !query.isEmpty else {
+            filteredResults = []
+            isSearching = false
+            return
+        }
+
         searchTask = Task {
             if searchDebounceDelay > .zero {
                 try? await Task.sleep(for: searchDebounceDelay)
             }
             guard !Task.isCancelled else { return }
-            
-            guard !query.isEmpty else {
-                filteredResults = []
-                isSearching = false
-                return
-            }
-            
+
             isSearching = true
             
             let results = recipes.filter { recipe in

@@ -6,6 +6,7 @@ struct RecipeListContent: View {
     let searchText: String
     let selectedSectionTitle: String?
     let selectedSectionIcon: String?
+    let hasRecipes: Bool
     @Binding var scrollPosition: ScrollPosition
     var selectedRecipe: Binding<Recipe?>?
     let onFavoriteTap: (Recipe) -> Void
@@ -31,7 +32,7 @@ struct RecipeListContent: View {
 
     @ViewBuilder
     private var emptyState: some View {
-        if isSearching {
+        if isSearching && !searchText.isEmpty {
             DSEmptyState(
                 icon: "magnifyingglass",
                 title: "No Results Found",
@@ -47,7 +48,7 @@ struct RecipeListContent: View {
                 message: "No recipes found in this category.",
                 accessibilityID: "recipe-list-section-empty-state"
             )
-        } else {
+        } else if !hasRecipes {
             DSEmptyState(
                 icon: "fork.knife",
                 title: "No Recipes Yet",
@@ -69,6 +70,7 @@ struct RecipeListContent: View {
         searchText: "",
         selectedSectionTitle: nil,
         selectedSectionIcon: nil,
+        hasRecipes: false,
         scrollPosition: $scrollPosition,
         onFavoriteTap: { _ in },
         onDeleteTap: { _ in },

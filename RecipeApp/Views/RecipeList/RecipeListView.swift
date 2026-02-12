@@ -264,6 +264,7 @@ struct RecipeListView: View {
                 searchText: searchText,
                 selectedSectionTitle: viewModel.filterTitle,
                 selectedSectionIcon: viewModel.filterIcon,
+                hasRecipes: viewModel.hasRecipes,
                 scrollPosition: $scrollPosition,
                 selectedRecipe: selectedRecipe,
                 onFavoriteTap: { recipe in
