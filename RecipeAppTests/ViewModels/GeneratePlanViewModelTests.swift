@@ -213,6 +213,42 @@ struct GeneratePlanViewModelTests {
         #expect(viewModel.addedResultIDs.count == 2)
     }
 
+    // MARK: - Has Added Any
+
+    @Test("hasAddedAny false initially")
+    func hasAddedAnyFalseInitially() throws {
+        let (viewModel, _, _, _) = try createViewModel()
+
+        #expect(viewModel.hasAddedAny == false)
+    }
+
+    @Test("hasAddedAny true after adding one result")
+    func hasAddedAnyTrueAfterAdding() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        viewModel.addResult(result)
+
+        #expect(viewModel.hasAddedAny == true)
+    }
+
+    @Test("hasAddedAny false after removing all added")
+    func hasAddedAnyFalseAfterRemovingAll() async throws {
+        let (viewModel, mockService, recipes, _) = try createViewModel()
+        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        mockService.mockResults = [result]
+
+        await viewModel.generatePlan()
+        let actualResult = viewModel.results.first!
+        viewModel.addResult(actualResult)
+        #expect(viewModel.hasAddedAny == true)
+
+        viewModel.removeResult(actualResult)
+        #expect(viewModel.hasAddedAny == false)
+    }
+
     // MARK: - All Results Added
 
     @Test("allResultsAdded true when all added")
