@@ -6,7 +6,7 @@ struct RecipeDetailInstructions: View {
 
     var body: some View {
         if !instructions.isEmpty {
-            DSSection("Instructions", titleColor: .accent, verticalPadding: Theme.Spacing.md) {
+            DSSection("Instructions", titleColor: .adaptiveBrand, verticalPadding: Theme.Spacing.md) {
                 ForEach(Array(instructions.enumerated()), id: \.element.id) { index, step in
                     DSLabel(step.instruction, style: .body, color: .primary)
                         .frame(maxWidth: .infinity, alignment: .leading)

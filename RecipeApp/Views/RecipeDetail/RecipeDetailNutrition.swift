@@ -5,7 +5,7 @@ struct RecipeDetailNutrition: View {
 
     var body: some View {
         if let nutrition = nutrition {
-            DSSection("Nutrition", titleColor: .accent, verticalPadding: Theme.Spacing.md) {
+            DSSection("Nutrition", titleColor: .adaptiveBrand, verticalPadding: Theme.Spacing.md) {
                 let items = nutrition.displayItems
                 ForEach(Array(items.enumerated()), id: \.element.label) { index, item in
                     HStack {

@@ -6,10 +6,6 @@ struct CookingModeSteps: View {
     let stepItems: [CookingModeViewModel.StepItem]
     @Binding var currentIndex: Int
 
-    private var stepLabelColor: DSLabel.LabelColor {
-        colorScheme == .dark ? .accent : .brand
-    }
-
     private var activeDotColor: Color {
         colorScheme == .dark ? Theme.Colors.accent : Theme.Colors.primary
     }
@@ -24,7 +20,7 @@ struct CookingModeSteps: View {
         VStack(spacing: Theme.Spacing.md) {
             Spacer()
 
-            DSLabel(currentStepLabel, style: .metadata, color: stepLabelColor, alignment: .center)
+            DSLabel(currentStepLabel, style: .metadata, color: .adaptiveBrand, alignment: .center)
                 .contentTransition(.numericText())
                 .animation(.easeInOut(duration: 0.2), value: currentIndex)
 

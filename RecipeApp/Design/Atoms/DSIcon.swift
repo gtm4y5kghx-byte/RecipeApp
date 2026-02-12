@@ -3,6 +3,7 @@ import SwiftUI
 /// Design System Icon Component
 /// Consistent icon styling with semantic colors and sizes
 struct DSIcon: View {
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - Configuration
 
@@ -36,19 +37,21 @@ struct DSIcon: View {
         case secondary
         case tertiary
         case accent
-        case brand       // Maroon/burgundy brand color
+        case brand          // Maroon/burgundy brand color
+        case adaptiveBrand  // Brand in light mode, accent in dark mode
         case success
         case warning
         case error
         case white
 
-        var color: Color {
+        func color(for colorScheme: ColorScheme) -> Color {
             switch self {
             case .primary: return Theme.Colors.textPrimary
             case .secondary: return Theme.Colors.textSecondary
             case .tertiary: return Theme.Colors.textTertiary
             case .accent: return Theme.Colors.accent
             case .brand: return Theme.Colors.primary
+            case .adaptiveBrand: return colorScheme == .dark ? Theme.Colors.accent : Theme.Colors.primary
             case .success: return Theme.Colors.success
             case .warning: return Theme.Colors.warning
             case .error: return Theme.Colors.error
@@ -76,7 +79,7 @@ struct DSIcon: View {
     var body: some View {
         Image(systemName: name)
             .font(.system(size: size.points))
-            .foregroundColor(color.color)
+            .foregroundColor(color.color(for: colorScheme))
             .symbolEffect(.bounce, value: bounceValue ?? false)
     }
 }

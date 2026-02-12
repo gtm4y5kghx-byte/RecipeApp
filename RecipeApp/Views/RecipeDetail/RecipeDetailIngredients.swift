@@ -6,7 +6,7 @@ struct RecipeDetailIngredients: View {
 
     var body: some View {
         if !groupedIngredients.isEmpty {
-            DSSection("Ingredients", titleColor: .accent, verticalPadding: Theme.Spacing.md) {
+            DSSection("Ingredients", titleColor: .adaptiveBrand, verticalPadding: Theme.Spacing.md) {
                 ForEach(Array(groupedIngredients.enumerated()), id: \.element.section) { groupIndex, group in
                     if let section = group.section {
                         DSLabel(section, style: .headline)
