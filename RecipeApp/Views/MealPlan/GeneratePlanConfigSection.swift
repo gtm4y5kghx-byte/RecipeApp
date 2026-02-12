@@ -76,9 +76,10 @@ struct GeneratePlanConfigSection: View {
                 DSLabel(
                     "\(viewModel.remainingGenerations) generation\(viewModel.remainingGenerations == 1 ? "" : "s") left this week",
                     style: .caption1,
-                    color: viewModel.hasReachedWeeklyLimit ? .warning : .tertiary,
+                    color: viewModel.hasReachedWeeklyLimit ? .warning : .secondary,
                     alignment: .center
                 )
+                .padding(.top, Theme.Spacing.xs)
             } else {
                 DSButton(
                     title: "Generate Plan",
@@ -92,9 +93,10 @@ struct GeneratePlanConfigSection: View {
                 DSLabel(
                     "Subscription required for AI meal planning",
                     style: .caption1,
-                    color: .tertiary,
+                    color: .secondary,
                     alignment: .center
                 )
+                .padding(.top, Theme.Spacing.xs)
             }
         }
     }
