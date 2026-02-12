@@ -1,8 +1,18 @@
 import SwiftUI
 
 struct CookingModeSteps: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let stepItems: [CookingModeViewModel.StepItem]
     @Binding var currentIndex: Int
+
+    private var stepLabelColor: DSLabel.LabelColor {
+        colorScheme == .dark ? .accent : .brand
+    }
+
+    private var activeDotColor: Color {
+        colorScheme == .dark ? Theme.Colors.accent : Theme.Colors.primary
+    }
 
     private var currentStepLabel: String {
         guard !stepItems.isEmpty else { return "" }
@@ -14,7 +24,7 @@ struct CookingModeSteps: View {
         VStack(spacing: Theme.Spacing.md) {
             Spacer()
 
-            DSLabel(currentStepLabel, style: .metadata, color: .accent, alignment: .center)
+            DSLabel(currentStepLabel, style: .metadata, color: stepLabelColor, alignment: .center)
                 .contentTransition(.numericText())
                 .animation(.easeInOut(duration: 0.2), value: currentIndex)
 
@@ -32,7 +42,7 @@ struct CookingModeSteps: View {
             HStack(spacing: Theme.Spacing.sm) {
                 ForEach(0..<stepItems.count, id: \.self) { index in
                     Circle()
-                        .fill(index == currentIndex ? Theme.Colors.primary : Theme.Colors.textSecondary)
+                        .fill(index == currentIndex ? activeDotColor : Theme.Colors.textSecondary)
                         .frame(width: 8, height: 8)
                 }
             }
