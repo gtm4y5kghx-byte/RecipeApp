@@ -73,14 +73,7 @@ struct DSRecipeCard: View {
                     DSImage(url: imageURL, height: 160)
                         .cornerRadius(Theme.CornerRadius.md)
                 } else {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
-                            .fill(Theme.Colors.backgroundDark)
-                        Image(systemName: "fork.knife")
-                            .font(.system(size: 40))
-                            .foregroundColor(Theme.Colors.textTertiary)
-                    }
-                    .frame(height: 160)
+                    DSImagePlaceholder(height: 160)
                 }
 
                 if showSuggestionBadge, let reason = subtitle {

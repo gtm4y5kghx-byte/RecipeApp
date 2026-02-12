@@ -74,9 +74,8 @@ struct RecipePickerSheet: View {
                                     .frame(width: 44)
                                     .cornerRadius(Theme.CornerRadius.sm)
                             } else {
-                                RoundedRectangle(cornerRadius: Theme.CornerRadius.sm)
-                                    .fill(Theme.Colors.backgroundDark)
-                                    .frame(width: 44, height: 44)
+                                DSImagePlaceholder(height: 44, cornerRadius: Theme.CornerRadius.sm)
+                                    .frame(width: 44)
                             }
 
                             DSLabel(recipe.title, style: .body)
