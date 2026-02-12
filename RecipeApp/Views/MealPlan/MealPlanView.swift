@@ -12,6 +12,7 @@ struct MealPlanView: View {
     @State private var viewModel: MealPlanViewModel?
     @State private var selectedEntry: MealPlanEntry?
     @State private var showingGeneratePlan = false
+    @State private var scrollToTodayTrigger = false
 
     var body: some View {
         Group {
@@ -53,6 +54,14 @@ struct MealPlanView: View {
             }
             .navigationTitle("Meal Plan")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Today") {
+                        scrollToTodayTrigger.toggle()
+                    }
+                    .accessibilityIdentifier("meal-plan-today-button")
+                }
+            }
             .navigationDestination(item: $selectedEntry) { entry in
                 if let recipe = entry.recipe {
                     RecipeDetailView(
@@ -105,6 +114,14 @@ struct MealPlanView: View {
                 }
             }
             .navigationTitle("Meal Plan")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Today") {
+                        scrollToTodayTrigger.toggle()
+                    }
+                    .accessibilityIdentifier("meal-plan-today-button")
+                }
+            }
         } detail: {
             MealPlanDetailColumn(
                 entry: selectedEntry,
@@ -145,7 +162,8 @@ struct MealPlanView: View {
                 viewModel: viewModel,
                 recipeToAdd: nil,
                 onEntryTap: { entry in selectedEntry = entry },
-                onRecipeAdded: nil
+                onRecipeAdded: nil,
+                scrollToTodayTrigger: $scrollToTodayTrigger
             )
 
             DSButton(

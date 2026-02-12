@@ -6,58 +6,46 @@ struct MealPlanCalendarContent: View {
     let recipeToAdd: Recipe?
     let onEntryTap: ((MealPlanEntry) -> Void)?
     let onRecipeAdded: (() -> Void)?
+    @Binding var scrollToTodayTrigger: Bool
 
     @State private var selectedDate: Date?
     @State private var selectedMealType: MealType?
 
     var body: some View {
         ScrollViewReader { proxy in
-            ZStack(alignment: .bottomTrailing) {
-                List {
-                    ForEach(viewModel.dateRange, id: \.self) { date in
-                        Section {
-                            let entries = viewModel.entries(for: date)
-                            if entries.isEmpty {
-                                DSLabel(
-                                    "No meals planned",
-                                    style: .subheadline,
-                                    color: .tertiary
+            List {
+                ForEach(viewModel.dateRange, id: \.self) { date in
+                    Section {
+                        let entries = viewModel.entries(for: date)
+                        if entries.isEmpty {
+                            DSLabel(
+                                "Tap + to plan a meal",
+                                style: .subheadline,
+                                color: .tertiary
+                            )
+                        } else {
+                            ForEach(entries) { entry in
+                                MealPlanEntryRow(
+                                    entry: entry,
+                                    onTap: { onEntryTap?(entry) },
+                                    onRemove: { viewModel.removeEntry(entry) }
                                 )
-                            } else {
-                                ForEach(entries) { entry in
-                                    MealPlanEntryRow(
-                                        entry: entry,
-                                        onTap: { onEntryTap?(entry) },
-                                        onRemove: { viewModel.removeEntry(entry) }
-                                    )
-                                }
                             }
-                        } header: {
-                            dayHeader(date: date, isToday: Calendar.current.isDateInToday(date))
                         }
-                        .id(date)
+                    } header: {
+                        dayHeader(date: date, isToday: Calendar.current.isDateInToday(date))
                     }
-                }
-                .listStyle(.plain)
-
-                if recipeToAdd == nil {
-                    DSButton(
-                        title: "Today",
-                        style: .secondary,
-                        size: .small,
-                        icon: "calendar",
-                        fullWidth: false
-                    ) {
-                        withAnimation {
-                            proxy.scrollTo(viewModel.today, anchor: .top)
-                        }
-                    }
-                    .padding()
-                    .accessibilityIdentifier("meal-plan-today-button")
+                    .id(date)
                 }
             }
+            .listStyle(.plain)
             .onAppear {
                 proxy.scrollTo(viewModel.today, anchor: .top)
+            }
+            .onChange(of: scrollToTodayTrigger) { _, _ in
+                withAnimation {
+                    proxy.scrollTo(viewModel.today, anchor: .top)
+                }
             }
             .sheet(isPresented: showingRecipePicker) {
                 RecipePickerSheet { recipe in
@@ -95,8 +83,9 @@ struct MealPlanCalendarContent: View {
                     }
                 }
             } label: {
-                Label("Add", systemImage: "plus")
+                Image(systemName: "plus")
                     .font(Theme.Typography.subheadline)
+                    .foregroundStyle(Theme.Colors.accent)
             }
         }
     }

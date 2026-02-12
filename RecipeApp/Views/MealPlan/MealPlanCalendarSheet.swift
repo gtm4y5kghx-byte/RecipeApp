@@ -6,6 +6,7 @@ struct MealPlanCalendarSheet: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var viewModel: MealPlanViewModel?
+    @State private var scrollToTodayTrigger = false
 
     let recipe: Recipe
 
@@ -17,7 +18,8 @@ struct MealPlanCalendarSheet: View {
                         viewModel: viewModel,
                         recipeToAdd: recipe,
                         onEntryTap: nil,
-                        onRecipeAdded: { dismiss() }
+                        onRecipeAdded: { dismiss() },
+                        scrollToTodayTrigger: $scrollToTodayTrigger
                     )
                 } else {
                     DSLoadingSpinner(message: "Loading...")
@@ -29,6 +31,12 @@ struct MealPlanCalendarSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                         .accessibilityIdentifier("meal-plan-calendar-sheet-cancel-button")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Today") {
+                        scrollToTodayTrigger.toggle()
+                    }
+                    .accessibilityIdentifier("meal-plan-calendar-sheet-today-button")
                 }
             }
         }
