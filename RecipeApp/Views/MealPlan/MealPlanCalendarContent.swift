@@ -19,9 +19,9 @@ struct MealPlanCalendarContent: View {
                         let entries = viewModel.entries(for: date)
                         if entries.isEmpty {
                             DSLabel(
-                                "Tap + to plan a meal",
+                                "Nothing planned",
                                 style: .subheadline,
-                                color: .tertiary
+                                color: .secondary
                             )
                         } else {
                             ForEach(entries) { entry in
