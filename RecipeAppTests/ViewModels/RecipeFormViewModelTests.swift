@@ -142,19 +142,71 @@ struct RecipeFormViewModelTests {
     }
     
     // MARK: - Tag Suggestions
-    
-    @Test("Tag suggestions returns empty when no input")
-    func testTagSuggestionsEmpty() {
+
+    @Test("Tag suggestions returns top tags when no partial input")
+    func testTagSuggestionsReturnsTopTagsWhenEmpty() {
         let allRecipes = [
-            RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "pasta"])
+            RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "pasta"]),
+            RecipeTestFixtures.createRecipe(title: "R2", tags: ["italian", "quick"]),
+            RecipeTestFixtures.createRecipe(title: "R3", tags: ["mexican"])
         ]
-        
+
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
-        
+
+        // No input - should show top tags
+        viewModel.tagInput = ""
         let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
-        
-        #expect(suggestions.isEmpty)
+
+        #expect(!suggestions.isEmpty)
+        #expect(suggestions[0].0 == "italian")  // Most common (2)
+        #expect(suggestions[0].1 == 2)
+    }
+
+    @Test("Tag suggestions limits to maximum count")
+    func testTagSuggestionsLimitsResults() {
+        // Create recipes with many different tags
+        let allRecipes = [
+            RecipeTestFixtures.createRecipe(title: "R1", tags: ["a", "b", "c", "d", "e", "f", "g", "h"])
+        ]
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.tagInput = ""
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
+
+        #expect(suggestions.count <= 6)
+    }
+
+    @Test("Tag suggestions prioritizes prefix matches over contains")
+    func testTagSuggestionsPrioritizesPrefixMatches() {
+        let allRecipes = [
+            RecipeTestFixtures.createRecipe(title: "R1", tags: ["chicken", "french", "sandwich"]),
+            RecipeTestFixtures.createRecipe(title: "R2", tags: ["chocolate", "lunch"])
+        ]
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        viewModel.tagInput = "ch"
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
+
+        // Prefix matches (chicken, chocolate) should come before contains (french, sandwich, lunch)
+        let tagNames = suggestions.map { $0.0 }
+
+        // Find positions
+        let chickenIndex = tagNames.firstIndex(of: "chicken")
+        let chocolateIndex = tagNames.firstIndex(of: "chocolate")
+        let frenchIndex = tagNames.firstIndex(of: "french")
+
+        #expect(chickenIndex != nil)
+        #expect(chocolateIndex != nil)
+
+        // Prefix matches should be before contains matches
+        if let chicken = chickenIndex, let french = frenchIndex {
+            #expect(chicken < french)
+        }
     }
     
     @Test("Tag suggestions returns matching tags")
@@ -218,15 +270,49 @@ struct RecipeFormViewModelTests {
         let allRecipes = [
             RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "quick"])
         ]
-        
+
         let modelContext = RecipeTestFixtures.createInMemoryModelContext()
         let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
-        
+
         viewModel.tagInput = "quick, ita"
         let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
-        
+
         #expect(suggestions.count == 1)
         #expect(suggestions[0].0 == "italian")
+    }
+
+    @Test("Tag suggestions excludes already entered tags")
+    func testTagSuggestionsExcludesEnteredTags() {
+        let allRecipes = [
+            RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "french", "mexican"])
+        ]
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        // User has already entered "italian" and is typing a new partial
+        viewModel.tagInput = "italian, f"
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
+
+        let tagNames = suggestions.map { $0.0 }
+        #expect(!tagNames.contains("italian"))
+        #expect(tagNames.contains("french"))
+    }
+
+    @Test("Tag suggestions hides after selecting a tag")
+    func testTagSuggestionsHidesAfterSelection() {
+        let allRecipes = [
+            RecipeTestFixtures.createRecipe(title: "R1", tags: ["italian", "french"])
+        ]
+
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeFormViewModel(recipe: nil, importData: nil, modelContext: modelContext)
+
+        // User just selected a tag - input ends with ", "
+        viewModel.tagInput = "italian, "
+        let suggestions = viewModel.getTagSuggestions(allRecipes: allRecipes)
+
+        #expect(suggestions.isEmpty)
     }
     
     // MARK: - Apply Tag Suggestion

@@ -111,27 +111,58 @@ class RecipeFormViewModel {
     }
     
     // MARK: - Tag Management
-    
+
+    private let maxTagSuggestions = 6
+
     func getTagSuggestions(allRecipes: [Recipe]) -> [(String, Int)] {
         let currentTag = tagInput
             .split(separator: ",")
             .last?
             .trimmingCharacters(in: .whitespaces)
             .lowercased() ?? ""
-        
-        guard !currentTag.isEmpty else { return [] }
-        
+
+        // Hide suggestions after selecting a tag (input ends with ", ")
+        // Show only when: empty input (discovery) or actively typing a partial
+        if currentTag.isEmpty && !tagInput.isEmpty {
+            return []
+        }
+
+        // Tags already entered (to exclude from suggestions)
+        let enteredTags = Set(
+            tagInput
+                .split(separator: ",")
+                .dropLast()  // Don't exclude the partial being typed
+                .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+        )
+
         let allTags = allRecipes.flatMap { $0.userTags }
         let tagCounts = Dictionary(grouping: allTags, by: { $0.lowercased() })
             .mapValues { $0.count }
-        
-        let filtered = tagCounts.filter { tag, _ in
-            tag.contains(currentTag) && tag != currentTag
+            .filter { !enteredTags.contains($0.key) }  // Exclude already entered
+
+        let results: [(String, Int)]
+
+        if currentTag.isEmpty {
+            // No input at all - return top tags by count (discovery mode)
+            results = tagCounts
+                .map { ($0.key, $0.value) }
+                .sorted { $0.1 > $1.1 }
+        } else {
+            // Has partial - prioritize prefix matches over contains matches
+            let prefixMatches = tagCounts.filter { tag, _ in
+                tag.hasPrefix(currentTag) && tag != currentTag
+            }
+            let containsMatches = tagCounts.filter { tag, _ in
+                tag.contains(currentTag) && !tag.hasPrefix(currentTag) && tag != currentTag
+            }
+
+            let sortedPrefix = prefixMatches.map { ($0.key, $0.value) }.sorted { $0.1 > $1.1 }
+            let sortedContains = containsMatches.map { ($0.key, $0.value) }.sorted { $0.1 > $1.1 }
+
+            results = sortedPrefix + sortedContains
         }
-        
-        return filtered
-            .map { ($0.key, $0.value) }
-            .sorted { $0.1 > $1.1 }
+
+        return Array(results.prefix(maxTagSuggestions))
     }
     
     func applyTagSuggestion(_ tag: String) {
