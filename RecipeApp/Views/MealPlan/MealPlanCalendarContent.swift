@@ -73,7 +73,7 @@ struct MealPlanCalendarContent: View {
             DSLabel(
                 date.formatted(.dateTime.weekday(.wide).month().day()),
                 style: .headline,
-                color: isToday ? .accent : .primary
+                color: isToday ? .adaptiveBrand : .primary
             )
             Spacer()
             Menu {
