@@ -38,10 +38,10 @@ struct SubscriptionUpsellSheet: View {
 
     private var premiumUserContent: some View {
         VStack(spacing: Theme.Spacing.md) {
-            DSLabel("Add Meal Planning", style: .largeTitle, color: .primary, alignment: .center)
+            DSLabel(PremiumFeatureCopy.MealPlanning.title, style: .largeTitle, color: .primary, alignment: .center)
 
             DSLabel(
-                "Generate AI-powered meal plans from your recipe collection.",
+                PremiumFeatureCopy.MealPlanning.description,
                 style: .body,
                 color: .secondary,
                 alignment: .center
@@ -65,18 +65,18 @@ struct SubscriptionUpsellSheet: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 featureRow(
                     icon: "calendar",
-                    title: "AI Meal Planning",
-                    description: "Generate weekly plans from your recipes"
+                    title: PremiumFeatureCopy.MealPlanning.title,
+                    description: PremiumFeatureCopy.MealPlanning.description
                 )
                 featureRow(
                     icon: "sparkles",
-                    title: "Recipe Suggestions",
-                    description: "Get personalized recommendations"
+                    title: PremiumFeatureCopy.Suggestions.title,
+                    description: PremiumFeatureCopy.Suggestions.description
                 )
                 featureRow(
                     icon: "wand.and.stars",
-                    title: "Recipe Generation",
-                    description: "Create new recipes with AI"
+                    title: PremiumFeatureCopy.Generation.title,
+                    description: PremiumFeatureCopy.Generation.description
                 )
             }
             .padding(.horizontal, Theme.Spacing.xl)

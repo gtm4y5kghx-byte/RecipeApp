@@ -76,7 +76,7 @@ struct GeneratePlanConfigSection: View {
                 DSLabel(
                     "\(viewModel.remainingGenerations) generation\(viewModel.remainingGenerations == 1 ? "" : "s") left this week",
                     style: .caption1,
-                    color: viewModel.hasReachedWeeklyLimit ? .warning : .secondary,
+                    color: .secondary,
                     alignment: .center
                 )
                 .padding(.top, Theme.Spacing.xs)
