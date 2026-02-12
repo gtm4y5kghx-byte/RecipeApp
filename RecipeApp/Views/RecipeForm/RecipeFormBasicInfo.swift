@@ -8,7 +8,7 @@ struct RecipeFormBasicInfo : View {
     @Binding var cuisine: String
     
     var body: some View {
-        DSSection("Basic Info", titleColor: .accent, spacing: Theme.Spacing.md) {
+        DSSection("Basic Info", titleColor: .brand, spacing: Theme.Spacing.md, titleSpacing: Theme.Spacing.xs) {
             DSFormField(
                 label: "Title",
                 placeholder: "Enter recipe name",

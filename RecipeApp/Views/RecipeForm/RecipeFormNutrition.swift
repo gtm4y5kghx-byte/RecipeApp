@@ -10,7 +10,7 @@ struct RecipeFormNutrition: View {
     @Binding var sugar: String
 
     var body: some View {
-        DSSection("Nutrition (per serving)", titleColor: .accent, spacing: Theme.Spacing.md) {
+        DSSection("Nutrition (per serving)", titleColor: .brand, spacing: Theme.Spacing.md, titleSpacing: Theme.Spacing.xs) {
             DSFormField(
                 label: "Calories",
                 placeholder: "320",

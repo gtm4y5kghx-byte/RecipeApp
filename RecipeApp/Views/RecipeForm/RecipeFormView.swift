@@ -26,7 +26,7 @@ struct RecipeFormView: View {
                             onRemove: { viewModel.removeImage() }
                         )
 
-                        VStack(spacing: Theme.Spacing.xl) {
+                        VStack {
                             RecipeFormBasicInfo(
                             title: $viewModel.title,
                             servings: $viewModel.servings,

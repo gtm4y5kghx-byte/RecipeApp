@@ -36,6 +36,7 @@ struct DSIcon: View {
         case secondary
         case tertiary
         case accent
+        case brand       // Maroon/burgundy brand color
         case success
         case warning
         case error
@@ -47,6 +48,7 @@ struct DSIcon: View {
             case .secondary: return Theme.Colors.textSecondary
             case .tertiary: return Theme.Colors.textTertiary
             case .accent: return Theme.Colors.accent
+            case .brand: return Theme.Colors.primary
             case .success: return Theme.Colors.success
             case .warning: return Theme.Colors.warning
             case .error: return Theme.Colors.error

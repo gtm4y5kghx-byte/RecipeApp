@@ -6,7 +6,7 @@ struct RecipeFormTags: View {
     let onSelectSuggestion: (String) -> Void
 
     var body: some View {
-        DSSection("Tags", titleColor: .accent, spacing: Theme.Spacing.md) {
+        DSSection("Tags", titleColor: .brand, spacing: Theme.Spacing.md, titleSpacing: Theme.Spacing.xs) {
             DSFormField(
                 label: "Tags (comma separated)",
                 placeholder: "Enter tags here",
