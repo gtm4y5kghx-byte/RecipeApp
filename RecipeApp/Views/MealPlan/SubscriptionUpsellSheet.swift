@@ -106,8 +106,9 @@ struct SubscriptionUpsellSheet: View {
                 )
                 .disabled(isPurchasing)
 
-                DSLabel("Then \(monthlyPrice)/month", style: .caption1, color: .secondary, alignment: .center)
+                DSLabel("Includes lifetime Premium access", style: .caption1, color: .secondary, alignment: .center)
                     .padding(.top, Theme.Spacing.xs)
+                DSLabel("Then \(monthlyPrice)/month for Meal Planning", style: .caption1, color: .secondary, alignment: .center)
             }
         } else if let price = subscriptionPrice {
             DSButton(
