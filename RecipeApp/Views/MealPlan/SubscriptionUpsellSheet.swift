@@ -14,7 +14,6 @@ struct SubscriptionUpsellSheet: View {
             Spacer()
 
             DSIcon("calendar.badge.plus", size: .xlarge, color: .accent)
-                .scaleEffect(1.5)
                 .padding(Theme.Spacing.xl)
                 .background(Theme.Colors.backgroundLight)
                 .clipShape(Circle())
@@ -63,10 +62,22 @@ struct SubscriptionUpsellSheet: View {
             )
             .padding(.horizontal, Theme.Spacing.xl)
 
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                featureRow("AI meal plan generation")
-                featureRow("AI recipe suggestions")
-                featureRow("Recipe generation")
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                featureRow(
+                    icon: "calendar",
+                    title: "AI Meal Planning",
+                    description: "Generate weekly plans from your recipes"
+                )
+                featureRow(
+                    icon: "sparkles",
+                    title: "Recipe Suggestions",
+                    description: "Get personalized recommendations"
+                )
+                featureRow(
+                    icon: "wand.and.stars",
+                    title: "Recipe Generation",
+                    description: "Create new recipes with AI"
+                )
             }
             .padding(.horizontal, Theme.Spacing.xl)
             .padding(.top, Theme.Spacing.md)
@@ -95,7 +106,8 @@ struct SubscriptionUpsellSheet: View {
                 )
                 .disabled(isPurchasing)
 
-                DSLabel("Then \(monthlyPrice)/month", style: .caption1, color: .tertiary, alignment: .center)
+                DSLabel("Then \(monthlyPrice)/month", style: .caption1, color: .secondary, alignment: .center)
+                    .padding(.top, Theme.Spacing.xs)
             }
         } else if let price = subscriptionPrice {
             DSButton(
@@ -109,10 +121,13 @@ struct SubscriptionUpsellSheet: View {
         }
     }
 
-    private func featureRow(_ text: String) -> some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            DSIcon("checkmark.circle.fill", size: .small, color: .success)
-            DSLabel(text, style: .body, color: .primary)
+    private func featureRow(icon: String, title: String, description: String) -> some View {
+        HStack(alignment: .top, spacing: Theme.Spacing.md) {
+            DSIcon(icon, size: .medium, color: .adaptiveBrand)
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                DSLabel(title, style: .headline)
+                DSLabel(description, style: .subheadline, color: .secondary)
+            }
         }
     }
 }
