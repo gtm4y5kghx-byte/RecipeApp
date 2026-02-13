@@ -36,22 +36,12 @@ class ShoppingListViewModel {
         items.contains { $0.isChecked }
     }
 
-    var commonIngredientGroups: [String: [ShoppingListItem]] {
-        let recipeItems = items.filter { !$0.sourceRecipeIDs.isEmpty }
-        let grouped = Dictionary(grouping: recipeItems) { $0.item.lowercased() }
-        return grouped.filter { $0.value.count > 1 }
-    }
-
     var recipeGroups: [RecipeItemGroup] {
-        let commonNames = Set(commonIngredientGroups.keys)
-        let uniqueItems = items.filter {
-            !$0.sourceRecipeIDs.isEmpty && !commonNames.contains($0.item.lowercased())
-        }
-
+        let recipeItems = items.filter { !$0.sourceRecipeIDs.isEmpty }
         let recipeNameMap = Dictionary(uniqueKeysWithValues: recipes.map { ($0.id, $0.title) })
 
         var groups: [UUID: [ShoppingListItem]] = [:]
-        for item in uniqueItems {
+        for item in recipeItems {
             if let recipeID = item.sourceRecipeIDs.first {
                 groups[recipeID, default: []].append(item)
             }

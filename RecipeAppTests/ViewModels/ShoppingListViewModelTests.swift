@@ -23,30 +23,8 @@ struct ShoppingListViewModelTests {
 
     // MARK: - Grouped Items
 
-    @Test("commonIngredientGroups groups items by name")
-    func commonIngredientGroups() throws {
-        let context = RecipeTestFixtures.createInMemoryModelContext()
-        let service = ShoppingListService(modelContext: context)
-
-        let recipe1 = Recipe(title: "Cookies", sourceType: .manual)
-        recipe1.ingredients = [Ingredient(quantity: "2", unit: "cups", item: "flour", preparation: nil, section: nil)]
-        context.insert(recipe1)
-
-        let recipe2 = Recipe(title: "Cake", sourceType: .manual)
-        recipe2.ingredients = [Ingredient(quantity: "3", unit: "cups", item: "flour", preparation: nil, section: nil)]
-        context.insert(recipe2)
-
-        try service.addIngredientsFromRecipe(recipe1)
-        try service.addIngredientsFromRecipe(recipe2)
-
-        let viewModel = try createViewModel(context: context)
-
-        #expect(viewModel.commonIngredientGroups.count == 1)
-        #expect(viewModel.commonIngredientGroups["flour"]?.count == 2)
-    }
-
-    @Test("recipeGroups contains only unique recipe items")
-    func recipeGroupsUniqueItems() throws {
+    @Test("recipeGroups groups items by recipe")
+    func recipeGroupsItems() throws {
         let context = RecipeTestFixtures.createInMemoryModelContext()
         let service = ShoppingListService(modelContext: context)
 
@@ -72,12 +50,10 @@ struct ShoppingListViewModelTests {
         #expect(viewModel.recipeGroups.count == 2)
 
         let cookiesGroup = viewModel.recipeGroups.first { $0.recipeName == "Cookies" }
-        #expect(cookiesGroup?.items.count == 1)
-        #expect(cookiesGroup?.items.first?.item == "chocolate chips")
+        #expect(cookiesGroup?.items.count == 2)
 
         let cakeGroup = viewModel.recipeGroups.first { $0.recipeName == "Cake" }
-        #expect(cakeGroup?.items.count == 1)
-        #expect(cakeGroup?.items.first?.item == "sugar")
+        #expect(cakeGroup?.items.count == 2)
     }
 
     @Test("manualItems contains only items with no source")

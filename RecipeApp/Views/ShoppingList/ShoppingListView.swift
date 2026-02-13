@@ -11,6 +11,7 @@ struct ShoppingListView: View {
 
     @State private var viewModel: ShoppingListViewModel?
     @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
+    @State private var newItemText = ""
 
     var body: some View {
         Group {
@@ -78,23 +79,38 @@ struct ShoppingListView: View {
     private var shoppingListContent: some View {
         if let viewModel = viewModel {
             if viewModel.hasItems {
-                ShoppingListContent(viewModel: viewModel)
+                ShoppingListContent(viewModel: viewModel, newItemText: $newItemText)
             } else {
-                emptyState
+                emptyState(viewModel: viewModel)
             }
         } else {
             DSLoadingSpinner(message: "Loading...")
         }
     }
-    
-    private var emptyState: some View {
-        DSEmptyState(
-            icon: "cart",
-            iconSize: .large,
-            title: "Shopping List Empty",
-            message: "Add items or import from your recipes.",
-            accessibilityID: "shopping-list-empty-state"
-        )
+
+    private func emptyState(viewModel: ShoppingListViewModel) -> some View {
+        VStack(spacing: Theme.Spacing.md) {
+            Spacer()
+
+            DSIcon("cart", size: .large, color: .tertiary)
+                .padding(Theme.Spacing.lg)
+                .background(Theme.Colors.backgroundDark)
+                .clipShape(Circle())
+
+            VStack(spacing: Theme.Spacing.xs) {
+                DSLabel("Shopping List Empty", style: .title2, color: .primary, alignment: .center)
+                DSLabel("Add items or import from your recipes.", style: .body, color: .secondary, alignment: .center)
+            }
+            .padding(.horizontal, Theme.Spacing.xl)
+
+            ShoppingListAddItemField(viewModel: viewModel, newItemText: $newItemText)
+                .padding(.horizontal, Theme.Spacing.xl)
+                .padding(.top, Theme.Spacing.md)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier("shopping-list-empty-state")
     }
 }
 

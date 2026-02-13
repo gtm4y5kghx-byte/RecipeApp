@@ -3,24 +3,20 @@ import SwiftData
 
 struct ShoppingListContent: View {
     @Bindable var viewModel: ShoppingListViewModel
-    @State private var newItemText = ""
+    @Binding var newItemText: String
     @State private var showingClearAllConfirmation = false
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: Theme.Spacing.lg) {
-                if !viewModel.commonIngredientGroups.isEmpty {
-                    commonIngredientsSection
-                }
-                
                 ForEach(viewModel.recipeGroups) { group in
                     recipeSection(group)
                 }
-                
+
                 if !viewModel.manualItems.isEmpty {
                     otherSection
                 }
-                
+
                 addItemField
             }
             .padding(Theme.Spacing.md)
@@ -58,24 +54,10 @@ struct ShoppingListContent: View {
     }
     
     // MARK: - Sections
-    
-    private var commonIngredientsSection: some View {
-        DSSection("Common Ingredients") {
-            ForEach(viewModel.commonIngredientGroups.sorted(
-                by: { $0.key < $1.key }), id: \.key) { _, items in
-                    ForEach(items) { item in
-                        ShoppingListItemRow(
-                            item: item,
-                            onToggle: { viewModel.toggleChecked(item) },
-                            onDelete: { viewModel.removeItem(item) }
-                        )
-                    }
-                }
-        }
-    }
-    
+
     private func recipeSection(_ group: RecipeItemGroup) -> some View {
-        DSSection(group.recipeName) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            DSLabel(group.recipeName, style: .title3, color: .adaptiveBrand)
             ForEach(group.items) { item in
                 ShoppingListItemRow(
                     item: item,
@@ -85,9 +67,10 @@ struct ShoppingListContent: View {
             }
         }
     }
-    
+
     private var otherSection: some View {
-        DSSection("Other") {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            DSLabel("Other", style: .title3, color: .adaptiveBrand)
             ForEach(viewModel.manualItems) { item in
                 ShoppingListItemRow(
                     item: item,
@@ -99,21 +82,8 @@ struct ShoppingListContent: View {
     }
     
     // MARK: - Add Item
-    
-    private var addItemField: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            DSIcon("plus.circle", size: .medium, color: .tertiary)
 
-            TextField("Add item", text: $newItemText)
-                .submitLabel(.done)
-                .onSubmit {
-                    guard !newItemText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                    viewModel.addManualItem(item: newItemText)
-                    newItemText = ""
-                }
-                .accessibilityIdentifier("shopping-list-add-item-field")
-        }
-        .padding(.vertical, Theme.Spacing.sm)
-        .padding(.horizontal, Theme.Spacing.md)
+    private var addItemField: some View {
+        ShoppingListAddItemField(viewModel: viewModel, newItemText: $newItemText)
     }
 }
