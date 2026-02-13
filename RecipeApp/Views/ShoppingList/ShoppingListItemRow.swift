@@ -6,7 +6,7 @@ struct ShoppingListItemRow: View {
     let onDelete: () -> Void
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.sm) {
             Button {
                 HapticFeedback.selection.trigger()
                 onToggle()
@@ -14,7 +14,7 @@ struct ShoppingListItemRow: View {
                 DSIcon(
                     item.isChecked ? "checkmark.circle.fill" : "circle",
                     size: .medium,
-                    color: item.isChecked ? .success : .tertiary
+                    color: .tertiary
                 )
             }
             .buttonStyle(.plain)
