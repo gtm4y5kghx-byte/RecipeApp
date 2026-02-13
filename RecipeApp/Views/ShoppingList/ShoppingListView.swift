@@ -90,8 +90,9 @@ struct ShoppingListView: View {
     private var emptyState: some View {
         DSEmptyState(
             icon: "cart",
+            iconSize: .large,
             title: "Shopping List Empty",
-            message: "Add ingredients from your recipes to start building your shopping list.",
+            message: "Add items or import from your recipes.",
             accessibilityID: "shopping-list-empty-state"
         )
     }

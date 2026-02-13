@@ -7,6 +7,8 @@ struct DSEmptyState: View {
     // MARK: - Configuration
 
     let icon: String
+    let iconSize: DSIcon.IconSize
+    let iconPadding: CGFloat
     let title: String
     let message: String
     let actionTitle: String?
@@ -17,6 +19,8 @@ struct DSEmptyState: View {
 
     init(
         icon: String,
+        iconSize: DSIcon.IconSize = .xlarge,
+        iconPadding: CGFloat = Theme.Spacing.lg,
         title: String,
         message: String,
         actionTitle: String? = nil,
@@ -24,6 +28,8 @@ struct DSEmptyState: View {
         accessibilityID: String
     ) {
         self.icon = icon
+        self.iconSize = iconSize
+        self.iconPadding = iconPadding
         self.title = title
         self.message = message
         self.actionTitle = actionTitle
@@ -34,22 +40,21 @@ struct DSEmptyState: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.md) {
             Spacer()
 
             // Icon
-            DSIcon(icon, size: .xlarge, color: .tertiary)
-                .padding(Theme.Spacing.xl)
+            DSIcon(icon, size: iconSize, color: .tertiary)
+                .padding(iconPadding)
                 .background(Theme.Colors.backgroundDark)
                 .clipShape(Circle())
 
-            // Title
-            DSLabel(title, style: .title2, color: .primary, alignment: .center)
-                .padding(.horizontal, Theme.Spacing.xl)
-
-            // Message
-            DSLabel(message, style: .body, color: .secondary, alignment: .center)
-                .padding(.horizontal, Theme.Spacing.xl)
+            // Title & Message
+            VStack(spacing: Theme.Spacing.xs) {
+                DSLabel(title, style: .title2, color: .primary, alignment: .center)
+                DSLabel(message, style: .body, color: .secondary, alignment: .center)
+            }
+            .padding(.horizontal, Theme.Spacing.xl)
 
             // Optional action button
             if let actionTitle = actionTitle, let action = action {
