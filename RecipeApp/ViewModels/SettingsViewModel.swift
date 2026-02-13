@@ -6,6 +6,7 @@ class SettingsViewModel {
     private let subscriptionService: UserSubscriptionService
     private let userDefaults: UserDefaults
     private let isPremiumOverride: Bool?
+    private let hasSubscriptionOverride: Bool?
 
     var isPurchasing = false
     var purchaseError: Error?
@@ -25,7 +26,7 @@ class SettingsViewModel {
     }
 
     var hasActiveSubscription: Bool {
-        subscriptionService.canGenerateMealPlan
+        hasSubscriptionOverride ?? subscriptionService.canGenerateMealPlan
     }
 
     var premiumPrice: String? {
@@ -48,11 +49,13 @@ class SettingsViewModel {
     init(
         subscriptionService: UserSubscriptionService,
         userDefaults: UserDefaults = .standard,
-        isPremiumOverride: Bool? = nil
+        isPremiumOverride: Bool? = nil,
+        hasSubscriptionOverride: Bool? = nil
     ) {
         self.subscriptionService = subscriptionService
         self.userDefaults = userDefaults
         self.isPremiumOverride = isPremiumOverride
+        self.hasSubscriptionOverride = hasSubscriptionOverride
     }
 
     func loadProducts() async {

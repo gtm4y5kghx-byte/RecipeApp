@@ -14,6 +14,7 @@ struct DSButton: View {
     let fullWidth: Bool
     let customHorizontalPadding: CGFloat?
     let customVerticalPadding: CGFloat?
+    let colorOverride: Color?
 
     @Environment(\.isEnabled) private var isEnabled
 
@@ -66,6 +67,7 @@ struct DSButton: View {
         fullWidth: Bool = true,
         horizontalPadding: CGFloat? = nil,
         verticalPadding: CGFloat? = nil,
+        color: Color? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -76,6 +78,7 @@ struct DSButton: View {
         self.fullWidth = fullWidth
         self.customHorizontalPadding = horizontalPadding
         self.customVerticalPadding = verticalPadding
+        self.colorOverride = color
     }
 
     // MARK: - Body
@@ -143,6 +146,10 @@ struct DSButton: View {
     private var foregroundColor: Color {
         guard isEnabled else {
             return Theme.Colors.textTertiary
+        }
+
+        if let colorOverride {
+            return colorOverride
         }
 
         switch style {

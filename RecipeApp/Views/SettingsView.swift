@@ -30,10 +30,11 @@ struct SettingsContent: View {
     @Bindable var viewModel: SettingsViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         ScrollView {
-            VStack(spacing: Theme.Spacing.xl) {
+            VStack(spacing: Theme.Spacing.md) {
                 displaySettingsSection
                 subscriptionSection
                 aboutSection
@@ -48,7 +49,7 @@ struct SettingsContent: View {
                 Button {
                     dismiss()
                 } label: {
-                    DSIcon("xmark", size: .medium, color: .accent)
+                    Image(systemName: "xmark.circle")
                 }
                 .accessibilityIdentifier("settings-close-button")
             }
@@ -59,67 +60,66 @@ struct SettingsContent: View {
     }
     
     private var displaySettingsSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            DSLabel("Display", style: .title3, color: .primary)
-            
-            settingRow(
-                icon: "moon.fill",
-                title: "Keep Screen On in Cooking Mode",
-                toggle: $viewModel.keepScreenOnInCookingMode,
-                identifier: "cooking-mode-toggle"
-            )
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            DSLabel("Disable Auto-Lock", style: .headline, color: .secondary)
 
-            DSDivider()
+            VStack(spacing: Theme.Spacing.xs) {
+                settingRow(
+                    title: "Cooking Mode",
+                    toggle: $viewModel.keepScreenOnInCookingMode,
+                    identifier: "cooking-mode-toggle"
+                )
 
-            settingRow(
-                icon: "eye.fill",
-                title: "Keep Screen On While Viewing Recipes",
-                toggle: $viewModel.keepScreenOnWhileViewingRecipes,
-                identifier: "viewing-recipes-toggle"
-            )
+                DSDivider(thickness: .thin, color: .prominent, spacing: .compact)
+
+                settingRow(
+                    title: "Viewing Recipes",
+                    toggle: $viewModel.keepScreenOnWhileViewingRecipes,
+                    identifier: "viewing-recipes-toggle"
+                )
+            }
+            .padding(Theme.Spacing.md)
+            .background(Theme.Colors.backgroundLight)
+            .cornerRadius(Theme.CornerRadius.md)
         }
-        .padding(Theme.Spacing.md)
-        .background(Theme.Colors.backgroundLight)
-        .cornerRadius(Theme.CornerRadius.md)
     }
-    
-    private func settingRow(icon: String, title: String, toggle: Binding<Bool>, identifier: String) -> some View {
+
+    private func settingRow(title: String, toggle: Binding<Bool>, identifier: String) -> some View {
         HStack {
-            DSIcon(icon, size: .medium, color: .primary)
             DSLabel(title, style: .body, color: .primary)
             Spacer()
             Toggle("", isOn: toggle)
                 .labelsHidden()
+                .tint(colorScheme == .dark ? Theme.Colors.accent : Theme.Colors.primary)
+                .scaleEffect(0.8)
                 .accessibilityIdentifier(identifier)
         }
     }
     
     private var subscriptionSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            DSLabel("Subscription", style: .title3, color: .primary)
-            
-            if viewModel.isPremium {
-                premiumStatus
-            } else {
-                freeStatus
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            DSLabel("Subscription", style: .headline, color: .secondary)
+
+            Group {
+                if viewModel.isPremium {
+                    premiumStatus
+                } else {
+                    freeStatus
+                }
             }
+            .padding(Theme.Spacing.md)
+            .background(Theme.Colors.backgroundLight)
+            .cornerRadius(Theme.CornerRadius.md)
         }
-        .padding(Theme.Spacing.md)
-        .background(Theme.Colors.backgroundLight)
-        .cornerRadius(Theme.CornerRadius.md)
     }
     
     private var premiumStatus: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            HStack {
-                DSIcon("star.fill", size: .medium, color: .accent)
-                DSLabel(viewModel.hasActiveSubscription ? "Subscriber" : "Premium", style: .headline, color: .primary)
-            }
-
             if viewModel.hasActiveSubscription {
                 DSLabel("You have access to all features including meal planning", style: .body, color: .secondary)
+                    .padding(.bottom, Theme.Spacing.sm)
 
-                DSButton(title: "Manage Subscription", style: .secondary, size: .medium) {
+                DSButton(title: "Manage Subscription", style: .primary, size: .medium) {
                     Task { await viewModel.openSubscriptionManagement() }
                 }
                 .accessibilityIdentifier("manage-subscription-button")
@@ -138,29 +138,22 @@ struct SettingsContent: View {
                     .accessibilityIdentifier("add-subscription-button")
                 }
             }
-
-            DSButton(title: "Restore Purchases", style: .tertiary, size: .small) {
-                Task { await viewModel.restorePurchases() }
-            }
-            .disabled(viewModel.isPurchasing)
-            .accessibilityIdentifier("restore-purchases-button")
         }
     }
 
     private var freeStatus: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             DSLabel("Free Plan", style: .headline, color: .primary)
 
             // Subscription option (recommended)
-            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 DSLabel("Get everything:", style: .body, color: .secondary)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    featureBullet("AI Suggestions")
-                    featureBullet("AI Recipe Generation")
-                    featureBullet("AI Meal Planning")
+                    featureRow(icon: "sparkles", title: PremiumFeatureCopy.Suggestions.title)
+                    featureRow(icon: "wand.and.stars", title: PremiumFeatureCopy.Generation.title)
+                    featureRow(icon: "calendar", title: PremiumFeatureCopy.MealPlanning.title)
                 }
-                .padding(.leading, Theme.Spacing.md)
 
                 if let introPrice = viewModel.subscriptionIntroPrice,
                    let monthlyPrice = viewModel.subscriptionPrice {
@@ -175,21 +168,21 @@ struct SettingsContent: View {
                     .disabled(viewModel.isPurchasing)
                     .accessibilityIdentifier("subscribe-button")
 
-                    DSLabel("Then \(monthlyPrice)/month. Premium included forever.", style: .caption1, color: .tertiary)
+                    DSLabel("Includes lifetime Premium access", style: .caption1, color: .secondary)
+                    DSLabel("Then \(monthlyPrice)/month for Meal Planning", style: .caption1, color: .secondary)
                 }
             }
 
             DSDivider()
 
             // Premium-only option
-            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 DSLabel("Or, just the essentials:", style: .body, color: .secondary)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    featureBullet("AI Suggestions")
-                    featureBullet("AI Recipe Generation")
+                    featureRow(icon: "sparkles", title: PremiumFeatureCopy.Suggestions.title)
+                    featureRow(icon: "wand.and.stars", title: PremiumFeatureCopy.Generation.title)
                 }
-                .padding(.leading, Theme.Spacing.md)
 
                 if let price = viewModel.premiumPrice {
                     DSButton(
@@ -202,7 +195,7 @@ struct SettingsContent: View {
                     .disabled(viewModel.isPurchasing)
                     .accessibilityIdentifier("upgrade-premium-button")
 
-                    DSLabel("One-time purchase. No meal planning.", style: .caption1, color: .tertiary)
+                    DSLabel("One-time purchase. No meal planning.", style: .caption1, color: .secondary)
                 }
             }
 
@@ -217,43 +210,44 @@ struct SettingsContent: View {
             }
         }
     }
-    
-    private func featureBullet(_ text: String) -> some View {
-        HStack(spacing: Theme.Spacing.xs) {
-            DSIcon("checkmark.circle.fill", size: .small, color: .success)
-            DSLabel(text, style: .body, color: .primary)
+
+    private func featureRow(icon: String, title: String) -> some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            DSIcon(icon, size: .small, color: .adaptiveBrand)
+            DSLabel(title, style: .body, color: .primary)
         }
     }
     
     private var aboutSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            DSLabel("About", style: .title3, color: .primary)
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            DSLabel("About", style: .headline, color: .secondary)
 
-            aboutRow(icon: "info.circle", title: "Version", value: AppConstants.appVersion)
-            DSDivider()
-            aboutRow(icon: "doc.text", title: "Privacy Policy") {
-                openURL(AppConstants.privacyPolicyURL)
+            VStack(spacing: Theme.Spacing.xs) {
+                aboutRow(title: "Version", value: AppConstants.appVersion)
+                DSDivider(thickness: .thin, color: .prominent, spacing: .compact)
+                aboutRow(title: "Privacy Policy") {
+                    openURL(AppConstants.privacyPolicyURL)
+                }
+                DSDivider(thickness: .thin, color: .prominent, spacing: .compact)
+                aboutRow(title: "Terms of Service") {
+                    openURL(AppConstants.termsOfServiceURL)
+                }
+                DSDivider(thickness: .thin, color: .prominent, spacing: .compact)
+                aboutRow(title: "Contact Support") {
+                    openURL(AppConstants.supportEmailURL)
+                }
             }
-            DSDivider()
-            aboutRow(icon: "doc.text", title: "Terms of Service") {
-                openURL(AppConstants.termsOfServiceURL)
-            }
-            DSDivider()
-            aboutRow(icon: "envelope", title: "Contact Support") {
-                openURL(AppConstants.supportEmailURL)
-            }
+            .padding(Theme.Spacing.md)
+            .background(Theme.Colors.backgroundLight)
+            .cornerRadius(Theme.CornerRadius.md)
         }
-        .padding(Theme.Spacing.md)
-        .background(Theme.Colors.backgroundLight)
-        .cornerRadius(Theme.CornerRadius.md)
     }
 
-    private func aboutRow(icon: String, title: String, value: String? = nil, action: (() -> Void)? = nil) -> some View {
+    private func aboutRow(title: String, value: String? = nil, action: (() -> Void)? = nil) -> some View {
         Button {
             action?()
         } label: {
             HStack {
-                DSIcon(icon, size: .medium, color: .primary)
                 DSLabel(title, style: .body, color: .primary)
                 Spacer()
                 if let value = value {
@@ -268,18 +262,57 @@ struct SettingsContent: View {
     }
 }
 
-#Preview("Settings - Premium User") {
-    let viewModel = SettingsViewModel(
-        subscriptionService: UserSubscriptionService(),
-        isPremiumOverride: true
-    )
-    return SettingsView(previewViewModel: viewModel)
-}
-
-#Preview("Settings - Free User") {
+#Preview("Free User") {
     let viewModel = SettingsViewModel(
         subscriptionService: UserSubscriptionService(),
         isPremiumOverride: false
     )
     return SettingsView(previewViewModel: viewModel)
+}
+
+#Preview("Premium User") {
+    let viewModel = SettingsViewModel(
+        subscriptionService: UserSubscriptionService(),
+        isPremiumOverride: true,
+        hasSubscriptionOverride: false
+    )
+    return SettingsView(previewViewModel: viewModel)
+}
+
+#Preview("Subscriber") {
+    let viewModel = SettingsViewModel(
+        subscriptionService: UserSubscriptionService(),
+        isPremiumOverride: true,
+        hasSubscriptionOverride: true
+    )
+    return SettingsView(previewViewModel: viewModel)
+}
+
+#Preview("Dark: Free User") {
+    let viewModel = SettingsViewModel(
+        subscriptionService: UserSubscriptionService(),
+        isPremiumOverride: false
+    )
+    return SettingsView(previewViewModel: viewModel)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Dark: Premium User") {
+    let viewModel = SettingsViewModel(
+        subscriptionService: UserSubscriptionService(),
+        isPremiumOverride: true,
+        hasSubscriptionOverride: false
+    )
+    return SettingsView(previewViewModel: viewModel)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Dark: Subscriber") {
+    let viewModel = SettingsViewModel(
+        subscriptionService: UserSubscriptionService(),
+        isPremiumOverride: true,
+        hasSubscriptionOverride: true
+    )
+    return SettingsView(previewViewModel: viewModel)
+        .preferredColorScheme(.dark)
 }
