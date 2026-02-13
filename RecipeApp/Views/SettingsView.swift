@@ -110,6 +110,15 @@ struct SettingsContent: View {
             .padding(Theme.Spacing.md)
             .background(Theme.Colors.backgroundLight)
             .cornerRadius(Theme.CornerRadius.md)
+
+            if !viewModel.isPremium {
+                DSButton(title: "Restore Purchases", style: .tertiary, size: .small, color: Theme.Colors.textSecondary) {
+                    Task { await viewModel.restorePurchases() }
+                }
+                .disabled(viewModel.isPurchasing)
+                .accessibilityIdentifier("restore-purchases-button")
+                .frame(maxWidth: .infinity)
+            }
         }
     }
     
@@ -142,82 +151,51 @@ struct SettingsContent: View {
     }
 
     private var freeStatus: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            DSLabel("Free Plan", style: .headline, color: .primary)
-
-            // Subscription option (recommended)
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                DSLabel("Get everything:", style: .body, color: .secondary)
-
-                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    featureRow(icon: "sparkles", title: PremiumFeatureCopy.Suggestions.title)
-                    featureRow(icon: "wand.and.stars", title: PremiumFeatureCopy.Generation.title)
-                    featureRow(icon: "calendar", title: PremiumFeatureCopy.MealPlanning.title)
-                }
-
-                if let introPrice = viewModel.subscriptionIntroPrice,
-                   let monthlyPrice = viewModel.subscriptionPrice {
-                    DSButton(
-                        title: "Subscribe - \(introPrice) first month",
-                        style: .primary,
-                        size: .medium,
-                        icon: "star.fill"
-                    ) {
-                        Task { await viewModel.purchaseSubscription() }
-                    }
-                    .disabled(viewModel.isPurchasing)
-                    .accessibilityIdentifier("subscribe-button")
-
-                    DSLabel("Includes lifetime Premium access", style: .caption1, color: .secondary)
-                    DSLabel("Then \(monthlyPrice)/month for Meal Planning", style: .caption1, color: .secondary)
-                }
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                PremiumFeatureRow.mealPlanning
+                PremiumFeatureRow.suggestions
+                PremiumFeatureRow.generation
             }
 
-            DSDivider()
-
-            // Premium-only option
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                DSLabel("Or, just the essentials:", style: .body, color: .secondary)
-
-                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    featureRow(icon: "sparkles", title: PremiumFeatureCopy.Suggestions.title)
-                    featureRow(icon: "wand.and.stars", title: PremiumFeatureCopy.Generation.title)
+            // Subscribe CTA
+            if let introPrice = viewModel.subscriptionIntroPrice,
+               let monthlyPrice = viewModel.subscriptionPrice {
+                SubscriptionCTA(
+                    introPrice: introPrice,
+                    monthlyPrice: monthlyPrice,
+                    isPurchasing: viewModel.isPurchasing
+                ) {
+                    Task { await viewModel.purchaseSubscription() }
                 }
+                .accessibilityIdentifier("subscribe-button")
+                .padding(.bottom, Theme.Spacing.xs)
+            }
 
-                if let price = viewModel.premiumPrice {
+            // Buy Premium CTA
+            if let price = viewModel.premiumPrice {
+                VStack(spacing: Theme.Spacing.xs) {
                     DSButton(
                         title: "Buy Premium - \(price)",
                         style: .secondary,
-                        size: .medium
+                        fullWidth: true
                     ) {
                         Task { await viewModel.purchasePremium() }
                     }
                     .disabled(viewModel.isPurchasing)
                     .accessibilityIdentifier("upgrade-premium-button")
 
-                    DSLabel("One-time purchase. No meal planning.", style: .caption1, color: .secondary)
+                    Text("One-time purchase. No meal planning.")
+                        .font(Theme.Typography.caption1)
+                        .foregroundStyle(Theme.Colors.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
                 }
             }
 
-            DSButton(title: "Restore Purchases", style: .tertiary, size: .small) {
-                Task { await viewModel.restorePurchases() }
-            }
-            .disabled(viewModel.isPurchasing)
-            .accessibilityIdentifier("restore-purchases-button")
-
-            if let error = viewModel.purchaseError {
-                DSLabel(error.localizedDescription, style: .caption1, color: .error)
-            }
         }
     }
 
-    private func featureRow(icon: String, title: String) -> some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            DSIcon(icon, size: .small, color: .adaptiveBrand)
-            DSLabel(title, style: .body, color: .primary)
-        }
-    }
-    
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             DSLabel("About", style: .headline, color: .secondary)
