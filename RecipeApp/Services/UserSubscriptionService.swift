@@ -58,15 +58,15 @@ class UserSubscriptionService {
         return subscriptionService.hasPremium
     }
 
-    /// Has active subscription for meal plan generation
+    /// Has access to meal plan generation (premium or subscriber)
     var canGenerateMealPlan: Bool {
         guard FeatureFlags.isPremiumGatingEnabled else { return true }
         #if DEBUG
         if let override = Self.debugTierOverride {
-            return override == .subscriber
+            return override != .free
         }
         #endif
-        return subscriptionService.hasActiveSubscription
+        return isPremium
     }
 
     /// Access to underlying subscription service for purchases

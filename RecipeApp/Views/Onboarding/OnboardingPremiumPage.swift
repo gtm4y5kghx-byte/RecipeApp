@@ -20,10 +20,10 @@ struct OnboardingPremiumPage: View {
 
             DSLabel("Unlock Everything", style: .largeTitle, color: .primary, alignment: .center)
 
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                featureRow("AI recipe suggestions")
-                featureRow("Recipe generation")
-                featureRow("Meal planning")
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                PremiumFeatureRow.suggestions
+                PremiumFeatureRow.generation
+                PremiumFeatureRow.mealPlanning
             }
             .padding(.horizontal, Theme.Spacing.xl)
             .padding(.top, Theme.Spacing.md)
@@ -40,13 +40,6 @@ struct OnboardingPremiumPage: View {
         .background(Theme.Colors.background)
     }
 
-    private func featureRow(_ text: String) -> some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            DSIcon("checkmark.circle.fill", size: .small, color: .success)
-            DSLabel(text, style: .body, color: .primary)
-        }
-    }
-
     @ViewBuilder
     private var purchaseButtons: some View {
         VStack(spacing: Theme.Spacing.sm) {
@@ -59,15 +52,11 @@ struct OnboardingPremiumPage: View {
             }
 
             if let price = premiumPrice {
-                DSButton(
-                    title: "Buy Premium - \(price)",
-                    style: .secondary,
-                    fullWidth: true,
-                    action: onPurchasePremium
+                PremiumPurchaseCTA(
+                    price: price,
+                    isPurchasing: isPurchasing,
+                    onPurchase: onPurchasePremium
                 )
-                .disabled(isPurchasing)
-
-                DSLabel("One-time purchase, no meal planning", style: .caption1, color: .tertiary, alignment: .center)
             }
         }
     }

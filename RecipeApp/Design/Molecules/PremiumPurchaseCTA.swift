@@ -1,23 +1,23 @@
 import SwiftUI
 
-/// Shared subscription call-to-action with button and price caption
-struct SubscriptionCTA: View {
-    let monthlyPrice: String
+/// Shared premium one-time purchase call-to-action with button and price caption
+struct PremiumPurchaseCTA: View {
+    let price: String
     let isPurchasing: Bool
-    let onSubscribe: () -> Void
+    let onPurchase: () -> Void
 
     var body: some View {
         VStack(spacing: Theme.Spacing.xs) {
             DSButton(
-                title: "Subscribe - \(monthlyPrice)/month",
-                style: .primary,
+                title: "Buy Premium - \(price)",
+                style: .secondary,
                 fullWidth: true
             ) {
-                onSubscribe()
+                onPurchase()
             }
             .disabled(isPurchasing)
 
-            Text("All features. Cancel anytime.")
+            Text("One-time purchase. All features, forever.")
                 .font(Theme.Typography.caption1)
                 .foregroundStyle(Theme.Colors.textSecondary)
                 .frame(maxWidth: .infinity)
@@ -27,20 +27,20 @@ struct SubscriptionCTA: View {
 }
 
 #Preview {
-    SubscriptionCTA(
-        monthlyPrice: "$4.99",
+    PremiumPurchaseCTA(
+        price: "$14.99",
         isPurchasing: false,
-        onSubscribe: {}
+        onPurchase: {}
     )
     .padding()
     .background(Theme.Colors.background)
 }
 
 #Preview("Dark") {
-    SubscriptionCTA(
-        monthlyPrice: "$4.99",
+    PremiumPurchaseCTA(
+        price: "$14.99",
         isPurchasing: false,
-        onSubscribe: {}
+        onPurchase: {}
     )
     .padding()
     .background(Theme.Colors.background)

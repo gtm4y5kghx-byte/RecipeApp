@@ -98,7 +98,7 @@ struct SettingsContent: View {
     
     private var subscriptionSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            DSLabel("Subscription", style: .headline, color: .secondary)
+            DSLabel(viewModel.isPremium ? "Premium" : "Premium Features", style: .headline, color: .secondary)
 
             Group {
                 if viewModel.isPremium {
@@ -124,30 +124,16 @@ struct SettingsContent: View {
     
     private var premiumStatus: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            if viewModel.hasActiveSubscription {
-                DSLabel("You have access to all features including meal planning", style: .body, color: .secondary)
-                    .padding(.bottom, Theme.Spacing.sm)
+            DSLabel("You have access to all features", style: .body, color: .secondary)
 
+            if viewModel.hasActiveSubscription {
                 DSButton(title: "Manage Subscription", style: .primary, size: .medium) {
                     Task { await viewModel.openSubscriptionManagement() }
                 }
                 .accessibilityIdentifier("manage-subscription-button")
-            } else {
-                DSLabel("You have access to suggestions and recipe generation", style: .body, color: .secondary)
-
-                if let price = viewModel.subscriptionPrice {
-                    DSButton(
-                        title: "Add Meal Planning - \(price)/month",
-                        style: .primary,
-                        size: .medium
-                    ) {
-                        Task { await viewModel.purchaseSubscription() }
-                    }
-                    .disabled(viewModel.isPurchasing)
-                    .accessibilityIdentifier("add-subscription-button")
-                }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var freeStatus: some View {
@@ -172,23 +158,12 @@ struct SettingsContent: View {
 
             // Buy Premium CTA
             if let price = viewModel.premiumPrice {
-                VStack(spacing: Theme.Spacing.xs) {
-                    DSButton(
-                        title: "Buy Premium - \(price)",
-                        style: .secondary,
-                        fullWidth: true
-                    ) {
-                        Task { await viewModel.purchasePremium() }
-                    }
-                    .disabled(viewModel.isPurchasing)
-                    .accessibilityIdentifier("upgrade-premium-button")
-
-                    Text("One-time purchase. No meal planning.")
-                        .font(Theme.Typography.caption1)
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .multilineTextAlignment(.center)
-                }
+                PremiumPurchaseCTA(
+                    price: price,
+                    isPurchasing: viewModel.isPurchasing,
+                    onPurchase: { Task { await viewModel.purchasePremium() } }
+                )
+                .accessibilityIdentifier("upgrade-premium-button")
             }
 
         }

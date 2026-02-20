@@ -3,23 +3,55 @@ import StoreKit
 
 struct SubscriptionUpsellSheet: View {
     let subscriptionPrice: String?
-    let hasPremium: Bool
+    let premiumPrice: String?
     let isPurchasing: Bool
     let onSubscribe: () -> Void
+    let onPurchasePremium: () -> Void
     let onDismiss: () -> Void
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
 
-            if hasPremium {
-                premiumUserContent
-            } else {
-                freeUserContent
+            VStack(spacing: Theme.Spacing.md) {
+                VStack(spacing: Theme.Spacing.xs) {
+                    DSLabel("Unlock Everything", style: .largeTitle, color: .primary, alignment: .center)
+
+                    DSLabel(
+                        "Get the most out of your recipe collection with AI-powered features.",
+                        style: .body,
+                        color: .secondary,
+                        alignment: .center
+                    )
+                    .padding(.horizontal, Theme.Spacing.xl)
+                }
+
+                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                    PremiumFeatureRow.mealPlanning
+                    PremiumFeatureRow.suggestions
+                    PremiumFeatureRow.generation
+                }
+                .padding(.horizontal, Theme.Spacing.xl)
             }
 
-            subscribeButton
-                .padding(.horizontal, Theme.Spacing.lg)
+            VStack(spacing: Theme.Spacing.sm) {
+                if let price = subscriptionPrice {
+                    SubscriptionCTA(
+                        monthlyPrice: price,
+                        isPurchasing: isPurchasing,
+                        onSubscribe: onSubscribe
+                    )
+                }
+
+                if let price = premiumPrice {
+                    PremiumPurchaseCTA(
+                        price: price,
+                        isPurchasing: isPurchasing,
+                        onPurchase: onPurchasePremium
+                    )
+                }
+            }
+            .padding(.horizontal, Theme.Spacing.lg)
 
             DSButton(title: "Maybe Later", style: .tertiary, action: onDismiss)
 
@@ -28,94 +60,26 @@ struct SubscriptionUpsellSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.Colors.background)
     }
-
-    private var premiumUserContent: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            DSLabel(PremiumFeatureCopy.MealPlanning.title, style: .largeTitle, color: .primary, alignment: .center)
-
-            DSLabel(
-                PremiumFeatureCopy.MealPlanning.description,
-                style: .body,
-                color: .secondary,
-                alignment: .center
-            )
-            .padding(.horizontal, Theme.Spacing.xl)
-        }
-    }
-
-    private var freeUserContent: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            VStack(spacing: Theme.Spacing.xs) {
-                DSLabel("Unlock Everything", style: .largeTitle, color: .primary, alignment: .center)
-
-                DSLabel(
-                    "Get the most out of your recipe collection with AI-powered features.",
-                    style: .body,
-                    color: .secondary,
-                    alignment: .center
-                )
-                .padding(.horizontal, Theme.Spacing.xl)
-            }
-
-            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                PremiumFeatureRow.mealPlanning
-                PremiumFeatureRow.suggestions
-                PremiumFeatureRow.generation
-            }
-            .padding(.horizontal, Theme.Spacing.xl)
-        }
-    }
-
-    @ViewBuilder
-    private var subscribeButton: some View {
-        if let price = subscriptionPrice {
-            SubscriptionCTA(
-                monthlyPrice: price,
-                isPurchasing: isPurchasing,
-                onSubscribe: onSubscribe
-            )
-        }
-    }
-
 }
 
-#Preview("Free User") {
+#Preview {
     SubscriptionUpsellSheet(
         subscriptionPrice: "$4.99",
-        hasPremium: false,
+        premiumPrice: "$14.99",
         isPurchasing: false,
         onSubscribe: {},
+        onPurchasePremium: {},
         onDismiss: {}
     )
 }
 
-#Preview("Premium User") {
+#Preview("Dark") {
     SubscriptionUpsellSheet(
         subscriptionPrice: "$4.99",
-        hasPremium: true,
+        premiumPrice: "$14.99",
         isPurchasing: false,
         onSubscribe: {},
-        onDismiss: {}
-    )
-}
-
-#Preview("Dark: Free User") {
-    SubscriptionUpsellSheet(
-        subscriptionPrice: "$4.99",
-        hasPremium: false,
-        isPurchasing: false,
-        onSubscribe: {},
-        onDismiss: {}
-    )
-    .preferredColorScheme(.dark)
-}
-
-#Preview("Dark: Premium User") {
-    SubscriptionUpsellSheet(
-        subscriptionPrice: "$4.99",
-        hasPremium: true,
-        isPurchasing: false,
-        onSubscribe: {},
+        onPurchasePremium: {},
         onDismiss: {}
     )
     .preferredColorScheme(.dark)

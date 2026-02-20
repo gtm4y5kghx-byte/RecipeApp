@@ -23,6 +23,7 @@ struct OnboardingView: View {
         .background(Theme.Colors.background)
         .onAppear {
             if subscriptionService == nil {
+                
                 subscriptionService = UserSubscriptionService()
             }
         }

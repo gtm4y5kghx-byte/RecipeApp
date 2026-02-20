@@ -26,7 +26,7 @@ class SettingsViewModel {
     }
 
     var hasActiveSubscription: Bool {
-        hasSubscriptionOverride ?? subscriptionService.canGenerateMealPlan
+        hasSubscriptionOverride ?? subscriptionService.store.hasActiveSubscription
     }
 
     var premiumPrice: String? {
