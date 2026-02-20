@@ -94,17 +94,11 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "meal_plan_monthly_001",
-          "introductoryOffer" : {
-            "displayPrice" : "19.99",
-            "internalID" : "intro_offer_001",
-            "numberOfPeriods" : 1,
-            "paymentMode" : "payUpFront",
-            "subscriptionPeriod" : "P1M"
-          },
+          "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Includes Premium forever. AI-powered meal planning for your week.",
-              "displayName" : "Meal Plan + Premium",
+              "description" : "AI-powered meal planning for your week.",
+              "displayName" : "Meal Planning",
               "locale" : "en_US"
             }
           ],

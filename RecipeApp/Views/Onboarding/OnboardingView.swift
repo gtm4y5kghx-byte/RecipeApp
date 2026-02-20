@@ -43,7 +43,6 @@ struct OnboardingView: View {
         case 3:
             OnboardingPremiumPage(
                 subscriptionPrice: subscriptionService?.store.subscriptionProduct?.displayPrice,
-                subscriptionIntroPrice: subscriptionService?.store.subscriptionProduct?.subscription?.introductoryOffer?.displayPrice,
                 premiumPrice: subscriptionService?.store.premiumProduct?.displayPrice,
                 isPurchasing: isPurchasing,
                 onSubscribe: { Task { await purchaseSubscription() } },

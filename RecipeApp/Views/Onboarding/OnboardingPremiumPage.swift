@@ -2,7 +2,6 @@ import SwiftUI
 
 struct OnboardingPremiumPage: View {
     let subscriptionPrice: String?
-    let subscriptionIntroPrice: String?
     let premiumPrice: String?
     let isPurchasing: Bool
     let onSubscribe: () -> Void
@@ -51,17 +50,12 @@ struct OnboardingPremiumPage: View {
     @ViewBuilder
     private var purchaseButtons: some View {
         VStack(spacing: Theme.Spacing.sm) {
-            if let introPrice = subscriptionIntroPrice, let monthlyPrice = subscriptionPrice {
-                DSButton(
-                    title: "Subscribe - \(introPrice) first month",
-                    style: .primary,
-                    icon: "star.fill",
-                    fullWidth: true,
-                    action: onSubscribe
+            if let monthlyPrice = subscriptionPrice {
+                SubscriptionCTA(
+                    monthlyPrice: monthlyPrice,
+                    isPurchasing: isPurchasing,
+                    onSubscribe: onSubscribe
                 )
-                .disabled(isPurchasing)
-
-                DSLabel("Then \(monthlyPrice)/month", style: .caption1, color: .tertiary, alignment: .center)
             }
 
             if let price = premiumPrice {
@@ -82,7 +76,6 @@ struct OnboardingPremiumPage: View {
 #Preview("With Prices") {
     OnboardingPremiumPage(
         subscriptionPrice: "$4.99",
-        subscriptionIntroPrice: "$19.99",
         premiumPrice: "$14.99",
         isPurchasing: false,
         onSubscribe: {},
@@ -94,7 +87,6 @@ struct OnboardingPremiumPage: View {
 #Preview("Loading Prices") {
     OnboardingPremiumPage(
         subscriptionPrice: nil,
-        subscriptionIntroPrice: nil,
         premiumPrice: nil,
         isPurchasing: false,
         onSubscribe: {},
@@ -106,7 +98,6 @@ struct OnboardingPremiumPage: View {
 #Preview("Purchasing") {
     OnboardingPremiumPage(
         subscriptionPrice: "$4.99",
-        subscriptionIntroPrice: "$19.99",
         premiumPrice: "$14.99",
         isPurchasing: true,
         onSubscribe: {},

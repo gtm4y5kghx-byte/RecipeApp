@@ -42,7 +42,6 @@ struct GeneratePlanSheet: View {
         .sheet(isPresented: $showingPaywall) {
             SubscriptionUpsellSheet(
                 subscriptionPrice: subscriptionService?.store.subscriptionProduct?.displayPrice,
-                introPrice: subscriptionService?.store.subscriptionProduct?.subscription?.introductoryOffer?.displayPrice,
                 hasPremium: UserSubscriptionService.shared.isPremium,
                 isPurchasing: false,
                 onSubscribe: { Task { await purchaseSubscription() } },

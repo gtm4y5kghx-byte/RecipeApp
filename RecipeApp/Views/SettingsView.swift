@@ -159,10 +159,8 @@ struct SettingsContent: View {
             }
 
             // Subscribe CTA
-            if let introPrice = viewModel.subscriptionIntroPrice,
-               let monthlyPrice = viewModel.subscriptionPrice {
+            if let monthlyPrice = viewModel.subscriptionPrice {
                 SubscriptionCTA(
-                    introPrice: introPrice,
                     monthlyPrice: monthlyPrice,
                     isPurchasing: viewModel.isPurchasing
                 ) {

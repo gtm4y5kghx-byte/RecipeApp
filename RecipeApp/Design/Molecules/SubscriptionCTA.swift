@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// Shared subscription call-to-action with button and price captions
+/// Shared subscription call-to-action with button and price caption
 struct SubscriptionCTA: View {
-    let introPrice: String
     let monthlyPrice: String
     let isPurchasing: Bool
     let onSubscribe: () -> Void
@@ -10,7 +9,7 @@ struct SubscriptionCTA: View {
     var body: some View {
         VStack(spacing: Theme.Spacing.xs) {
             DSButton(
-                title: "Subscribe - \(introPrice) first month",
+                title: "Subscribe - \(monthlyPrice)/month",
                 style: .primary,
                 fullWidth: true
             ) {
@@ -18,21 +17,17 @@ struct SubscriptionCTA: View {
             }
             .disabled(isPurchasing)
 
-            VStack(spacing: 2) {
-                Text("Includes lifetime Premium access")
-                Text("Then \(monthlyPrice)/month for Meal Planning")
-            }
-            .font(Theme.Typography.caption1)
-            .foregroundStyle(Theme.Colors.textSecondary)
-            .frame(maxWidth: .infinity)
-            .multilineTextAlignment(.center)
+            Text("AI-powered meal planning for your week")
+                .font(Theme.Typography.caption1)
+                .foregroundStyle(Theme.Colors.textSecondary)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
         }
     }
 }
 
 #Preview {
     SubscriptionCTA(
-        introPrice: "$19.99",
         monthlyPrice: "$4.99",
         isPurchasing: false,
         onSubscribe: {}
@@ -43,7 +38,6 @@ struct SubscriptionCTA: View {
 
 #Preview("Dark") {
     SubscriptionCTA(
-        introPrice: "$19.99",
         monthlyPrice: "$4.99",
         isPurchasing: false,
         onSubscribe: {}
