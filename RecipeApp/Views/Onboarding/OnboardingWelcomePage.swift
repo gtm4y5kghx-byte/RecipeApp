@@ -6,9 +6,8 @@ struct OnboardingWelcomePage: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
 
-            DSIcon("fork.knife", size: .xlarge, color: .primary)
-                .scaleEffect(1.5)
-                .padding(Theme.Spacing.xl)
+            DSIcon("fork.knife", size: .xlarge, color: .adaptiveBrand)
+                .padding(Theme.Spacing.lg)
                 .background(Theme.Colors.backgroundLight)
                 .clipShape(Circle())
 

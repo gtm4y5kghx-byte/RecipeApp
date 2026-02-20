@@ -12,9 +12,8 @@ struct OnboardingPremiumPage: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
 
-            DSIcon("star.fill", size: .xlarge, color: .accent)
-                .scaleEffect(1.5)
-                .padding(Theme.Spacing.xl)
+            DSIcon("star.fill", size: .xlarge, color: .adaptiveBrand)
+                .padding(Theme.Spacing.lg)
                 .background(Theme.Colors.backgroundLight)
                 .clipShape(Circle())
 

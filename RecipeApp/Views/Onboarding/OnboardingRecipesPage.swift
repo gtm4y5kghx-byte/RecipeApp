@@ -6,9 +6,8 @@ struct OnboardingRecipesPage: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
 
-            DSIcon("book.fill", size: .xlarge, color: .primary)
-                .scaleEffect(1.5)
-                .padding(Theme.Spacing.xl)
+            DSIcon("book.fill", size: .xlarge, color: .adaptiveBrand)
+                .padding(Theme.Spacing.lg)
                 .background(Theme.Colors.backgroundLight)
                 .clipShape(Circle())
 
@@ -31,7 +30,7 @@ struct OnboardingRecipesPage: View {
 
     private func featureRow(icon: String, text: String) -> some View {
         HStack(spacing: Theme.Spacing.md) {
-            DSIcon(icon, size: .medium, color: .accent)
+            DSIcon(icon, size: .medium, color: .adaptiveBrand)
             DSLabel(text, style: .body, color: .primary)
         }
     }

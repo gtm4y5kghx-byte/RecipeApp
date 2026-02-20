@@ -8,7 +8,7 @@ struct OnboardingView: View {
     @State private var subscriptionService: UserSubscriptionService?
     @State private var isPurchasing = false
 
-    private let pageCount = 4
+    private let pageCount = 3
 
     var body: some View {
         VStack(spacing: 0) {
@@ -40,8 +40,6 @@ struct OnboardingView: View {
         case 1:
             OnboardingRecipesPage()
         case 2:
-            OnboardingAIFeaturesPage()
-        case 3:
             OnboardingPremiumPage(
                 subscriptionPrice: subscriptionService?.store.subscriptionProduct?.displayPrice,
                 premiumPrice: subscriptionService?.store.premiumProduct?.displayPrice,
@@ -97,4 +95,9 @@ struct OnboardingView: View {
 
 #Preview {
     OnboardingView(onComplete: {})
+}
+
+#Preview("Dark") {
+    OnboardingView(onComplete: {})
+        .preferredColorScheme(.dark)
 }
