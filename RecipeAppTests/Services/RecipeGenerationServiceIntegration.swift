@@ -237,7 +237,10 @@ struct RecipeGenerationServiceIntegration {
             print("  • ... and \(recipe.ingredients.count - 5) more")
         }
         
-        print("Instructions (\(recipe.instructions.count) steps)")
+        print("Instructions (\(recipe.instructions.count) steps):")
+        for (step, instruction) in recipe.instructions.enumerated() {
+            print("  \(step + 1). \(instruction)")
+        }
         
         if let nutrition = recipe.nutrition {
             print("Nutrition: \(nutrition.calories ?? 0) cal, \(nutrition.protein ?? 0)g protein")

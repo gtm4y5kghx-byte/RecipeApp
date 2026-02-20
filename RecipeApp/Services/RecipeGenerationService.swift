@@ -41,7 +41,7 @@ class RecipeGenerationService: RecipeGenerating {
         let jsonResponse = try await claudeClient.sendMessage(
             prompt: userPrompt,
             systemPrompt: systemPrompt,
-            model: .sonnet,
+            model: .haiku,
             maxTokens: 4096
         )
         
