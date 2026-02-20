@@ -5,12 +5,12 @@
   ],
   "products" : [
     {
-      "displayPrice" : "14.99",
+      "displayPrice" : "29.99",
       "familyShareable" : false,
       "internalID" : "premium_lifetime_001",
       "localizations" : [
         {
-          "description" : "Unlock AI suggestions and recipe generation forever",
+          "description" : "All premium features, forever. One-time purchase.",
           "displayName" : "Premium",
           "locale" : "en_US"
         }
@@ -81,7 +81,7 @@
       "localizations" : [
 
       ],
-      "name" : "Meal Planning",
+      "name" : "Premium",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -97,8 +97,8 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "AI-powered meal planning for your week.",
-              "displayName" : "Meal Planning",
+              "description" : "All premium features. Cancel anytime.",
+              "displayName" : "Premium Monthly",
               "locale" : "en_US"
             }
           ],

@@ -65,7 +65,7 @@ struct OnboardingPremiumPage: View {
 #Preview("With Prices") {
     OnboardingPremiumPage(
         subscriptionPrice: "$4.99",
-        premiumPrice: "$14.99",
+        premiumPrice: "$29.99",
         isPurchasing: false,
         onSubscribe: {},
         onPurchasePremium: {},
@@ -87,7 +87,7 @@ struct OnboardingPremiumPage: View {
 #Preview("Purchasing") {
     OnboardingPremiumPage(
         subscriptionPrice: "$4.99",
-        premiumPrice: "$14.99",
+        premiumPrice: "$29.99",
         isPurchasing: true,
         onSubscribe: {},
         onPurchasePremium: {},
