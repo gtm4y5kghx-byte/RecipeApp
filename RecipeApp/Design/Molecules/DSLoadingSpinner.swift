@@ -210,7 +210,6 @@ struct DSLoadingOverlay: View {
                 Spacer()
             }
 
-            DSSearchBar(text: .constant("pasta"))
         }
         .padding(Theme.Spacing.md)
         .background(Theme.Colors.backgroundLight)

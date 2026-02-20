@@ -14,6 +14,7 @@ struct RecipePickerSheet: View {
             Group {
                 if let viewModel = viewModel {
                     recipeList(viewModel: viewModel)
+                        .searchable(text: Bindable(viewModel).searchText, placement: .navigationBarDrawer(displayMode: .always))
                 } else {
                     DSLoadingSpinner(message: "Loading...")
                 }
@@ -39,10 +40,9 @@ struct RecipePickerSheet: View {
 
     private func recipeList(viewModel: RecipePickerViewModel) -> some View {
         VStack(spacing: 0) {
-            ScopedSearchBar(
-                searchText: Bindable(viewModel).searchText,
-                searchScope: Bindable(viewModel).searchScope
-            )
+            if !viewModel.searchText.isEmpty {
+                SearchScopePicker(selectedScope: Bindable(viewModel).searchScope)
+            }
 
             if viewModel.filteredRecipes.isEmpty {
                 Spacer()
