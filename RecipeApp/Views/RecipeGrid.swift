@@ -23,7 +23,6 @@ struct RecipeGrid: View {
             .scrollTargetLayout()
             .padding(.top, Theme.Spacing.sm)
         }
-        .scrollDismissesKeyboard(.interactively)
         .background(Theme.Colors.background)
         .scrollPosition($scrollPosition)
         .scrollDisabled(isSwipingAnItem)

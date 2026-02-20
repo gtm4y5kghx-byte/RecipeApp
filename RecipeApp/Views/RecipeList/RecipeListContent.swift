@@ -1,32 +1,40 @@
 import SwiftUI
 
 struct RecipeListContent: View {
+    @Environment(\.isSearching) private var isSearching
+
     let items: [RecipeListItem]
-    let isSearching: Bool
     let searchText: String
     let selectedSectionTitle: String?
     let selectedSectionIcon: String?
     let hasRecipes: Bool
     @Binding var scrollPosition: ScrollPosition
+    @Binding var searchScope: SearchScope
     var selectedRecipe: Binding<Recipe?>?
     let onFavoriteTap: (Recipe) -> Void
     let onDeleteTap: (Recipe) -> Void
     let onSaveGeneratedRecipe: (GeneratedRecipe) -> Void
-    let onClearSearch: () -> Void
     let onAddRecipe: () -> Void
 
     var body: some View {
-        if items.isEmpty {
-            emptyState
-        } else {
-            RecipeGrid(
-                items: items,
-                scrollPosition: $scrollPosition,
-                selectedRecipe: selectedRecipe,
-                onFavoriteTap: onFavoriteTap,
-                onDeleteTap: onDeleteTap,
-                onSaveGeneratedRecipe: onSaveGeneratedRecipe
-            )
+        VStack(spacing: 0) {
+            if isSearching {
+                SearchScopePicker(selectedScope: $searchScope)
+            }
+
+            if items.isEmpty {
+                emptyState
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                RecipeGrid(
+                    items: items,
+                    scrollPosition: $scrollPosition,
+                    selectedRecipe: selectedRecipe,
+                    onFavoriteTap: onFavoriteTap,
+                    onDeleteTap: onDeleteTap,
+                    onSaveGeneratedRecipe: onSaveGeneratedRecipe
+                )
+            }
         }
     }
 
@@ -37,8 +45,6 @@ struct RecipeListContent: View {
                 icon: "magnifyingglass",
                 title: "No Results Found",
                 message: String(localized: "We couldn't find any recipes matching '\(searchText)'. Try different keywords."),
-                actionTitle: "Clear Search",
-                action: onClearSearch,
                 accessibilityID: "recipe-list-no-results-empty-state"
             )
         } else if let sectionTitle = selectedSectionTitle, let sectionIcon = selectedSectionIcon {
@@ -63,19 +69,19 @@ struct RecipeListContent: View {
 
 #Preview {
     @Previewable @State var scrollPosition = ScrollPosition(edge: .top)
+    @Previewable @State var searchScope: SearchScope = .all
 
     RecipeListContent(
         items: [],
-        isSearching: false,
         searchText: "",
         selectedSectionTitle: nil,
         selectedSectionIcon: nil,
         hasRecipes: false,
         scrollPosition: $scrollPosition,
+        searchScope: $searchScope,
         onFavoriteTap: { _ in },
         onDeleteTap: { _ in },
         onSaveGeneratedRecipe: { _ in },
-        onClearSearch: {},
         onAddRecipe: {}
     )
 }

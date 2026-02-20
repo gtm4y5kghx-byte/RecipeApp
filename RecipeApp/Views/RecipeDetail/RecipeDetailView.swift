@@ -58,9 +58,7 @@ struct RecipeDetailView: View {
                                     fullWidth: false
                                 ) {
                                     HapticFeedback.success.trigger()
-                                    withAnimation {
-                                        viewModel.markAsCooked()
-                                    }
+                                    viewModel.markAsCooked()
                                 }
                                 .accessibilityIdentifier("recipe-detail-cooked-button")
 
@@ -72,6 +70,7 @@ struct RecipeDetailView: View {
                                         .background(Theme.Colors.tagSecondaryBackground)
                                         .clipShape(Circle())
                                         .contentTransition(.numericText())
+                                        .animation(.default, value: viewModel.recipe.timesCooked)
                                 }
                             }
                         }

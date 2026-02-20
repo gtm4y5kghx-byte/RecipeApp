@@ -93,18 +93,10 @@ struct RecipeListView: View {
                     importedRecipe = recipes.first
                 }
             }
-            
+
             if let _ = viewModel { recipeContent } else {
                 DSLoadingSpinner(message: "Loading recipes...")
             }
-            
-            ScopedSearchBar(
-                searchText: $searchText,
-                searchScope: $searchScope,
-                onSubmit: {
-                    viewModel?.performSearch(query: searchText, scope: searchScope)
-                }
-            )
         }
         .background(Theme.Colors.background)
     }
@@ -146,6 +138,7 @@ struct RecipeListView: View {
                     }
 #endif
                 }
+                .searchable(text: $searchText)
                 .navigationDestination(item: effectiveSelectedRecipe) { recipe in
                     RecipeDetailView(recipe: recipe)
                 }
@@ -192,15 +185,7 @@ struct RecipeListView: View {
             recipeContent
                 .navigationTitle(viewModel?.filterTitle ?? "Recipes")
                 .navigationBarTitleDisplayMode(.large)
-                .safeAreaInset(edge: .bottom) {
-                    ScopedSearchBar(
-                        searchText: $searchText,
-                        searchScope: $searchScope,
-                        onSubmit: {
-                            viewModel?.performSearch(query: searchText, scope: searchScope)
-                        }
-                    )
-                }
+                .searchable(text: $searchText)
                 .overlay(alignment: .top) {
                     if showImportBanner {
                         RecipeImportBanner {
@@ -260,12 +245,12 @@ struct RecipeListView: View {
         if let viewModel = viewModel {
             RecipeListContent(
                 items: viewModel.displayedItems,
-                isSearching: viewModel.isSearching,
                 searchText: searchText,
                 selectedSectionTitle: viewModel.filterTitle,
                 selectedSectionIcon: viewModel.filterIcon,
                 hasRecipes: viewModel.hasRecipes,
                 scrollPosition: $scrollPosition,
+                searchScope: $searchScope,
                 selectedRecipe: selectedRecipe,
                 onFavoriteTap: { recipe in
                     viewModel.toggleFavorite(recipe)
@@ -277,9 +262,6 @@ struct RecipeListView: View {
                     if let savedRecipe = viewModel.saveGeneratedRecipe(generatedRecipe) {
                         effectiveSelectedRecipe.wrappedValue = savedRecipe
                     }
-                },
-                onClearSearch: {
-                    searchText = ""
                 },
                 onAddRecipe: {
                     menuState?.newRecipe()
