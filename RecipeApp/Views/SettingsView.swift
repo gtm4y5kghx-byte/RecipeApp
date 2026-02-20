@@ -123,8 +123,14 @@ struct SettingsContent: View {
     }
     
     private var premiumStatus: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             DSLabel("You have access to all features", style: .body, color: .secondary)
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                PremiumFeatureRow.mealPlanning
+                PremiumFeatureRow.suggestions
+                PremiumFeatureRow.generation
+            }
 
             if viewModel.hasActiveSubscription {
                 DSButton(title: "Manage Subscription", style: .primary, size: .medium) {

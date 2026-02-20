@@ -26,7 +26,7 @@ class SettingsViewModel {
     }
 
     var hasActiveSubscription: Bool {
-        hasSubscriptionOverride ?? subscriptionService.store.hasActiveSubscription
+        hasSubscriptionOverride ?? subscriptionService.hasActiveSubscription
     }
 
     var premiumPrice: String? {

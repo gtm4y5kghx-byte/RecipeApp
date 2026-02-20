@@ -91,7 +91,7 @@ struct GeneratePlanConfigSection: View {
                 .accessibilityIdentifier("generate-plan-subscribe-button")
 
                 DSLabel(
-                    "Subscription required for AI meal planning",
+                    "Subscription or premium purchase required",
                     style: .caption1,
                     color: .secondary,
                     alignment: .center

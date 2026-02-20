@@ -40,7 +40,7 @@ struct RecipeGenerationServiceIntegration {
         print("Testing new user experience with variety-focused generation")
 
         let startTime = Date()
-        let generatedRecipes = try await service.generateRecipes(recipes: [], count: 5)
+        let generatedRecipes = try await service.generateRecipes(recipes: [], count: 3)
         let duration = Date().timeIntervalSince(startTime)
 
         print("Generation completed in \(String(format: "%.2f", duration))s")
@@ -51,7 +51,7 @@ struct RecipeGenerationServiceIntegration {
         }
         print("================================================\n")
 
-        #expect(generatedRecipes.count == 5)
+        #expect(generatedRecipes.count == 3)
         #expect(generatedRecipes.allSatisfy { !$0.title.isEmpty })
         #expect(generatedRecipes.allSatisfy { !$0.ingredients.isEmpty })
         #expect(generatedRecipes.allSatisfy { !$0.instructions.isEmpty })

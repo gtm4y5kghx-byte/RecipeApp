@@ -69,6 +69,16 @@ class UserSubscriptionService {
         return isPremium
     }
 
+    /// Has active monthly subscription (for manage subscription UI)
+    var hasActiveSubscription: Bool {
+        #if DEBUG
+        if let override = Self.debugTierOverride {
+            return override == .subscriber
+        }
+        #endif
+        return subscriptionService.hasActiveSubscription
+    }
+
     /// Access to underlying subscription service for purchases
     var store: SubscriptionService {
         subscriptionService
