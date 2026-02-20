@@ -14,7 +14,10 @@ struct MealPlanEntryRow: View {
                     .foregroundStyle(Theme.Colors.textSecondary)
 
                 DSLabel(entry.recipe?.title ?? "Unknown Recipe", style: .body)
+
+                Spacer()
             }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing) {
