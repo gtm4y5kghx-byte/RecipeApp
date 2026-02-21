@@ -14,7 +14,7 @@ struct OnboardingRecipesPage: View {
             DSLabel("Your Recipes", style: .largeTitle, color: .primary, alignment: .center)
 
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                featureRow(icon: "square.and.arrow.down", text: "Import from any website")
+                featureRow(icon: "square.and.arrow.down", text: "Import from your favorite recipe sites")
                 featureRow(icon: "folder", text: "Organize with tags")
                 featureRow(icon: "flame", text: "Cook with step-by-step mode")
             }
