@@ -198,6 +198,7 @@ struct RecipeHTMLParser {
            let match = hoursRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
            let range = Range(match.range(at: 1), in: duration),
            let hours = Int(duration[range]) {
+            totalMinutes += hours * 60
         }
 
         if let minutesRegex = try? NSRegularExpression(pattern: #"T\d*H?(\d+)M"#),
