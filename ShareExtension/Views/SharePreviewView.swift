@@ -166,14 +166,7 @@ struct SharePreviewView: View {
     // MARK: - Already Imported Banner
 
     private var alreadyImportedBanner: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            DSIcon("checkmark.circle.fill", size: .medium, color: .success)
-            DSLabel("Already in your collection", style: .subheadline, color: .success)
-        }
-        .padding(Theme.Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.Colors.success.opacity(0.12))
-        .cornerRadius(Theme.CornerRadius.md)
+        DSBanner(message: "Already in your collection", icon: "checkmark.circle.fill", style: .info)
     }
 
     // MARK: - Add Button

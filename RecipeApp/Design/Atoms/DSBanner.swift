@@ -5,6 +5,8 @@ struct DSBanner: View {
     let message: String
     let icon: String
     let style: BannerStyle
+    var actionTitle: String? = nil
+    var onAction: (() -> Void)? = nil
 
     enum BannerStyle {
         case info
@@ -26,6 +28,13 @@ struct DSBanner: View {
         HStack(spacing: Theme.Spacing.sm) {
             DSIcon(icon, size: .small, color: iconColor)
             DSLabel(message, style: .subheadline, color: labelColor)
+
+            if let actionTitle, let onAction {
+                Spacer()
+                Button(actionTitle, action: onAction)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(actionColor)
+            }
         }
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.sm)
@@ -49,6 +58,15 @@ struct DSBanner: View {
         }
     }
 
+    private var actionColor: Color {
+        switch style {
+        case .info: return Theme.Colors.accent
+        case .warning: return Theme.Colors.warning
+        case .error: return Theme.Colors.error
+        case .success: return Theme.Colors.success
+        }
+    }
+
     private var labelColor: DSLabel.LabelColor {
         switch style {
         case .info: return .accent
@@ -65,6 +83,15 @@ struct DSBanner: View {
         DSBanner(message: "Recipe saved successfully", icon: "checkmark.circle", style: .success)
         DSBanner(message: "Generation failed", icon: "exclamationmark.triangle", style: .error)
         DSBanner(message: "New features available", icon: "info.circle", style: .info)
+    }
+    .padding()
+    .background(Theme.Colors.background)
+}
+
+#Preview("With Action") {
+    VStack(spacing: Theme.Spacing.md) {
+        DSBanner(message: "Recipe imported successfully!", icon: "checkmark.circle.fill", style: .success, actionTitle: "View", onAction: {})
+        DSBanner(message: "Update available", icon: "info.circle", style: .info, actionTitle: "Update", onAction: {})
     }
     .padding()
     .background(Theme.Colors.background)
