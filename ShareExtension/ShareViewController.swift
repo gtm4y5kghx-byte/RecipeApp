@@ -1,540 +1,71 @@
 import UIKit
+import SwiftUI
 import UniformTypeIdentifiers
-import SwiftData
 
+@objc(ShareViewController)
 class ShareViewController: UIViewController {
-    
-    private var sharedURL: URL?
-    private var recipeData: RecipeImportData?
-    
-    private let loadingSpinner = UIActivityIndicatorView(style: .large)
-    private let loadingLabel = UILabel()
-    private let containerStackView = UIStackView()
-    
-    private let customNavigationBar = UINavigationBar()
-    private let navItem = UINavigationItem()
-    
-    private var modelContainer: ModelContainer?
-    private var recipeAlreadyImported = false
-    
+
+    private var viewModel: ShareViewModel!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        setupModelContainer()
-        setupLoadingUI()
-        setupCustomNavigationBar()
-        extractAndFetchRecipe()
-    }
-    
-    private func setupLoadingUI() {
-        containerStackView.axis = .vertical
-        containerStackView.alignment = .center
-        containerStackView.spacing = 16
-        containerStackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        loadingSpinner.startAnimating()
-        
-        loadingLabel.text = "Loading Recipe..."
-        loadingLabel.font = .systemFont(ofSize: 17, weight: .medium)
-        loadingLabel.textColor = .secondaryLabel
-        
-        containerStackView.addArrangedSubview(loadingSpinner)
-        containerStackView.addArrangedSubview(loadingLabel)
-        
-        view.addSubview(containerStackView)
-        
-        NSLayoutConstraint.activate([
-            containerStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            containerStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-    }
-    
-    private func setupCustomNavigationBar() {
-        customNavigationBar.translatesAutoresizingMaskIntoConstraints = false
-        
-        navItem.title = "Recipe Preview"
-        navItem.leftBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .cancel,
-            target: self,
-            action: #selector(cancelTapped)
+
+        viewModel = ShareViewModel(
+            dismiss: { [weak self] in
+                self?.extensionContext?.cancelRequest(
+                    withError: NSError(domain: "RecipeApp", code: 0)
+                )
+            },
+            complete: { [weak self] in
+                self?.extensionContext?.completeRequest(returningItems: nil)
+            }
         )
-        
-        customNavigationBar.items = [navItem]
-        
-        view.addSubview(customNavigationBar)
-        
+
+        let hostingController = UIHostingController(
+            rootView: SharePreviewView(viewModel: viewModel)
+        )
+
+        addChild(hostingController)
+        view.addSubview(hostingController.view)
+
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            customNavigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            customNavigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            customNavigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
+
+        hostingController.didMove(toParent: self)
+
+        extractURLAndLoad()
     }
-    
-    private func updateLoadingMessage(_ message: String) {
-        loadingLabel.text = message
-    }
-    
-    private func extractAndFetchRecipe() {
+
+    private func extractURLAndLoad() {
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
               let attachments = extensionItem.attachments else {
-            showError("No URL found")
+            viewModel.state = .error(title: "Import Failed", message: "No URL found")
             return
         }
-        
+
         for provider in attachments {
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                provider.loadItem(forTypeIdentifier: UTType.url.identifier) {[weak self] item, error in
+                provider.loadItem(forTypeIdentifier: UTType.url.identifier) { [weak self] item, error in
                     DispatchQueue.main.async {
                         if let url = item as? URL {
-                            self?.sharedURL = url
-                            Task {
-                                await self?.fetchAndParseRecipe(from: url)
-                            }
-                        } else if let error = error {
-                            self?.showError("Failed to load URL: \(error.localizedDescription)")
+                            Task { await self?.viewModel.loadRecipe(from: url) }
+                        } else {
+                            self?.viewModel.state = .error(
+                                title: "Import Failed",
+                                message: error?.localizedDescription ?? "Could not load URL"
+                            )
                         }
                     }
                 }
                 return
             }
         }
-        
-        showError("No URL found")
-    }
-    
-    private func fetchAndParseRecipe(from url: URL) async {
-        do {
-            await MainActor.run {
-                updateLoadingMessage("Fetching recipe...")
-            }
-            
-            let (data, _) = try await URLSession.shared.data(from: url)
-            
-            guard let html = String(data: data, encoding: .utf8) else {
-                throw NSError(domain: "RecipeApp", code: 1,
-                              userInfo: [NSLocalizedDescriptionKey: "Invalid HTML"])
-            }
-            
-            await MainActor.run {
-                updateLoadingMessage("Parsing recipe...")
-            }
-            
-            guard let jsonLD = extractJSONLD(from: html) else {
-                await MainActor.run {
-                    showError("No recipe found on this page")
-                }
-                return
-            }
-            
-            let parsedRecipe = parseRecipeData(from: jsonLD)
-            
-            await MainActor.run {
-                self.recipeData = parsedRecipe
-                self.recipeAlreadyImported = self.checkIfRecipeExists(url: url)
-                self.showPreviewUI()
-            }
-        } catch {
-            await MainActor.run {
-                showError("Failed to import: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    private func extractJSONLD(from html: String) -> [String: Any]? {
-        let pattern = #"<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>"#
-        
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.dotMatchesLineSeparators]),
-              let match = regex.firstMatch(in: html, range: NSRange(html.startIndex..., in: html)) else {
-            return nil
-        }
-        
-        guard let jsonRange = Range(match.range(at: 1), in: html) else {
-            return nil
-        }
-        let jsonString = String(html[jsonRange])
-        
-        guard let data = jsonString.data(using: .utf8),
-              let jsonObject = try? JSONSerialization.jsonObject(with: data) else {
-            return nil
-        }
-        
-        if let array = jsonObject as? [[String: Any]] {
-            return array.first { isRecipeType($0) }
-        }
-        
-        if let dictionary = jsonObject as? [String: Any], isRecipeType(dictionary) {
-            return dictionary
-        }
-        
-        return nil
-    }
-    
-    private func parseRecipeData(from jsonLD: [String: Any]) -> RecipeImportData {
-        let title = jsonLD["name"] as? String ?? "Untitled Recipe"
-        let ingredients = parseStringArray(from: jsonLD["recipeIngredient"])
-        let instructions = parseStringArray(from: jsonLD["recipeInstructions"])
-        
-        let sourceURL = sharedURL?.absoluteString
-        let imageURL = parseImageURL(jsonLD["image"])
-        
-        let prepTime = parseISODuration(jsonLD["prepTime"] as? String)
-        let cookTime = parseISODuration(jsonLD["cookTime"] as? String)
-        let totalTime = parseISODuration(jsonLD["totalTime"] as? String)
-        
-        let servings = parseServings(jsonLD["recipeYield"])
-        let cuisine = parseCuisine(jsonLD["recipeCuisine"])
-        let category = parseCategory(jsonLD["recipeCategory"])
-        
-        let nutrition = parseNutrition(jsonLD["nutrition"])
-        let author = parseAuthor(jsonLD["author"])
-        let description = jsonLD["description"] as? String
-        
-        return RecipeImportData(
-            title: title,
-            description: description,
-            sourceURL: sourceURL,
-            imageURL: imageURL,
-            prepTime: prepTime,
-            cookTime: cookTime,
-            totalTime: totalTime,
-            servings: servings,
-            cuisine: cuisine,
-            category: category,
-            ingredients: ingredients,
-            instructions: instructions,
-            nutrition: nutrition,
-            author: author
-        )
-    }
-    
-    private func showPreviewUI() {
-        containerStackView.removeFromSuperview()
-        
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        
-        let contentStack = UIStackView()
-        contentStack.axis = .vertical
-        contentStack.spacing = 12
-        contentStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        let titleLabel = UILabel()
-        titleLabel.text = recipeData?.title ?? "No Title"
-        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.numberOfLines = 0
-        titleLabel.textAlignment = .center
-        
-        let dataLabel = UILabel()
-        dataLabel.numberOfLines = 0
-        dataLabel.font = .systemFont(ofSize: 12, weight: .regular)
-        dataLabel.textColor = .secondaryLabel
-        
-        if let data = recipeData {
-            var debugText = ""
-            debugText += "Source: \(data.sourceURL ?? "nil")\n"
-            debugText += "Description: \(data.description ?? "nil")\n"
-            debugText += "Author: \(data.author ?? "nil")\n"
-            debugText += "Servings: \(data.servings?.description ?? "nil")\n"
-            debugText += "Prep: \(data.prepTime?.description ?? "nil") mins\n"
-            debugText += "Cook: \(data.cookTime?.description ?? "nil") mins\n"
-            debugText += "Total: \(data.totalTime?.description ?? "nil") mins\n"
-            debugText += "Cuisine: \(data.cuisine ?? "nil")\n"
-            debugText += "Category: \(data.category ?? "nil")\n"
-            debugText += "Ingredients: \(data.ingredients.joined(separator: ", "))\n"
-            debugText += "Instructions: \(data.instructions.joined(separator: ", "))\n"
-            debugText += "Image URL: \(data.imageURL ?? "nil")\n"
-            
-            if let nutrition = data.nutrition {
-                debugText += "Nutrition:\n"
-                if let cal = nutrition.calories { debugText += "  Calories: \(cal)\n" }
-                if let carbs = nutrition.carbohydrates { debugText += "  Carbs: \(carbs)g\n" }
-                if let protein = nutrition.protein { debugText += "  Protein: \(protein)g\n" }
-                if let fat = nutrition.fat { debugText += "  Fat: \(fat)g\n" }
-                if let fiber = nutrition.fiber { debugText += "  Fiber: \(fiber)g\n" }
-                if let sodium = nutrition.sodium { debugText += "  Sodium: \(sodium)mg\n" }
-                if let sugar = nutrition.sugar { debugText += "  Sugar: \(sugar)g\n" }
-            } else {
-                debugText += "Nutrition: nil\n"
-            }
-            
-            dataLabel.text = debugText
-        }
-        
-        contentStack.addArrangedSubview(titleLabel)
-        contentStack.addArrangedSubview(dataLabel)
-        
-        scrollView.addSubview(contentStack)
-        view.addSubview(scrollView)
-        
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: customNavigationBar.bottomAnchor, constant: 20),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
-            
-            contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
-        ])
-        
-        if recipeAlreadyImported {
-            navItem.rightBarButtonItem = UIBarButtonItem(
-                title: "Already Imported ✓",
-                style: .plain,
-                target: nil,
-                action: nil
-            )
-            navItem.rightBarButtonItem?.isEnabled = false
-        } else {
-            navItem.rightBarButtonItem = UIBarButtonItem(
-                title: "Add",
-                style: .done,
-                target: self,
-                action: #selector(addToAppTapped)
-            )
-        }
-    }
-    
-    private func isRecipeType(_ object: [String: Any]) -> Bool {
-        if let type = object["@type"] as? String {
-            return type == "Recipe"
-        } else if let types = object["@type"] as? [String] {
-            return types.contains("Recipe")
-        }
-        return false
-    }
-    
-    private func parseStringArray(from value: Any?) -> [String] {
-        guard let value = value else { return [] }
-        
-        if let strings = value as? [String] {
-            return strings
-        }
-        
-        // Handle array of objects with "text" field (e.g., HowToStep instructions)
-        if let objects = value as? [[String: Any]] {
-            return objects.compactMap { $0["text"] as? String }
-        }
-        
-        // Handle single string (rare but valid per JSON-LD spec)
-        if let singleString = value as? String {
-            return [singleString]
-        }
-        
-        return []
-    }
-    
-    private func parseNutrition(_ value: Any?) -> NutritionImportData? {
-        guard let nutritionObject = value as? [String: Any] else {
-            return nil
-        }
-        
-        // Helper to extract numeric value from strings like "270 calories" or "51 g"
-        func extractNumber(_ value: Any?) -> Double? {
-            if let doubleValue = value as? Double {
-                return doubleValue
-            }
-            if let intValue = value as? Int {
-                return Double(intValue)
-            }
-            if let stringValue = value as? String {
-                // Extract first number from string (handles "270 calories", "51 g", etc.)
-                let numbers = stringValue.components(separatedBy: CharacterSet(charactersIn: "0123456789.").inverted).joined()
-                return Double(numbers)
-            }
-            return nil
-        }
-        
-        let calories = extractNumber(nutritionObject["calories"]).map { Int($0) }
-        let carbs = extractNumber(nutritionObject["carbohydrateContent"])
-        let protein = extractNumber(nutritionObject["proteinContent"])
-        let fat = extractNumber(nutritionObject["fatContent"])
-        let fiber = extractNumber(nutritionObject["fiberContent"])
-        let sodium = extractNumber(nutritionObject["sodiumContent"])
-        let sugar = extractNumber(nutritionObject["sugarContent"])
-        
-        // Only return nutrition data if at least one field is present
-        if calories != nil || carbs != nil || protein != nil || fat != nil {
-            return NutritionImportData(
-                calories: calories,
-                carbohydrates: carbs,
-                protein: protein,
-                fat: fat,
-                fiber: fiber,
-                sodium: sodium,
-                sugar: sugar
-            )
-        }
-        
-        return nil
-    }
-    
-    private func parseImageURL(_ value: Any?) -> String? {
-        if let imageString = value as? String {
-            return imageString
-        }
-        
-        if let imageObject = value as? [String: Any],
-           let url = imageObject["url"] as? String {
-            return url
-        }
-        
-        if let imageArray = value as? [[String: Any]],
-           let firstImage = imageArray.first,
-           let url = firstImage["url"] as? String {
-            return url
-        }
-        
-        return nil
-    }
-    
-    private func parseCuisine(_ value: Any?) -> String? {
-        if let cuisineString = value as? String {
-            return cuisineString
-        }
-        
-        if let cuisineArray = value as? [String] {
-            return cuisineArray.first
-        }
-        
-        return nil
-    }
-    
-    private func parseCategory(_ value: Any?) -> String? {
-        if let categoryString = value as? String {
-            return categoryString
-        }
-        
-        if let categoryArray = value as? [String] {
-            return categoryArray.first
-        }
-        
-        return nil
-    }
-    
-    private func parseISODuration(_ duration: String?) -> Int? {
-        guard let duration = duration else { return nil }
-        
-        var totalMinutes = 0
-        
-        // Match hours after the 'T' separator
-        if let hoursRegex = try? NSRegularExpression(pattern: #"T(\d+)H"#),
-           let match = hoursRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
-           let range = Range(match.range(at: 1), in: duration),
-           let hours = Int(duration[range]) {
-            totalMinutes += hours * 60
-        }
-        
-        // Match minutes after the 'T' separator (and optionally after 'H')
-        if let minutesRegex = try? NSRegularExpression(pattern: #"T\d*H?(\d+)M"#),
-           let match = minutesRegex.firstMatch(in: duration, range: NSRange(duration.startIndex..., in: duration)),
-           let range = Range(match.range(at: 1), in: duration),
-           let minutes = Int(duration[range]) {
-            totalMinutes += minutes
-        }
-        
-        return totalMinutes > 0 ? totalMinutes : nil
-    }
-    
-    private func parseServings(_ value: Any?) -> Int? {
-        if let intValue = value as? Int {
-            return intValue
-        }
-        
-        if let stringValue = value as? String {
-            let numbers = stringValue.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-            return Int(numbers)
-        }
-        
-        return nil
-    }
-    
-    private func parseAuthor(_ value: Any?) -> String? {
-        if let stringValue = value as? String {
-            return stringValue
-        }
-        
-        if let authorObject = value as? [String: Any],
-           let name = authorObject["name"] as? String {
-            return name
-        }
-        
-        if let authorArray = value as? [[String: Any]],
-           let name = authorArray.first?["name"] as? String {
-            return name
-        }
-        
-        return nil
-    }
-    
-    private func showError(_ message: String) {
-        let alert = UIAlertController(
-            title: "Import Failed",
-            message: message,
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-            self?.extensionContext?.cancelRequest(
-                withError: NSError( domain: "RecipeApp", code: 1))
-        })
-        
-        present(alert, animated: true)
-    }
-    
-    private func setupModelContainer() {
-        let schema = Schema([
-            Recipe.self,
-            Ingredient.self,
-            Step.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
-        modelContainer = try? ModelContainer(for: schema, configurations: [modelConfiguration])
-    }
-    
-    private func checkIfRecipeExists(url: URL) -> Bool {
-        guard let container = modelContainer else {
-            return false
-        }
-        
-        let context = container.mainContext
-        let urlString = url.absoluteString
-        
-        let descriptor = FetchDescriptor<Recipe>(
-            predicate: #Predicate { recipe in
-                recipe.sourceURL == urlString
-            }
-        )
-        
-        do {
-            let existingRecipes = try context.fetch(descriptor)
-            return !existingRecipes.isEmpty
-        } catch {
-            print("Failed to check for existing recipe: \(error)")
-            return false
-        }
-    }
-    
-    @objc private func cancelTapped() {
-        extensionContext?.cancelRequest(
-            withError: NSError(domain: "RecipeApp", code: 0))
-    }
-    
-    @objc private func addToAppTapped() {
-        guard let recipeData = recipeData else {
-            showError("No recipe data available")
-            return
-        }
-        
-        do {
-            try SharedDataManager.shared.savePendingImport(recipeData)
-            extensionContext?.completeRequest(returningItems: nil)
-        } catch {
-            showError("Failed to save recipe: \(error.localizedDescription)")
-        }
-        
+
+        viewModel.state = .error(title: "Import Failed", message: "No URL found")
     }
 }
