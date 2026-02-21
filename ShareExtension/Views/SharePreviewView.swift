@@ -79,7 +79,7 @@ struct SharePreviewView: View {
 
                     if let author = recipe.author {
                         HStack(spacing: Theme.Spacing.xs) {
-                            DSIcon("person", size: .small, color: .secondary)
+                            DSIcon("person", size: .small, color: .adaptiveBrand)
                             DSLabel(author, style: .caption1, color: .secondary)
                         }
                     }
@@ -113,22 +113,25 @@ struct SharePreviewView: View {
     // MARK: - Metadata Row
 
     private func metadataRow(recipe: RecipeImportData) -> some View {
-        HStack(spacing: Theme.Spacing.md) {
+        HStack {
             if let prepTime = viewModel.formattedPrepTime {
                 metadataItem(icon: "clock", label: "Prep", text: prepTime)
+                    .frame(maxWidth: .infinity)
             }
             if let cookTime = viewModel.formattedCookTime {
                 metadataItem(icon: "flame", label: "Cook", text: cookTime)
+                    .frame(maxWidth: .infinity)
             }
             if let servings = recipe.servings {
                 metadataItem(icon: "person.2", label: "Serves", text: "\(servings)")
+                    .frame(maxWidth: .infinity)
             }
         }
     }
 
     private func metadataItem(icon: String, label: String, text: String) -> some View {
         VStack(spacing: Theme.Spacing.xs) {
-            DSIcon(icon, size: .small, color: .secondary)
+            DSIcon(icon, size: .small, color: .adaptiveBrand)
             DSLabel(text, style: .caption1, color: .primary)
             DSLabel(label, style: .caption2, color: .tertiary)
         }
@@ -138,7 +141,7 @@ struct SharePreviewView: View {
     // MARK: - Summary Section
 
     private func summarySection(recipe: RecipeImportData) -> some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             summaryRow(icon: "list.bullet", text: "\(recipe.ingredients.count) ingredients")
             summaryRow(icon: "text.justify.leading", text: "\(recipe.instructions.count) steps")
             if let cuisine = recipe.cuisine {
@@ -155,7 +158,7 @@ struct SharePreviewView: View {
 
     private func summaryRow(icon: String, text: String) -> some View {
         HStack(spacing: Theme.Spacing.sm) {
-            DSIcon(icon, size: .small, color: .secondary)
+            DSIcon(icon, size: .small, color: .adaptiveBrand)
             DSLabel(text, style: .body, color: .primary)
         }
     }
@@ -201,7 +204,7 @@ private let mockRecipe = RecipeImportData(
     title: "Classic Margherita Pizza",
     description: "A simple and delicious Italian pizza with fresh mozzarella, tomatoes, and basil.",
     sourceURL: "https://example.com/margherita-pizza",
-    imageURL: nil,
+    imageURL: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800",
     prepTime: 30,
     cookTime: 15,
     totalTime: 45,
@@ -240,6 +243,13 @@ private let mockRecipe = RecipeImportData(
     SharePreviewView(viewModel: makePreviewViewModel(
         state: .preview(recipe: mockRecipe, alreadyImported: false)
     ))
+}
+
+#Preview("Recipe - Dark") {
+    SharePreviewView(viewModel: makePreviewViewModel(
+        state: .preview(recipe: mockRecipe, alreadyImported: false)
+    ))
+    .preferredColorScheme(.dark)
 }
 
 #Preview("Already Imported") {
