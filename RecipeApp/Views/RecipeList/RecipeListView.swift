@@ -74,6 +74,7 @@ struct RecipeListView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
+                checkForPendingImport()
                 Task {
                     await viewModel?.loadSuggestionsIfEligible()
                 }
@@ -280,13 +281,21 @@ struct RecipeListView: View {
                 menuState: menuState
             )
         }
-        
+
+        checkForPendingImport()
+
+        Task {
+            await viewModel?.loadSuggestionsIfEligible()
+        }
+    }
+
+    private func checkForPendingImport() {
         viewModel?.handlePendingImport()
-        
+
         if viewModel?.justImportedRecipe == true {
             showImportBanner = true
             HapticFeedback.success.trigger()
-            
+
             Task {
                 try? await Task.sleep(for: .seconds(3))
                 withAnimation {
@@ -294,10 +303,6 @@ struct RecipeListView: View {
                 }
                 viewModel?.justImportedRecipe = false
             }
-        }
-        
-        Task {
-            await viewModel?.loadSuggestionsIfEligible()
         }
     }
 

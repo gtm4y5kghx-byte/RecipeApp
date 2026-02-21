@@ -71,6 +71,10 @@ struct SharePreviewView: View {
                 recipeImage(recipe: recipe)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    if case .preview(_, true) = viewModel.state {
+                        alreadyImportedBanner
+                    }
+
                     DSLabel(recipe.title, style: .title2)
 
                     if let description = recipe.description {
@@ -89,10 +93,6 @@ struct SharePreviewView: View {
                     DSDivider(thickness: .thin, color: .prominent, spacing: .compact)
 
                     summarySection(recipe: recipe)
-
-                    if case .preview(_, true) = viewModel.state {
-                        alreadyImportedBanner
-                    }
                 }
                 .padding(.horizontal, Theme.Spacing.screenEdge)
             }
@@ -181,12 +181,9 @@ struct SharePreviewView: View {
     @ViewBuilder
     private var addButton: some View {
         if case .preview(_, let alreadyImported) = viewModel.state {
-            if alreadyImported {
-                DSLabel("Imported", style: .body, color: .tertiary)
-            } else {
-                Button("Add") { viewModel.addRecipe() }
-                    .bold()
-            }
+            Button("Add") { viewModel.addRecipe() }
+                .bold()
+                .disabled(alreadyImported)
         }
     }
 }
