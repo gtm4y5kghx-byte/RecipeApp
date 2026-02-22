@@ -6,9 +6,9 @@ struct RecipeDetailSources : View {
     var body: some View {
         if let sourceURL = sourceURL {
             DSSection {
-                VStack {
-                    DSLabel(sourceURL, style: .subheadline, color: .secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: Theme.Spacing.xs) {
+                    DSLabel("Source:", style: .subheadline, color: .primary)
+                    DSLabel(sourceURL, style: .subheadline, color: .adaptiveBrand)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }

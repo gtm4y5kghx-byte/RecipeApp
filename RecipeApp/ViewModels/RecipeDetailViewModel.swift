@@ -63,6 +63,13 @@ class RecipeDetailViewModel {
     }
 
 
+    var sourceDomain: String? {
+        guard let urlString = recipe.sourceURL,
+              let url = URL(string: urlString),
+              let host = url.host() else { return nil }
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    }
+
     var formattedTotalTime: String? {
         guard let totalTime = recipe.totalTime else { return nil }
         if totalTime < 60 {

@@ -83,7 +83,7 @@ struct RecipeDetailView: View {
                     )
                     
                     RecipeDetailSources(
-                        sourceURL: viewModel.recipe.sourceURL
+                        sourceURL: viewModel.sourceDomain
                     )
                     
                     RecipeDetailIngredients(
