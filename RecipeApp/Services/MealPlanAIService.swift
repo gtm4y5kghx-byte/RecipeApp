@@ -39,7 +39,9 @@ class MealPlanAIService {
             maxTokens: maxTokens
         )
 
-        return try parseGeneratePlanResponse(from: jsonResponse, mealType: mealType, recipes: candidates)
+        let results = try parseGeneratePlanResponse(from: jsonResponse, mealType: mealType, recipes: candidates)
+        AIRecommendationHistoryStore.append(results.map { $0.recipe.id.uuidString }, for: .mealPlanRecipes)
+        return results
     }
 
     // MARK: - Generate Plan Prompts
@@ -60,6 +62,7 @@ class MealPlanAIService {
         3. ONLY use recipe IDs from the provided catalog - never invent new recipes
         4. Each recipe should appear at most once in the plan
         5. Prioritize variety (different cuisines, different cooking styles)
+        6. If a list of recently used recipe IDs is provided, prefer selecting different recipes
 
         SELECTION CRITERIA (in order of priority):
         1. Variety - avoid repeating cuisines back-to-back
@@ -97,7 +100,7 @@ class MealPlanAIService {
 
         User's Recipe Collection (\(recipes.count) recipes):
         \(catalogContext)
-
+        \(buildMealPlanHistorySection())
         \(instruction)
         Provide variety and match the user's cooking patterns.
 
@@ -144,6 +147,17 @@ class MealPlanAIService {
     }
 
     // MARK: - Helpers
+
+    private func buildMealPlanHistorySection() -> String {
+        let records = AIRecommendationHistoryStore.load(.mealPlanRecipes)
+        guard !records.isEmpty else { return "" }
+        let ids = Set(records.map { $0.identifier })
+        return """
+
+        Recently Used in Meal Plans (prefer different recipes when possible):
+        \(ids.joined(separator: ", "))
+        """
+    }
 
     private func formatCurrentTime() -> String {
         let formatter = DateFormatter()

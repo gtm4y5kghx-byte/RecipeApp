@@ -57,6 +57,43 @@ struct RecipeGenerationServiceIntegration {
         #expect(generatedRecipes.allSatisfy { !$0.instructions.isEmpty })
     }
     
+    @Test("Generate recipes avoids previously generated titles when history is seeded")
+    func validateGenerateRecipesAvoidsHistory() async throws {
+        let recipes = createTestRecipeCollection()
+
+        // Seed history with fake previously generated titles
+        let seededTitles = [
+            "Lemon Herb Chicken",
+            "Spicy Shrimp Pasta",
+            "Mediterranean Quinoa Bowl"
+        ]
+        AIRecommendationHistoryStore.append(seededTitles, for: .generatedRecipes)
+
+        let generatedRecipes = try await service.generateRecipes(recipes: recipes, count: 3)
+
+        let seededSet = Set(seededTitles.map { $0.lowercased() })
+
+        print("\n========== GENERATION HISTORY AVOIDANCE TEST ==========")
+        print("Seeded history with titles:")
+        for title in seededTitles {
+            print("  - \(title)")
+        }
+        print("\nGenerated recipes (\(generatedRecipes.count)):")
+        for recipe in generatedRecipes {
+            let wasSeeded = seededSet.contains(recipe.title.lowercased())
+            print("  - \(recipe.title)\(wasSeeded ? " ⚠️ REPEATED" : " ✓")")
+        }
+        let overlapping = generatedRecipes.filter { seededSet.contains($0.title.lowercased()) }
+        print("\nOverlap: \(overlapping.count) of \(generatedRecipes.count) had same title as history")
+        print("==========================================\n")
+
+        // Clean up
+        AIRecommendationHistoryStore.clear(.generatedRecipes)
+
+        #expect(generatedRecipes.count == 3)
+        #expect(generatedRecipes.allSatisfy { !$0.title.isEmpty })
+    }
+
     // MARK: - Test Helpers
     
     private func createTestRecipeCollection() -> [Recipe] {

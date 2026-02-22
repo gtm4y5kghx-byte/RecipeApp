@@ -37,15 +37,17 @@ class RecipeGenerationService: RecipeGenerating {
     func generateRecipes(recipes: [Recipe], count: Int = 3) async throws -> [GeneratedRecipe] {
         let systemPrompt = buildSystemPrompt()
         let userPrompt = buildUserPrompt(recipes: recipes, count: count)
-        
+
         let jsonResponse = try await claudeClient.sendMessage(
             prompt: userPrompt,
             systemPrompt: systemPrompt,
             model: .haiku,
             maxTokens: 4096
         )
-        
-        return try parseGeneratedRecipes(from: jsonResponse)
+
+        let generatedRecipes = try parseGeneratedRecipes(from: jsonResponse)
+        AIRecommendationHistoryStore.append(generatedRecipes.map { $0.title }, for: .generatedRecipes)
+        return generatedRecipes
     }
     
     // MARK: - Prompt Building
@@ -93,6 +95,7 @@ class RecipeGenerationService: RecipeGenerating {
         - prepTime and cookTime are in minutes (integers)
         - servings is number of people (integer)
         - nutrition values are per serving (calories integer, others doubles in grams, sodium in mg)
+        - If a list of previously generated recipe titles is provided, do not create recipes with the same or very similar titles
         """
     }
     
@@ -117,7 +120,7 @@ class RecipeGenerationService: RecipeGenerating {
         - Range of cooking times (some quick weeknight meals, some more involved)
         - All should be popular, widely-loved dishes with broad appeal
         - Use common, easy-to-find ingredients
-
+        \(buildPreviouslyGeneratedSection())
         Return ONLY the JSON array, nothing else.
         """
     }
@@ -133,7 +136,7 @@ class RecipeGenerationService: RecipeGenerating {
 
         Generate \(count) NEW recipes that match this user's cooking style and preferences.
         These should be recipes they don't already have but would enjoy based on their patterns.
-
+        \(buildPreviouslyGeneratedSection())
         Return ONLY the JSON array, nothing else.
         """
     }
@@ -256,7 +259,18 @@ class RecipeGenerationService: RecipeGenerating {
     }
     
     // MARK: - Helpers
-    
+
+    private func buildPreviouslyGeneratedSection() -> String {
+        let records = AIRecommendationHistoryStore.load(.generatedRecipes)
+        guard !records.isEmpty else { return "" }
+        let titles = Set(records.map { $0.identifier })
+        return """
+
+        Previously Generated Recipes (do NOT regenerate these - create something different):
+        \(titles.map { "- \($0)" }.joined(separator: "\n"))
+        """
+    }
+
     private func formatCurrentTime() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMMM d 'at' h:mm a"

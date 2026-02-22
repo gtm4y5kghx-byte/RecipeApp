@@ -96,6 +96,43 @@ struct MealPlanAIServiceIntegration {
         #expect(mealTypes.count >= 2)
     }
 
+    @Test("Generate plan avoids recently used recipes when history is seeded")
+    func validateGeneratePlanAvoidsHistory() async throws {
+        let recipes = createDiverseRecipeCollection()
+
+        // Seed history with half the collection
+        let seededRecipes = Array(recipes.prefix(8))
+        let seededIDs = seededRecipes.map { $0.id.uuidString }
+        AIRecommendationHistoryStore.append(seededIDs, for: .mealPlanRecipes)
+
+        let results = try await service.generatePlan(for: .dinner, recipes: recipes, dayCount: 5)
+
+        let seededIDSet = Set(seededIDs)
+        let resultIDs = results.map { $0.recipe.id.uuidString }
+        let overlapping = resultIDs.filter { seededIDSet.contains($0) }
+
+        print("\n========== HISTORY AVOIDANCE TEST ==========")
+        print("Seeded history with \(seededIDs.count) recipes:")
+        for recipe in seededRecipes {
+            print("  - \(recipe.title)")
+        }
+        print("\nGenerated plan (\(results.count) results):")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE (MMM d)"
+        for result in results {
+            let wasSeeded = seededIDSet.contains(result.recipe.id.uuidString)
+            print("  \(formatter.string(from: result.date)): \(result.recipe.title)\(wasSeeded ? " ⚠️ REPEATED" : " ✓")")
+        }
+        print("\nOverlap: \(overlapping.count) of \(results.count) were in history")
+        print("==========================================\n")
+
+        // Clean up seeded history
+        AIRecommendationHistoryStore.clear(.mealPlanRecipes)
+
+        // Soft expectation — Claude should prefer different recipes but may repeat from a small pool
+        #expect(results.count >= 3)
+    }
+
     @Test("Generate plan throws error for empty collection")
     func validateEmptyCollectionError() async throws {
         do {

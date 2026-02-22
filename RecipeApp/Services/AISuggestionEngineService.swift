@@ -37,14 +37,16 @@ class AISuggestionEngineService: AISuggestionProviding {
         let recipeContext = RecipeContextFormatter.formatCatalog(candidates)
         let systemPrompt = buildSuggestionSystemPrompt()
         let userPrompt = buildSuggestionUserPrompt(recipeContext: recipeContext)
-        
+
         let jsonResponse = try await claudeClient.sendMessage(
             prompt: userPrompt,
             systemPrompt: systemPrompt,
             model: .haiku
         )
-        
-        return try parseSuggestions(from: jsonResponse, recipes: candidates)
+
+        let suggestions = try parseSuggestions(from: jsonResponse, recipes: candidates)
+        AIRecommendationHistoryStore.append(suggestions.map { $0.recipeID.uuidString }, for: .suggestions)
+        return suggestions
     }
     
     private func buildSuggestionSystemPrompt() -> String {
@@ -58,7 +60,8 @@ class AISuggestionEngineService: AISuggestionProviding {
         3. Generate exactly 3-5 suggestions (no more, no less)
         4. Each suggestion must have a recipe_id (UUID from the catalog) and a personalized reason
         5. Reasons should be natural, conversational, and specific to the user's history
-        
+        6. If a list of previously suggested recipes is provided, avoid suggesting those same recipes
+
         Suggestion Categories (choose mix that fits user's situation):
         - "Try Again" - Favorites not cooked recently (> 30 days)
         - "New to Try" - Never-cooked recipes (timesCooked = 0)
@@ -79,11 +82,22 @@ class AISuggestionEngineService: AISuggestionProviding {
     private func buildSuggestionUserPrompt(recipeContext: String) -> String {
         """
         Current time: \(formatCurrentTime())
-        
+
         Recipe Catalog:
         \(recipeContext)
-        
+        \(buildHistorySection())
         Generate 3-5 personalized recipe suggestions with natural language reasons.
+        """
+    }
+
+    private func buildHistorySection() -> String {
+        let records = AIRecommendationHistoryStore.load(.suggestions)
+        guard !records.isEmpty else { return "" }
+        let ids = Set(records.map { $0.identifier })
+        return """
+
+        Previously Suggested (avoid repeating these):
+        \(ids.joined(separator: ", "))
         """
     }
     

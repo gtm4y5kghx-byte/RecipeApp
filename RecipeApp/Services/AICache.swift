@@ -37,5 +37,6 @@ enum AICache {
 
     static func invalidateAll() {
         AICacheKey.allKeys.forEach { invalidate($0) }
+        AIRecommendationHistoryStore.clearAll()
     }
 }
