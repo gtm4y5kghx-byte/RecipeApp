@@ -101,6 +101,7 @@ struct SampleData {
         recipe.isFavorite = true
         recipe.timesCooked = 8
         recipe.lastMade = Calendar.current.date(byAdding: .day, value: -120, to: Date()) // 4 months ago
+        recipe.sourceURL = "http://www.grandmaspecialties.com/recipes/apple-pie/"
         
         let ingredients = [
             Ingredient(quantity: "2", unit: "cups", item: "all-purpose flour", preparation: nil, section: "Crust"),

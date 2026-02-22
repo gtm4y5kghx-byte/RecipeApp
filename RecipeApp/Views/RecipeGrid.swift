@@ -32,13 +32,49 @@ struct RecipeGrid: View {
     private func itemView(for item: RecipeListItem) -> some View {
         switch item {
         case .recipe(let recipe, let suggestionReason):
-            recipeCardView(recipe: recipe, suggestionReason: suggestionReason)
+            RecipeCardRow(
+                recipe: recipe,
+                suggestionReason: suggestionReason,
+                isSwipingAnItem: $isSwipingAnItem,
+                selectedRecipe: selectedRecipe,
+                onFavoriteTap: onFavoriteTap,
+                onDeleteTap: onDeleteTap
+            )
         case .generatedRecipe(let generated, let reason):
             generatedCardView(generated: generated, reason: reason)
         }
     }
 
-    private func recipeCardView(recipe: Recipe, suggestionReason: String?) -> some View {
+    private func generatedCardView(generated: GeneratedRecipe, reason: String) -> some View {
+        DSRecipeCard(
+            title: generated.title,
+            subtitle: reason,
+            showSuggestionBadge: false,
+            cuisine: generated.cuisine,
+            prepTime: generated.prepTime,
+            cookTime: generated.cookTime,
+            servings: generated.servings,
+            tags: generated.tags,
+            action: .save(onTap: {
+                onSaveGeneratedRecipe(generated)
+            }),
+            accessibilityID: "generated-recipe-card-\(generated.id)"
+        )
+        .padding(.horizontal, Theme.Spacing.md)
+    }
+}
+
+// MARK: - Recipe Card Row
+
+private struct RecipeCardRow: View {
+    let recipe: Recipe
+    let suggestionReason: String?
+    @Binding var isSwipingAnItem: Bool
+    var selectedRecipe: Binding<Recipe?>?
+    let onFavoriteTap: (Recipe) -> Void
+    let onDeleteTap: (Recipe) -> Void
+
+    var body: some View {
         Swipy(isSwipingAnItem: $isSwipingAnItem) { model in
             DSRecipeCard(
                 title: recipe.title,
@@ -77,23 +113,5 @@ struct RecipeGrid: View {
                 }
             }
         }
-    }
-
-    private func generatedCardView(generated: GeneratedRecipe, reason: String) -> some View {
-        DSRecipeCard(
-            title: generated.title,
-            subtitle: reason,
-            showSuggestionBadge: false,
-            cuisine: generated.cuisine,
-            prepTime: generated.prepTime,
-            cookTime: generated.cookTime,
-            servings: generated.servings,
-            tags: generated.tags,
-            action: .save(onTap: {
-                onSaveGeneratedRecipe(generated)
-            }),
-            accessibilityID: "generated-recipe-card-\(generated.id)"
-        )
-        .padding(.horizontal, Theme.Spacing.md)
     }
 }

@@ -468,6 +468,7 @@ class RecipeListViewModel {
     private func createRecipeFromImport(_ importData: RecipeImportData) throws {
         let recipe = Recipe(title: importData.title, sourceType: .web_imported)
         recipe.sourceURL = importData.sourceURL
+        recipe.imageURL = importData.imageURL
         recipe.servings = importData.servings
         recipe.prepTime = importData.prepTime
         recipe.cookTime = importData.cookTime
