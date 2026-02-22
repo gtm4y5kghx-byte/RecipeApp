@@ -7,7 +7,7 @@ class GeneratePlanViewModel {
     
     // MARK: - Configuration State
     
-    var selectedMealType: MealType = .dinner
+    var selectedMealType: MealType?
     var selectedDayCount: Int = 7
     
     // MARK: - Results State
@@ -73,13 +73,18 @@ class GeneratePlanViewModel {
         !results.isEmpty && remainingResults.isEmpty
     }
 
+    var expectedResultCount: Int {
+        selectedMealType == nil ? selectedDayCount * 3 : selectedDayCount
+    }
+
     var hasFewerResultsThanRequested: Bool {
-        !results.isEmpty && results.count < selectedDayCount
+        !results.isEmpty && results.count < expectedResultCount
     }
 
     var resultCountMessage: String? {
         guard hasFewerResultsThanRequested else { return nil }
-        return String(localized: "Generated \(results.count) of \(selectedDayCount) days based on your recipes")
+        let label = selectedMealType == nil ? "meals" : "days"
+        return String(localized: "Generated \(results.count) of \(expectedResultCount) \(label) based on your recipes")
     }
 
     // MARK: - Weekly Limit
@@ -148,7 +153,7 @@ class GeneratePlanViewModel {
         do {
             let entry = try mealPlanService.addEntry(
                 date: result.date,
-                mealType: selectedMealType,
+                mealType: result.mealType,
                 recipe: result.recipe
             )
             addedEntries[result.id] = entry

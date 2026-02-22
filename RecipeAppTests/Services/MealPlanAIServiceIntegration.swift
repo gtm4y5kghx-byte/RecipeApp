@@ -72,6 +72,30 @@ struct MealPlanAIServiceIntegration {
         #expect(results.count >= 2 && results.count <= 3)
     }
 
+    @Test("Generate plan for all meal types")
+    func validateGeneratePlanAllMeals() async throws {
+        let recipes = createDiverseRecipeCollection()
+
+        let results = try await service.generatePlan(for: nil, recipes: recipes, dayCount: 3)
+
+        print("\n========== GENERATE ALL MEALS PLAN ==========")
+        print("Requested days: 3 (all meals)")
+        print("Assignments generated: \(results.count)")
+        print("\nPlan:")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE (MMM d)"
+        for result in results {
+            print("  \(formatter.string(from: result.date)) [\(result.mealType.rawValue)]: \(result.recipe.title)")
+        }
+
+        let mealTypes = Set(results.map { $0.mealType })
+        print("\nMeal types returned: \(mealTypes.map { $0.rawValue }.sorted())")
+        print("==========================================\n")
+
+        #expect(results.count >= 6)
+        #expect(mealTypes.count >= 2)
+    }
+
     @Test("Generate plan throws error for empty collection")
     func validateEmptyCollectionError() async throws {
         do {

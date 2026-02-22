@@ -13,7 +13,7 @@ class MealPlanAIService {
     // MARK: - Public API
 
     func generatePlan(
-        for mealType: MealType,
+        for mealType: MealType?,
         recipes: [Recipe],
         dayCount: Int = 7
     ) async throws -> [MealPlanGenerationResult] {
@@ -27,30 +27,36 @@ class MealPlanAIService {
 
         let candidates = RecipeCandidateSelector.selectCandidates(from: recipes, for: mealType)
 
-        let systemPrompt = buildGeneratePlanSystemPrompt(dayCount: dayCount)
+        let systemPrompt = buildGeneratePlanSystemPrompt(mealType: mealType, dayCount: dayCount)
         let userPrompt = buildGeneratePlanUserPrompt(mealType: mealType, recipes: candidates, dayCount: dayCount)
+
+        let maxTokens = mealType == nil ? 2048 : 1024
 
         let jsonResponse = try await claudeClient.sendMessage(
             prompt: userPrompt,
             systemPrompt: systemPrompt,
             model: .haiku,
-            maxTokens: 1024
+            maxTokens: maxTokens
         )
 
-        return try parseGeneratePlanResponse(from: jsonResponse, recipes: candidates)
+        return try parseGeneratePlanResponse(from: jsonResponse, mealType: mealType, recipes: candidates)
     }
 
     // MARK: - Generate Plan Prompts
 
-    private func buildGeneratePlanSystemPrompt(dayCount: Int) -> String {
+    private func buildGeneratePlanSystemPrompt(mealType: MealType?, dayCount: Int) -> String {
         let maxDayOffset = dayCount - 1
+        let mealsPerDay = mealType == nil ? "three (breakfast, lunch, dinner)" : "one"
+        let mealTypeNote = mealType == nil
+            ? "- mealType: one of \"breakfast\", \"lunch\", or \"dinner\""
+            : "- mealType: always \"\(mealType!.rawValue)\""
 
         return """
         You are a meal planning assistant. Select recipes from the user's collection to create a meal plan.
 
         CRITICAL RULES:
         1. Return ONLY raw JSON - no markdown, no ```json blocks, no explanation
-        2. Select recipes for the specified number of days (one per day)
+        2. Select \(mealsPerDay) recipe(s) per day for the specified number of days
         3. ONLY use recipe IDs from the provided catalog - never invent new recipes
         4. Each recipe should appear at most once in the plan
         5. Prioritize variety (different cuisines, different cooking styles)
@@ -63,30 +69,37 @@ class MealPlanAIService {
 
         Return JSON array matching this exact schema:
         [
-          {"dayOffset": 0, "recipeID": "uuid-here"},
-          {"dayOffset": 1, "recipeID": "uuid-here"}
+          {"dayOffset": 0, "mealType": "dinner", "recipeID": "uuid-here"},
+          {"dayOffset": 1, "mealType": "dinner", "recipeID": "uuid-here"}
         ]
 
         NOTES:
         - dayOffset: 0 = today, 1 = tomorrow, ..., \(maxDayOffset) = \(maxDayOffset) days from now
-        - Generate one recipe per day for the requested day count
-        - If fewer suitable recipes exist than days requested, return what you can
+        \(mealTypeNote)
+        - If fewer suitable recipes exist than slots requested, return what you can
         """
     }
 
-    private func buildGeneratePlanUserPrompt(mealType: MealType, recipes: [Recipe], dayCount: Int) -> String {
+    private func buildGeneratePlanUserPrompt(mealType: MealType?, recipes: [Recipe], dayCount: Int) -> String {
         let catalogContext = RecipeContextFormatter.formatCatalog(recipes)
+        let mealTypeLabel = mealType?.rawValue.capitalized ?? "All meals (breakfast, lunch, dinner)"
+        let instruction: String
+        if let mealType {
+            instruction = "Create a \(mealType.rawValue) plan for the next \(dayCount) days. Select \(dayCount) recipes."
+        } else {
+            instruction = "Create a full meal plan (breakfast, lunch, and dinner) for the next \(dayCount) days. Select up to \(dayCount * 3) recipes."
+        }
 
         return """
         Current time: \(formatCurrentTime())
-        Meal type: \(mealType.rawValue.capitalized)
+        Meal type: \(mealTypeLabel)
         Days to plan: \(dayCount)
 
         User's Recipe Collection (\(recipes.count) recipes):
         \(catalogContext)
 
-        Create a \(mealType.rawValue) plan for the next \(dayCount) days.
-        Select \(dayCount) recipes that provide variety and match the user's cooking patterns.
+        \(instruction)
+        Provide variety and match the user's cooking patterns.
 
         Return ONLY the JSON array, nothing else.
         """
@@ -94,7 +107,7 @@ class MealPlanAIService {
 
     // MARK: - Response Parsing
 
-    private func parseGeneratePlanResponse(from jsonResponse: String, recipes: [Recipe]) throws -> [MealPlanGenerationResult] {
+    private func parseGeneratePlanResponse(from jsonResponse: String, mealType: MealType?, recipes: [Recipe]) throws -> [MealPlanGenerationResult] {
         let cleanedJSON = jsonResponse.strippingMarkdownCodeFences()
 
         guard let jsonData = cleanedJSON.data(using: .utf8) else {
@@ -118,8 +131,9 @@ class MealPlanAIService {
                 continue
             }
 
+            let resolvedMealType = MealType(rawValue: assignment.mealType) ?? mealType ?? .dinner
             let targetDate = dateForDayOffset(assignment.dayOffset)
-            results.append(MealPlanGenerationResult(date: targetDate, recipe: recipe))
+            results.append(MealPlanGenerationResult(date: targetDate, mealType: resolvedMealType, recipe: recipe))
         }
 
         guard !results.isEmpty else {

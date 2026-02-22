@@ -37,8 +37,12 @@ struct GeneratedPlanCard: View {
     private var recipeInfo: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             DSLabel(result.recipe.title, style: .headline)
-            if let cuisine = result.recipe.cuisine, !cuisine.isEmpty {
-                DSLabel(cuisine, style: .caption1, color: .secondary)
+            HStack(spacing: Theme.Spacing.xs) {
+                DSLabel(result.mealType.rawValue.capitalized, style: .caption1, color: .secondary)
+                if let cuisine = result.recipe.cuisine, !cuisine.isEmpty {
+                    DSLabel("·", style: .caption1, color: .secondary)
+                    DSLabel(cuisine, style: .caption1, color: .secondary)
+                }
             }
         }
     }
@@ -81,7 +85,7 @@ struct GeneratedPlanCard: View {
     recipe.cuisine = "Italian"
 
     return GeneratedPlanCard(
-        result: MealPlanGenerationResult(date: Date(), recipe: recipe),
+        result: MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipe),
         isAdded: false,
         onAdd: {},
         onRemove: {},
@@ -97,7 +101,7 @@ struct GeneratedPlanCard: View {
     recipe.cuisine = "Indian"
 
     return GeneratedPlanCard(
-        result: MealPlanGenerationResult(date: Date(), recipe: recipe),
+        result: MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipe),
         isAdded: true,
         onAdd: {},
         onRemove: {},

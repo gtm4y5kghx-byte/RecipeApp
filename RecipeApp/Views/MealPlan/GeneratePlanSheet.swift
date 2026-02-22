@@ -202,11 +202,11 @@ struct GeneratePlanSheet: View {
 
     let today = Date()
     viewModel.results = [
-        MealPlanGenerationResult(date: today, recipe: recipes[0]),
-        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 1, to: today)!, recipe: recipes[1]),
-        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 2, to: today)!, recipe: recipes[2]),
-        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 3, to: today)!, recipe: recipes[3]),
-        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 4, to: today)!, recipe: recipes[4])
+        MealPlanGenerationResult(date: today, mealType: .dinner, recipe: recipes[0]),
+        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 1, to: today)!, mealType: .dinner, recipe: recipes[1]),
+        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 2, to: today)!, mealType: .dinner, recipe: recipes[2]),
+        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 3, to: today)!, mealType: .dinner, recipe: recipes[3]),
+        MealPlanGenerationResult(date: Calendar.current.date(byAdding: .day, value: 4, to: today)!, mealType: .dinner, recipe: recipes[4])
     ]
     viewModel.selectedDayCount = 5
 

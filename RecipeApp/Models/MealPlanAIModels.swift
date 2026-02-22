@@ -5,6 +5,7 @@ import Foundation
 struct MealPlanAssignment: Codable {
     let dayOffset: Int
     let recipeID: String
+    let mealType: String
 }
 
 // MARK: - Public Result Types
@@ -12,11 +13,13 @@ struct MealPlanAssignment: Codable {
 struct MealPlanGenerationResult: Equatable, Identifiable {
     let id: UUID
     let date: Date
+    let mealType: MealType
     var recipe: Recipe
 
-    init(date: Date, recipe: Recipe) {
+    init(date: Date, mealType: MealType, recipe: Recipe) {
         self.id = UUID()
         self.date = date
+        self.mealType = mealType
         self.recipe = recipe
     }
 
@@ -29,6 +32,6 @@ struct MealPlanGenerationResult: Equatable, Identifiable {
     }
 
     static func == (lhs: MealPlanGenerationResult, rhs: MealPlanGenerationResult) -> Bool {
-        lhs.date == rhs.date && lhs.recipe.id == rhs.recipe.id
+        lhs.date == rhs.date && lhs.mealType == rhs.mealType && lhs.recipe.id == rhs.recipe.id
     }
 }

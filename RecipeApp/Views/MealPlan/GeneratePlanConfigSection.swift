@@ -20,6 +20,16 @@ struct GeneratePlanConfigSection: View {
             DSLabel("Meal", style: .headline)
             Spacer()
             HStack(spacing: Theme.Spacing.sm) {
+                Button {
+                    viewModel.selectedMealType = nil
+                } label: {
+                    DSTag(
+                        "All",
+                        style: viewModel.selectedMealType == nil ? .primary : .outline
+                    )
+                }
+                .accessibilityIdentifier("generate-plan-meal-all-button")
+
                 ForEach(MealType.allCases, id: \.self) { type in
                     Button {
                         viewModel.selectedMealType = type

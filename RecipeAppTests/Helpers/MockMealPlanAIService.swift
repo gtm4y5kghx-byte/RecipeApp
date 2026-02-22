@@ -13,7 +13,7 @@ class MockMealPlanAIService: MealPlanAIService {
     var lastRecipes: [Recipe]?
 
     override func generatePlan(
-        for mealType: MealType,
+        for mealType: MealType?,
         recipes: [Recipe],
         dayCount: Int = 7
     ) async throws -> [MealPlanGenerationResult] {

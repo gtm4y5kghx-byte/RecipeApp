@@ -13,7 +13,7 @@ struct GeneratePlanViewModelTests {
     func initSetsDependencies() throws {
         let (viewModel, _, _, _) = try createViewModel()
 
-        #expect(viewModel.selectedMealType == .dinner)
+        #expect(viewModel.selectedMealType == nil)
         #expect(viewModel.selectedDayCount == 7)
         #expect(viewModel.results.isEmpty)
         #expect(viewModel.addedResultIDs.isEmpty)
@@ -75,7 +75,7 @@ struct GeneratePlanViewModelTests {
     @Test("generatePlan populates results on success")
     func generatePlanPopulatesOnSuccess() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -115,7 +115,7 @@ struct GeneratePlanViewModelTests {
     func addResultCallsAddEntry() async throws {
         let (viewModel, mockService, recipes, context) = try createViewModel()
         let targetDate = Calendar.current.startOfDay(for: Date())
-        let result = MealPlanGenerationResult(date: targetDate, recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: targetDate, mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -130,7 +130,7 @@ struct GeneratePlanViewModelTests {
     @Test("addResult adds result.id to addedResultIDs")
     func addResultAddsToSet() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -142,11 +142,10 @@ struct GeneratePlanViewModelTests {
         #expect(viewModel.addedResultIDs.contains(actualResult.id))
     }
 
-    @Test("addResult uses selectedMealType")
+    @Test("addResult uses result's mealType")
     func addResultUsesMealType() async throws {
         let (viewModel, mockService, recipes, context) = try createViewModel()
-        viewModel.selectedMealType = .breakfast
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .breakfast, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -162,7 +161,7 @@ struct GeneratePlanViewModelTests {
     @Test("isAdded returns true after addResult")
     func isAddedReturnsTrue() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -177,9 +176,10 @@ struct GeneratePlanViewModelTests {
     @Test("remainingResults excludes added results")
     func remainingResultsExcludesAdded() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result1 = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result1 = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         let result2 = MealPlanGenerationResult(
             date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            mealType: .dinner,
             recipe: recipes[1]
         )
         mockService.mockResults = [result1, result2]
@@ -196,9 +196,10 @@ struct GeneratePlanViewModelTests {
     @Test("addAllRemaining adds all remaining")
     func addAllRemainingAddsAll() async throws {
         let (viewModel, mockService, recipes, context) = try createViewModel()
-        let result1 = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result1 = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         let result2 = MealPlanGenerationResult(
             date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            mealType: .dinner,
             recipe: recipes[1]
         )
         mockService.mockResults = [result1, result2]
@@ -225,7 +226,7 @@ struct GeneratePlanViewModelTests {
     @Test("hasAddedAny true after adding one result")
     func hasAddedAnyTrueAfterAdding() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -237,7 +238,7 @@ struct GeneratePlanViewModelTests {
     @Test("hasAddedAny false after removing all added")
     func hasAddedAnyFalseAfterRemovingAll() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -254,7 +255,7 @@ struct GeneratePlanViewModelTests {
     @Test("allResultsAdded true when all added")
     func allResultsAddedTrueWhenAllAdded() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -276,7 +277,7 @@ struct GeneratePlanViewModelTests {
     @Test("swapRecipe replaces recipe in results")
     func swapRecipeReplacesRecipe() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let originalResult = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let originalResult = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [originalResult]
 
         await viewModel.generatePlan()
@@ -289,9 +290,10 @@ struct GeneratePlanViewModelTests {
     @Test("swapRecipe preserves addedResultIDs")
     func swapRecipePreservesAddedIDs() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result1 = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result1 = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         let result2 = MealPlanGenerationResult(
             date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            mealType: .dinner,
             recipe: recipes[1]
         )
         mockService.mockResults = [result1, result2]
@@ -315,7 +317,7 @@ struct GeneratePlanViewModelTests {
     @Test("swapRecipe preserves result ID")
     func swapRecipePreservesResultID() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -334,7 +336,7 @@ struct GeneratePlanViewModelTests {
     @Test("removeResult removes from addedResultIDs")
     func removeResultRemovesFromSet() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -350,7 +352,7 @@ struct GeneratePlanViewModelTests {
     @Test("removeResult removes entry from meal plan")
     func removeResultRemovesEntry() async throws {
         let (viewModel, mockService, recipes, context) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -367,7 +369,7 @@ struct GeneratePlanViewModelTests {
     @Test("removeResult does nothing if not added")
     func removeResultDoesNothingIfNotAdded() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -381,9 +383,10 @@ struct GeneratePlanViewModelTests {
     @Test("remainingResults updates after remove")
     func remainingResultsUpdatesAfterRemove() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result1 = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result1 = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         let result2 = MealPlanGenerationResult(
             date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            mealType: .dinner,
             recipe: recipes[1]
         )
         mockService.mockResults = [result1, result2]
@@ -408,7 +411,7 @@ struct GeneratePlanViewModelTests {
     @Test("deleteResult removes from results array")
     func deleteResultRemovesFromArray() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -421,7 +424,7 @@ struct GeneratePlanViewModelTests {
     @Test("deleteResult removes from meal plan if added")
     func deleteResultRemovesFromMealPlanIfAdded() async throws {
         let (viewModel, mockService, recipes, context) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -439,9 +442,10 @@ struct GeneratePlanViewModelTests {
     @Test("deleteResult updates remainingResults")
     func deleteResultUpdatesRemainingResults() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result1 = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result1 = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         let result2 = MealPlanGenerationResult(
             date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+            mealType: .dinner,
             recipe: recipes[1]
         )
         mockService.mockResults = [result1, result2]
@@ -458,7 +462,7 @@ struct GeneratePlanViewModelTests {
     @Test("hasResults false after deleting all results")
     func hasResultsFalseAfterDeletingAll() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -473,7 +477,7 @@ struct GeneratePlanViewModelTests {
     @Test("reset clears results and addedResultIDs")
     func resetClearsResults() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -490,7 +494,7 @@ struct GeneratePlanViewModelTests {
         let (viewModel, mockService, recipes, _) = try createViewModel()
         viewModel.selectedMealType = .lunch
         viewModel.selectedDayCount = 3
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         await viewModel.generatePlan()
@@ -505,7 +509,7 @@ struct GeneratePlanViewModelTests {
     @Test("hasResults true when results exist")
     func hasResultsTrueWhenExist() async throws {
         let (viewModel, mockService, recipes, _) = try createViewModel()
-        let result = MealPlanGenerationResult(date: Date(), recipe: recipes[0])
+        let result = MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])
         mockService.mockResults = [result]
 
         #expect(viewModel.hasResults == false)
@@ -535,7 +539,7 @@ struct GeneratePlanViewModelTests {
     func successfulGenerationDecrements() async throws {
         let defaults = freshUserDefaults()
         let (viewModel, mockService, recipes, _) = try createViewModel(defaults: defaults)
-        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[0])]
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])]
 
         await viewModel.generatePlan()
 
@@ -557,7 +561,7 @@ struct GeneratePlanViewModelTests {
     func generatePlanSetsErrorWhenLimitReached() async throws {
         let defaults = freshUserDefaults()
         let (viewModel, mockService, recipes, _) = try createViewModel(defaults: defaults)
-        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[0])]
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])]
 
         await viewModel.generatePlan()
         await viewModel.generatePlan()
@@ -566,7 +570,7 @@ struct GeneratePlanViewModelTests {
         #expect(viewModel.remainingGenerations == 0)
         #expect(viewModel.hasReachedWeeklyLimit == true)
 
-        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[1])]
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[1])]
         await viewModel.generatePlan()
 
         #expect(viewModel.error is AIError)
@@ -576,7 +580,7 @@ struct GeneratePlanViewModelTests {
     func limitResetsAfterSevenDays() async throws {
         let defaults = freshUserDefaults()
         let (viewModel, mockService, recipes, _) = try createViewModel(defaults: defaults)
-        mockService.mockResults = [MealPlanGenerationResult(date: Date(), recipe: recipes[0])]
+        mockService.mockResults = [MealPlanGenerationResult(date: Date(), mealType: .dinner, recipe: recipes[0])]
 
         await viewModel.generatePlan()
         await viewModel.generatePlan()

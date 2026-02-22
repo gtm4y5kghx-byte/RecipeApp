@@ -11,12 +11,13 @@ struct MealPlanAIModelsTests {
     @Test("Assignment decodes from JSON")
     func assignmentDecodesFromJSON() throws {
         let json = """
-        {"dayOffset": 2, "recipeID": "550e8400-e29b-41d4-a716-446655440000"}
+        {"dayOffset": 2, "mealType": "dinner", "recipeID": "550e8400-e29b-41d4-a716-446655440000"}
         """
         let data = json.data(using: .utf8)!
         let assignment = try JSONDecoder().decode(MealPlanAssignment.self, from: data)
 
         #expect(assignment.dayOffset == 2)
+        #expect(assignment.mealType == "dinner")
         #expect(assignment.recipeID == "550e8400-e29b-41d4-a716-446655440000")
     }
 
@@ -24,9 +25,9 @@ struct MealPlanAIModelsTests {
     func assignmentDecodesArrayFromJSON() throws {
         let json = """
         [
-            {"dayOffset": 0, "recipeID": "550e8400-e29b-41d4-a716-446655440000"},
-            {"dayOffset": 1, "recipeID": "550e8400-e29b-41d4-a716-446655440001"},
-            {"dayOffset": 3, "recipeID": "550e8400-e29b-41d4-a716-446655440002"}
+            {"dayOffset": 0, "mealType": "dinner", "recipeID": "550e8400-e29b-41d4-a716-446655440000"},
+            {"dayOffset": 1, "mealType": "lunch", "recipeID": "550e8400-e29b-41d4-a716-446655440001"},
+            {"dayOffset": 3, "mealType": "breakfast", "recipeID": "550e8400-e29b-41d4-a716-446655440002"}
         ]
         """
         let data = json.data(using: .utf8)!
@@ -45,8 +46,8 @@ struct MealPlanAIModelsTests {
         let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
         let date = Date()
 
-        let result1 = MealPlanGenerationResult(date: date, recipe: recipe)
-        let result2 = MealPlanGenerationResult(date: date, recipe: recipe)
+        let result1 = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe)
+        let result2 = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe)
 
         // Each instance gets its own UUID, even with same date/recipe
         #expect(result1.id != result2.id)
@@ -57,7 +58,7 @@ struct MealPlanAIModelsTests {
         let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
         let date = Date()
 
-        let result = MealPlanGenerationResult(date: date, recipe: recipe)
+        let result = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe)
 
         // Result ID should NOT equal recipe ID
         #expect(result.id != recipe.id)
@@ -68,8 +69,8 @@ struct MealPlanAIModelsTests {
         let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
         let date = Date()
 
-        let result1 = MealPlanGenerationResult(date: date, recipe: recipe)
-        let result2 = MealPlanGenerationResult(date: date, recipe: recipe)
+        let result1 = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe)
+        let result2 = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe)
 
         // Equality is based on date + recipe, not instance ID
         #expect(result1 == result2)
@@ -81,8 +82,8 @@ struct MealPlanAIModelsTests {
         let date1 = Date()
         let date2 = Calendar.current.date(byAdding: .day, value: 1, to: date1)!
 
-        let result1 = MealPlanGenerationResult(date: date1, recipe: recipe)
-        let result2 = MealPlanGenerationResult(date: date2, recipe: recipe)
+        let result1 = MealPlanGenerationResult(date: date1, mealType: .dinner, recipe: recipe)
+        let result2 = MealPlanGenerationResult(date: date2, mealType: .dinner, recipe: recipe)
 
         #expect(result1 != result2)
     }
@@ -93,8 +94,8 @@ struct MealPlanAIModelsTests {
         let recipe2 = RecipeTestFixtures.createRecipe(title: "Recipe 2")
         let date = Date()
 
-        let result1 = MealPlanGenerationResult(date: date, recipe: recipe1)
-        let result2 = MealPlanGenerationResult(date: date, recipe: recipe2)
+        let result1 = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe1)
+        let result2 = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe2)
 
         #expect(result1 != result2)
     }
@@ -106,7 +107,7 @@ struct MealPlanAIModelsTests {
         let components = DateComponents(year: 2025, month: 1, day: 1)
         let date = Calendar.current.date(from: components)!
 
-        let result = MealPlanGenerationResult(date: date, recipe: recipe)
+        let result = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe)
 
         #expect(result.dayOfWeek == "Wed")
     }
@@ -117,7 +118,7 @@ struct MealPlanAIModelsTests {
         let components = DateComponents(year: 2025, month: 1, day: 15)
         let date = Calendar.current.date(from: components)!
 
-        let result = MealPlanGenerationResult(date: date, recipe: recipe)
+        let result = MealPlanGenerationResult(date: date, mealType: .dinner, recipe: recipe)
 
         #expect(result.dayNumber == "15")
     }
