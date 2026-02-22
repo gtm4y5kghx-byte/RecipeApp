@@ -13,8 +13,6 @@ struct RecipeListView: View {
     var selectedTab: Binding<MainView.Tab>?
 
     @State private var viewModel: RecipeListViewModel?
-    @State private var showImportBanner = false
-    @State private var importedRecipe: Recipe?
     @State private var searchText = ""
     @State private var searchScope: SearchScope = .all
     @State private var scrollPosition = ScrollPosition(edge: .top)
@@ -51,9 +49,6 @@ struct RecipeListView: View {
                 iPhoneLayout
             }
         }
-        .sheet(item: $importedRecipe) { recipe in
-            Text("Recipe Detail View Coming Soon")
-        }
         .onChange(of: recipes) { oldValue, newValue in
             viewModel?.updateRecipes(newValue)
 
@@ -89,12 +84,6 @@ struct RecipeListView: View {
     
     private var recipeListColumn: some View {
         VStack(spacing: 0) {
-            if showImportBanner {
-                RecipeImportBanner {
-                    importedRecipe = recipes.first
-                }
-            }
-
             if let _ = viewModel { recipeContent } else {
                 DSLoadingSpinner(message: "Loading recipes...")
             }
@@ -187,13 +176,6 @@ struct RecipeListView: View {
                 .navigationTitle(viewModel?.filterTitle ?? "Recipes")
                 .navigationBarTitleDisplayMode(.large)
                 .searchable(text: $searchText)
-                .overlay(alignment: .top) {
-                    if showImportBanner {
-                        RecipeImportBanner {
-                            importedRecipe = recipes.first
-                        }
-                    }
-                }
                 .background(Theme.Colors.background)
         } detail: {
             if let recipe = effectiveSelectedRecipe.wrappedValue {
@@ -291,19 +273,6 @@ struct RecipeListView: View {
 
     private func checkForPendingImport() {
         viewModel?.handlePendingImport()
-
-        if viewModel?.justImportedRecipe == true {
-            showImportBanner = true
-            HapticFeedback.success.trigger()
-
-            Task {
-                try? await Task.sleep(for: .seconds(3))
-                withAnimation {
-                    showImportBanner = false
-                }
-                viewModel?.justImportedRecipe = false
-            }
-        }
     }
 
 #if DEBUG

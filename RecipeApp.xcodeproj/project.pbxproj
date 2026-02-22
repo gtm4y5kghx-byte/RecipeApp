@@ -85,6 +85,7 @@
 		48A6C6B82ED08E8200C19EE6 /* Exceptions for "RecipeApp" folder in "ShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Assets.xcassets,
 				Design/Atoms/DSBanner.swift,
 				Design/Atoms/DSButton.swift,
 				Design/Atoms/DSDivider.swift,

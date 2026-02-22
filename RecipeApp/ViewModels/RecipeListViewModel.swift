@@ -11,7 +11,6 @@ class RecipeListViewModel {
     var suggestions: [UnifiedSuggestion] = []
     var suggestionError: AIError?
     var selectedSection: MenuSection = .all
-    var justImportedRecipe: Bool = false
     private var recipes: [Recipe]
     private let modelContext: ModelContext
     private let suggestionService: UnifiedSuggestionProviding
@@ -371,7 +370,6 @@ class RecipeListViewModel {
         do {
             if let importData = try checkForPendingImport() {
                 try createRecipeFromImport(importData)
-                justImportedRecipe = true
             }
         } catch {
             self.error = error
