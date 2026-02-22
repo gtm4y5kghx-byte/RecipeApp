@@ -44,6 +44,7 @@ struct RecipeGrid: View {
                 title: recipe.title,
                 subtitle: suggestionReason,
                 showSuggestionBadge: suggestionReason != nil,
+                imageURL: recipe.imageURL,
                 cuisine: recipe.cuisine,
                 prepTime: recipe.prepTime,
                 cookTime: recipe.cookTime,
