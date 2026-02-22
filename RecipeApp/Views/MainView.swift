@@ -15,7 +15,7 @@ struct MainView: View {
         var title: String {
             switch self {
             case .recipes: return String(localized: "Recipes")
-            case .mealPlan: return String(localized: "Meal Plan")
+            case .mealPlan: return String(localized: "Meal Planner")
             case .shoppingList: return String(localized: "Shopping List")
             }
         }
@@ -62,21 +62,21 @@ struct MainView: View {
             RecipeListView(menuState: menuState, selectedRecipe: $selectedRecipe)
                 .tag(Tab.recipes)
                 .tabItem {
-                    Label("Recipes", systemImage: "book")
+                    Label(Tab.recipes.title, systemImage: Tab.recipes.icon)
                 }
                 .accessibilityIdentifier("tab-recipes")
 
             MealPlanView()
                 .tag(Tab.mealPlan)
                 .tabItem {
-                    Label("Meal Plan", systemImage: "calendar")
+                    Label(Tab.mealPlan.title, systemImage: Tab.mealPlan.icon)
                 }
                 .accessibilityIdentifier("tab-meal-plan")
 
             ShoppingListView()
                 .tag(Tab.shoppingList)
                 .tabItem {
-                    Label("Shopping List", systemImage: "cart")
+                    Label(Tab.shoppingList.title, systemImage: Tab.shoppingList.icon)
                 }
                 .accessibilityIdentifier("tab-shopping-list")
         }

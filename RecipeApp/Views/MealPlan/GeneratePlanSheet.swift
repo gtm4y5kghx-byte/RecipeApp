@@ -20,7 +20,7 @@ struct GeneratePlanSheet: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Generate Plan")
+                .navigationTitle("Create Meal Plan")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -104,7 +104,7 @@ struct GeneratePlanSheet: View {
         DSEmptyState(
             icon: "sparkles",
             title: "Ready to Generate",
-            message: "Configure your preferences above and tap Generate Plan.",
+            message: "Configure your preferences above and tap Create Plan.",
             accessibilityID: "generate-plan-empty-state"
         )
     }

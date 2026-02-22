@@ -73,7 +73,7 @@ struct GeneratePlanConfigSection: View {
         VStack(spacing: Theme.Spacing.xs) {
             if viewModel.canAccessGeneration {
                 DSButton(
-                    title: viewModel.hasResults ? "Regenerate" : "Generate Plan",
+                    title: viewModel.hasResults ? "Regenerate" : "Create Plan",
                     style: .primary,
                     icon: "sparkles",
                     fullWidth: true
@@ -92,7 +92,7 @@ struct GeneratePlanConfigSection: View {
                 .padding(.top, Theme.Spacing.xs)
             } else {
                 DSButton(
-                    title: "Generate Plan",
+                    title: "Create Plan",
                     style: .primary,
                     icon: "lock.fill",
                     fullWidth: true,

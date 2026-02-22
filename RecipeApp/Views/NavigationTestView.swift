@@ -26,7 +26,7 @@ struct NavigationTestView: View {
 
             MealPlanTabView(selectedTab: .constant(.mealPlan))
                 .tag(TestTab.mealPlan)
-                .tabItem { Label("Meal Plan", systemImage: "calendar") }
+                .tabItem { Label("Meal Planner", systemImage: "calendar") }
 
             ShoppingListTabView(selectedTab: .constant(.shoppingList))
                 .tag(TestTab.shoppingList)
@@ -54,7 +54,7 @@ struct NavigationTestView: View {
 
 enum TestTab: String, CaseIterable {
     case recipes = "Recipes"
-    case mealPlan = "Meal Plan"
+    case mealPlan = "Meal Planner"
     case shoppingList = "Shopping List"
 
     var icon: String {
@@ -203,7 +203,7 @@ private struct MealPlanTabView: View {
                         Text(meal).tag(meal)
                     }
                 }
-                .navigationTitle("Meal Plan")
+                .navigationTitle("Meal Planner")
             } detail: {
                 if let meal = selectedMeal {
                     Text("Recipe Detail for: \(meal)")
@@ -221,7 +221,7 @@ private struct MealPlanTabView: View {
                         Text(meal).tag(meal)
                     }
                 }
-                .navigationTitle("Meal Plan")
+                .navigationTitle("Meal Planner")
             }
         }
     }

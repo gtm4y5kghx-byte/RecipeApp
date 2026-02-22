@@ -17,20 +17,12 @@ struct MealPlanCalendarContent: View {
                 ForEach(viewModel.dateRange, id: \.self) { date in
                     Section {
                         let entries = viewModel.entries(for: date)
-                        if entries.isEmpty {
-                            DSLabel(
-                                "Nothing planned",
-                                style: .subheadline,
-                                color: .secondary
+                        ForEach(entries) { entry in
+                            MealPlanEntryRow(
+                                entry: entry,
+                                onTap: { onEntryTap?(entry) },
+                                onRemove: { viewModel.removeEntry(entry) }
                             )
-                        } else {
-                            ForEach(entries) { entry in
-                                MealPlanEntryRow(
-                                    entry: entry,
-                                    onTap: { onEntryTap?(entry) },
-                                    onRemove: { viewModel.removeEntry(entry) }
-                                )
-                            }
                         }
                     } header: {
                         dayHeader(date: date, isToday: Calendar.current.isDateInToday(date))

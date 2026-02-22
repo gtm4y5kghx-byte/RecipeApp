@@ -52,7 +52,7 @@ struct MealPlanView: View {
                     DSLoadingSpinner(message: "Loading...")
                 }
             }
-            .navigationTitle("Meal Plan")
+            .navigationTitle(MainView.Tab.mealPlan.title)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -113,7 +113,7 @@ struct MealPlanView: View {
                     DSLoadingSpinner(message: "Loading...")
                 }
             }
-            .navigationTitle("Meal Plan")
+            .navigationTitle(MainView.Tab.mealPlan.title)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Today") {
@@ -157,7 +157,7 @@ struct MealPlanView: View {
     }
 
     private func calendarContent(viewModel: MealPlanViewModel) -> some View {
-        ZStack(alignment: .bottomTrailing) {
+        ZStack(alignment: .bottom) {
             MealPlanCalendarContent(
                 viewModel: viewModel,
                 recipeToAdd: nil,
@@ -167,11 +167,9 @@ struct MealPlanView: View {
             )
 
             DSButton(
-                title: "Generate",
+                title: "Create Meal Plan",
                 style: .primary,
-                size: .small,
-                icon: "sparkles",
-                fullWidth: false
+                icon: "sparkles"
             ) {
                 showingGeneratePlan = true
             }
