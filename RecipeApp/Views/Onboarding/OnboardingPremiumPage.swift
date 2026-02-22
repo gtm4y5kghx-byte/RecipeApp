@@ -39,24 +39,19 @@ struct OnboardingPremiumPage: View {
         .background(Theme.Colors.background)
     }
 
-    @ViewBuilder
     private var purchaseButtons: some View {
         VStack(spacing: Theme.Spacing.sm) {
-            if let monthlyPrice = subscriptionPrice {
-                SubscriptionCTA(
-                    monthlyPrice: monthlyPrice,
-                    isPurchasing: isPurchasing,
-                    onSubscribe: onSubscribe
-                )
-            }
+            SubscriptionCTA(
+                monthlyPrice: subscriptionPrice,
+                isPurchasing: isPurchasing,
+                onSubscribe: onSubscribe
+            )
 
-            if let price = premiumPrice {
-                PremiumPurchaseCTA(
-                    price: price,
-                    isPurchasing: isPurchasing,
-                    onPurchase: onPurchasePremium
-                )
-            }
+            PremiumPurchaseCTA(
+                price: premiumPrice,
+                isPurchasing: isPurchasing,
+                onPurchase: onPurchasePremium
+            )
         }
     }
 }

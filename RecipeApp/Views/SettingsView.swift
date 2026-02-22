@@ -150,27 +150,21 @@ struct SettingsContent: View {
                 PremiumFeatureRow.generation
             }
 
-            // Subscribe CTA
-            if let monthlyPrice = viewModel.subscriptionPrice {
-                SubscriptionCTA(
-                    monthlyPrice: monthlyPrice,
-                    isPurchasing: viewModel.isPurchasing
-                ) {
-                    Task { await viewModel.purchaseSubscription() }
-                }
-                .accessibilityIdentifier("subscribe-button")
-                .padding(.bottom, Theme.Spacing.xs)
+            SubscriptionCTA(
+                monthlyPrice: viewModel.subscriptionPrice,
+                isPurchasing: viewModel.isPurchasing
+            ) {
+                Task { await viewModel.purchaseSubscription() }
             }
+            .accessibilityIdentifier("subscribe-button")
+            .padding(.bottom, Theme.Spacing.xs)
 
-            // Buy Premium CTA
-            if let price = viewModel.premiumPrice {
-                PremiumPurchaseCTA(
-                    price: price,
-                    isPurchasing: viewModel.isPurchasing,
-                    onPurchase: { Task { await viewModel.purchasePremium() } }
-                )
-                .accessibilityIdentifier("upgrade-premium-button")
-            }
+            PremiumPurchaseCTA(
+                price: viewModel.premiumPrice,
+                isPurchasing: viewModel.isPurchasing,
+                onPurchase: { Task { await viewModel.purchasePremium() } }
+            )
+            .accessibilityIdentifier("upgrade-premium-button")
 
         }
     }

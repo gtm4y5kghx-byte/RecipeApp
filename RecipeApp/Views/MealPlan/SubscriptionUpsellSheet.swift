@@ -35,21 +35,17 @@ struct SubscriptionUpsellSheet: View {
             }
 
             VStack(spacing: Theme.Spacing.sm) {
-                if let price = subscriptionPrice {
-                    SubscriptionCTA(
-                        monthlyPrice: price,
-                        isPurchasing: isPurchasing,
-                        onSubscribe: onSubscribe
-                    )
-                }
+                SubscriptionCTA(
+                    monthlyPrice: subscriptionPrice,
+                    isPurchasing: isPurchasing,
+                    onSubscribe: onSubscribe
+                )
 
-                if let price = premiumPrice {
-                    PremiumPurchaseCTA(
-                        price: price,
-                        isPurchasing: isPurchasing,
-                        onPurchase: onPurchasePremium
-                    )
-                }
+                PremiumPurchaseCTA(
+                    price: premiumPrice,
+                    isPurchasing: isPurchasing,
+                    onPurchase: onPurchasePremium
+                )
             }
             .padding(.horizontal, Theme.Spacing.lg)
 
