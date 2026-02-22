@@ -22,7 +22,6 @@ struct DSRecipeCard: View {
     let servings: Int?
     let tags: [String]
     let action: DSRecipeCardAction
-    let onDeleteTap: (() -> Void)?
     let accessibilityID: String
 
     // MARK: - Computed Properties
@@ -47,7 +46,6 @@ struct DSRecipeCard: View {
         servings: Int? = nil,
         tags: [String] = [],
         action: DSRecipeCardAction,
-        onDeleteTap: (() -> Void)? = nil,
         accessibilityID: String
     ) {
         self.title = title
@@ -60,7 +58,6 @@ struct DSRecipeCard: View {
         self.servings = servings
         self.tags = tags
         self.action = action
-        self.onDeleteTap = onDeleteTap
         self.accessibilityID = accessibilityID
     }
 

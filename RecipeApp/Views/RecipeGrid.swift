@@ -12,6 +12,7 @@ struct RecipeGrid: View {
     let onSaveGeneratedRecipe: (GeneratedRecipe) -> Void
 
     @State private var isSwipingAnItem = false
+    @State private var recipeToDelete: Recipe?
 
     var body: some View {
         ScrollView {
@@ -26,6 +27,21 @@ struct RecipeGrid: View {
         .background(Theme.Colors.background)
         .scrollPosition($scrollPosition)
         .scrollDisabled(isSwipingAnItem)
+        .alert("Delete Recipe", isPresented: .init(
+            get: { recipeToDelete != nil },
+            set: { if !$0 { recipeToDelete = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let recipe = recipeToDelete {
+                    onDeleteTap(recipe)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            if let recipe = recipeToDelete {
+                Text("Are you sure you want to delete \"\(recipe.title)\"?")
+            }
+        }
     }
 
     @ViewBuilder
@@ -53,9 +69,6 @@ struct RecipeGrid: View {
                 action: .favorite(isFavorite: recipe.isFavorite, onTap: {
                     onFavoriteTap(recipe)
                 }),
-                onDeleteTap: {
-                    onDeleteTap(recipe)
-                },
                 accessibilityID: "recipe-card-\(recipe.id)"
             )
             .padding(.horizontal, Theme.Spacing.md)
@@ -66,7 +79,7 @@ struct RecipeGrid: View {
         } actions: {
             SwipyAction { model in
                 Button {
-                    onDeleteTap(recipe)
+                    recipeToDelete = recipe
                     model.unswipe()
                 } label: {
                     Image(systemName: "trash")
