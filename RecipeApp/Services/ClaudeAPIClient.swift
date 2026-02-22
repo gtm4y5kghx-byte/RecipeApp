@@ -10,7 +10,7 @@ class ClaudeAPIClient {
         var identifier: String {
             switch self {
             case .sonnet: return "claude-sonnet-4-6"
-            case .haiku: return "claude-haiku-4-5-20251001"
+            case .haiku: return "claude-haiku-4-5"
             }
         }
     }
