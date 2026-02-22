@@ -71,7 +71,7 @@ struct CookingModeView: View {
                             .accessibilityIdentifier("cooking-mode-menu-button")
                         }
                     }
-                    .sheet(isPresented: $showingSteps) {
+                    .fullScreenCover(isPresented: $showingSteps) {
                         CookingModeStepsSheet(
                             stepItems: viewModel.stepItems,
                             currentIndex: viewModel.currentStepIndex,
@@ -82,7 +82,7 @@ struct CookingModeView: View {
                             onDismiss: { showingSteps = false }
                         )
                     }
-                    .sheet(isPresented: $showingIngredients) {
+                    .fullScreenCover(isPresented: $showingIngredients) {
                         CookingModeIngredientsSheet(
                             ingredients: viewModel.ingredients,
                             onDismiss: { showingIngredients = false }

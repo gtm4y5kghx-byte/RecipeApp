@@ -57,6 +57,8 @@ struct GeneratePlanSheet: View {
     private var content: some View {
         if let viewModel = viewModel {
             sheetContent(viewModel)
+                .frame(maxWidth: Theme.Layout.maxSheetContentWidth)
+                .frame(maxWidth: .infinity)
         } else {
             DSLoadingSpinner(message: "Loading...")
         }

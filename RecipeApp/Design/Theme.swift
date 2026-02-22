@@ -93,6 +93,12 @@ enum Theme {
         static let buttonPadding = md   // 16pt horizontal padding in buttons
     }
 
+    // MARK: - Layout
+
+    enum Layout {
+        static let maxSheetContentWidth: CGFloat = 600
+    }
+
     // MARK: - Corner Radius
 
     enum CornerRadius {

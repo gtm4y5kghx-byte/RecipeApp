@@ -18,6 +18,8 @@ struct CookingModeIngredientsSheet: View {
                         }
                     }
                 }
+                .frame(maxWidth: Theme.Layout.maxSheetContentWidth)
+                .frame(maxWidth: .infinity)
             }
             .background(Theme.Colors.background)
             .navigationBarTitleDisplayMode(.inline)
@@ -28,6 +30,5 @@ struct CookingModeIngredientsSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
     }
 }

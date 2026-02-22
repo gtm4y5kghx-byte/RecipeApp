@@ -176,7 +176,7 @@ struct MealPlanView: View {
             .padding()
             .accessibilityIdentifier("meal-plan-generate-button")
         }
-        .sheet(isPresented: $showingGeneratePlan) {
+        .fullScreenCover(isPresented: $showingGeneratePlan) {
             GeneratePlanSheet()
         }
         .onChange(of: showingGeneratePlan) { _, isShowing in

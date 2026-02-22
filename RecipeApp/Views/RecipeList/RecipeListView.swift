@@ -196,8 +196,8 @@ struct RecipeListView: View {
 #if DEBUG
         .overlay(alignment: .bottomTrailing) {
             Menu {
-                Button("Tier: \(UserSubscriptionService.debugTierLabel)") {
-                    UserSubscriptionService.cycleDebugTier()
+                Button("Tier: \(debugTierLabel)") {
+                    debugTierLabel = UserSubscriptionService.cycleDebugTier()
                 }
                 Button("Load Suggestions") {
                     Task { await viewModel?.loadSuggestionsDev() }

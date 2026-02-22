@@ -168,10 +168,10 @@ struct RecipeDetailView: View {
         .sheet(isPresented: $showingEditSheet) {
             RecipeFormView(recipe: recipe)
         }
-        .sheet(isPresented: $showingCookingMode) {
+        .fullScreenCover(isPresented: $showingCookingMode) {
             CookingModeView(recipe: recipe)
         }
-        .sheet(isPresented: $showingAddToMealPlan) {
+        .fullScreenCover(isPresented: $showingAddToMealPlan) {
             MealPlanCalendarSheet(recipe: recipe)
         }
         .alert(String(localized: "Delete Recipe?"), isPresented: $showingDeleteConfirmation) {

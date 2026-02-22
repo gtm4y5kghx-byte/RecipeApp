@@ -21,6 +21,8 @@ struct MealPlanCalendarSheet: View {
                         onRecipeAdded: { dismiss() },
                         scrollToTodayTrigger: $scrollToTodayTrigger
                     )
+                    .frame(maxWidth: Theme.Layout.maxSheetContentWidth)
+                    .frame(maxWidth: .infinity)
                 } else {
                     DSLoadingSpinner(message: "Loading...")
                 }
