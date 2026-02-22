@@ -31,6 +31,7 @@ struct SubscriptionUpsellSheet: View {
                     PremiumFeatureRow.suggestions
                     PremiumFeatureRow.generation
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, Theme.Spacing.xl)
             }
 
