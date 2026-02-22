@@ -178,7 +178,7 @@ struct RecipeListView: View {
                 .background(Theme.Colors.background)
         } detail: {
             if let recipe = effectiveSelectedRecipe.wrappedValue {
-                RecipeDetailView(recipe: recipe)
+                RecipeDetailView(recipe: recipe, columnVisibility: $columnVisibility)
             } else {
                 ContentUnavailableView("Select a Recipe", systemImage: "fork.knife")
             }

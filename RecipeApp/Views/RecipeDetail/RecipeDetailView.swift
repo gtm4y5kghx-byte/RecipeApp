@@ -17,10 +17,20 @@ struct RecipeDetailView: View {
 
     let recipe: Recipe
     var onRemoveFromContext: (() -> Void)?
+    var columnVisibility: Binding<NavigationSplitViewVisibility>?
 
-    init(recipe: Recipe, onRemoveFromContext: (() -> Void)? = nil) {
+    init(
+        recipe: Recipe,
+        onRemoveFromContext: (() -> Void)? = nil,
+        columnVisibility: Binding<NavigationSplitViewVisibility>? = nil
+    ) {
         self.recipe = recipe
         self.onRemoveFromContext = onRemoveFromContext
+        self.columnVisibility = columnVisibility
+    }
+
+    private var isDetailOnly: Bool {
+        columnVisibility?.wrappedValue == .detailOnly
     }
 
     var body: some View {
@@ -109,6 +119,18 @@ struct RecipeDetailView: View {
         .background(Theme.Colors.background)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if columnVisibility != nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            columnVisibility?.wrappedValue = isDetailOnly ? .doubleColumn : .detailOnly
+                        }
+                    } label: {
+                        Image(systemName: isDetailOnly ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                    }
+                    .accessibilityIdentifier("recipe-detail-fullscreen-button")
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button("Start Cooking") {
