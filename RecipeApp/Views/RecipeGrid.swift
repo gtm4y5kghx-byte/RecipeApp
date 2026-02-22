@@ -42,9 +42,9 @@ struct RecipeGrid: View {
         Swipy(isSwipingAnItem: $isSwipingAnItem) { model in
             DSRecipeCard(
                 title: recipe.title,
+                imageURL: recipe.imageURL,
                 subtitle: suggestionReason,
                 showSuggestionBadge: suggestionReason != nil,
-                imageURL: recipe.imageURL,
                 cuisine: recipe.cuisine,
                 prepTime: recipe.prepTime,
                 cookTime: recipe.cookTime,
