@@ -91,7 +91,7 @@ struct SettingsContent: View {
             Toggle("", isOn: toggle)
                 .labelsHidden()
                 .tint(colorScheme == .dark ? Theme.Colors.accent : Theme.Colors.primary)
-                .scaleEffect(0.8)
+
                 .accessibilityIdentifier(identifier)
         }
     }
