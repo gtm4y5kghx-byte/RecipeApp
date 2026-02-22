@@ -174,7 +174,7 @@ struct SharePreviewView: View {
     @ViewBuilder
     private var addButton: some View {
         if case .preview(_, let alreadyImported) = viewModel.state {
-            Button("Add") { viewModel.addRecipe() }
+            Button("Add") { Task { await viewModel.addRecipe() } }
                 .bold()
                 .disabled(alreadyImported)
         }

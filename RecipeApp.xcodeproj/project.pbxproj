@@ -97,6 +97,7 @@
 				Models/MealPlanEntry.swift,
 				Models/Recipe.swift,
 				Models/ShoppingList.swift,
+				Shared/ImageStorageService.swift,
 				Shared/ModelContainerConfig.swift,
 				Shared/RecipeImportData.swift,
 			);

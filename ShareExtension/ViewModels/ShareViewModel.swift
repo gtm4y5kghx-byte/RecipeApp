@@ -73,17 +73,21 @@ class ShareViewModel {
         }
     }
 
-    func addRecipe() {
+    func addRecipe() async {
         guard case .preview(let importData, _) = state else { return }
         guard let container = modelContainer else {
             state = .error(title: "Save Failed", message: "Database not available.")
             return
         }
 
+        state = .loading(message: "Saving recipe...")
+
+        let localImageURL = await downloadImageIfNeeded(importData.imageURL)
+
         let context = container.mainContext
         let recipe = Recipe(title: importData.title, sourceType: .web_imported)
         recipe.sourceURL = importData.sourceURL
-        recipe.imageURL = importData.imageURL
+        recipe.imageURL = localImageURL
         recipe.servings = importData.servings
         recipe.prepTime = importData.prepTime
         recipe.cookTime = importData.cookTime
@@ -158,6 +162,11 @@ class ShareViewModel {
 
     private func setupModelContainer() {
         modelContainer = createSharedModelContainer()
+    }
+
+    private func downloadImageIfNeeded(_ remoteURL: String?) async -> String? {
+        guard let remoteURL else { return nil }
+        return await ImageStorageService.downloadAndSaveImage(from: remoteURL)
     }
 
     private func checkIfRecipeExists(url: URL) -> Bool {

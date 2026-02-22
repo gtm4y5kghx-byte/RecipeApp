@@ -185,25 +185,7 @@ class RecipeFormViewModel {
     }
     
     private func saveImageToDisk(_ data: Data) -> String? {
-        let fileManager = FileManager.default
-        
-        guard let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            return nil
-        }
-        
-        let imagesDirectory = documentsURL.appendingPathComponent("recipe-images")
-        
-        try? fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
-        
-        let filename = UUID().uuidString + ".jpg"
-        let fileURL = imagesDirectory.appendingPathComponent(filename)
-        
-        do {
-            try data.write(to: fileURL)
-            return fileURL.absoluteString
-        } catch {
-            return nil
-        }
+        ImageStorageService.saveImageData(data)
     }
     
     private func updateRecipeImage(_ recipe: Recipe) {
@@ -217,9 +199,7 @@ class RecipeFormViewModel {
     }
     
     private func deleteImageFromDisk(_ urlString: String?) {
-        guard let urlString = urlString,
-              let url = URL(string: urlString) else { return }
-        try? FileManager.default.removeItem(at: url)
+        ImageStorageService.deleteImage(at: urlString)
     }
     
     // MARK: - Save Recipe

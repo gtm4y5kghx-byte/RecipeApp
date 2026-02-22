@@ -8,7 +8,7 @@ struct ShareViewModelTests {
     // MARK: - Add Recipe Tests
 
     @Test("Add recipe from import with all data")
-    func testAddRecipeWithAllData() throws {
+    func testAddRecipeWithAllData() async throws {
         let container = try ModelContainer(
             for: Schema([
                 Recipe.self, Ingredient.self, Step.self, NutritionInfo.self,
@@ -47,7 +47,7 @@ struct ShareViewModelTests {
         )
 
         vm.state = .preview(recipe: importData, alreadyImported: false)
-        vm.addRecipe()
+        await vm.addRecipe()
 
         let recipes = try container.mainContext.fetch(FetchDescriptor<Recipe>())
 
@@ -90,7 +90,7 @@ struct ShareViewModelTests {
     }
 
     @Test("Add recipe from import with minimal data")
-    func testAddRecipeWithMinimalData() throws {
+    func testAddRecipeWithMinimalData() async throws {
         let container = try ModelContainer(
             for: Schema([
                 Recipe.self, Ingredient.self, Step.self, NutritionInfo.self,
@@ -113,7 +113,7 @@ struct ShareViewModelTests {
         )
 
         vm.state = .preview(recipe: importData, alreadyImported: false)
-        vm.addRecipe()
+        await vm.addRecipe()
 
         let recipes = try container.mainContext.fetch(FetchDescriptor<Recipe>())
 
@@ -131,7 +131,7 @@ struct ShareViewModelTests {
     }
 
     @Test("Add recipe calls extensionComplete on success")
-    func testAddRecipeCallsComplete() throws {
+    func testAddRecipeCallsComplete() async throws {
         let container = try ModelContainer(
             for: Schema([
                 Recipe.self, Ingredient.self, Step.self, NutritionInfo.self,
@@ -153,13 +153,13 @@ struct ShareViewModelTests {
         )
 
         vm.state = .preview(recipe: importData, alreadyImported: false)
-        vm.addRecipe()
+        await vm.addRecipe()
 
         #expect(tracker.called == true)
     }
 
     @Test("Add recipe does nothing when state is not preview")
-    func testAddRecipeIgnoresNonPreviewState() throws {
+    func testAddRecipeIgnoresNonPreviewState() async throws {
         let container = try ModelContainer(
             for: Schema([
                 Recipe.self, Ingredient.self, Step.self, NutritionInfo.self,
@@ -175,7 +175,7 @@ struct ShareViewModelTests {
         )
 
         vm.state = .loading(message: "Loading...")
-        vm.addRecipe()
+        await vm.addRecipe()
 
         let recipes = try container.mainContext.fetch(FetchDescriptor<Recipe>())
         #expect(recipes.isEmpty)
