@@ -69,7 +69,6 @@ struct RecipeListView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                checkForPendingImport()
                 Task {
                     await viewModel?.loadSuggestionsIfEligible()
                 }
@@ -264,15 +263,9 @@ struct RecipeListView: View {
             )
         }
 
-        checkForPendingImport()
-
         Task {
             await viewModel?.loadSuggestionsIfEligible()
         }
-    }
-
-    private func checkForPendingImport() {
-        viewModel?.handlePendingImport()
     }
 
 #if DEBUG

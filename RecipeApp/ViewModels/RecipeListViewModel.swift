@@ -366,15 +366,6 @@ class RecipeListViewModel {
         return items
     }
 
-    func handlePendingImport() {
-        do {
-            if let importData = try checkForPendingImport() {
-                try createRecipeFromImport(importData)
-            }
-        } catch {
-            self.error = error
-        }
-    }
     
     func loadSuggestionsDev() async {
         suggestionError = nil
@@ -450,57 +441,6 @@ class RecipeListViewModel {
         }
     }
     
-    private func checkForPendingImport() throws -> RecipeImportData? {
-        guard SharedDataManager.shared.hasPendingImport() else {
-            return nil
-        }
-        
-        if let importData = try SharedDataManager.shared.loadPendingImport() {
-            try SharedDataManager.shared.deletePendingImport()
-            return importData
-        }
-        
-        return nil
-    }
-    
-    private func createRecipeFromImport(_ importData: RecipeImportData) throws {
-        let recipe = Recipe(title: importData.title, sourceType: .web_imported)
-        recipe.sourceURL = importData.sourceURL
-        recipe.imageURL = importData.imageURL
-        recipe.servings = importData.servings
-        recipe.prepTime = importData.prepTime
-        recipe.cookTime = importData.cookTime
-        recipe.cuisine = importData.cuisine
-        recipe.notes = importData.description
-        
-        for (index, ingredientText) in importData.ingredients.enumerated() {
-            let ingredient = Ingredient(quantity: "", unit: nil, item: ingredientText, preparation: nil, section: nil)
-            ingredient.order = index
-            recipe.ingredients.append(ingredient)
-        }
-        
-        for (index, instructionText) in importData.instructions.enumerated() {
-            let step = Step(instruction: instructionText)
-            step.order = index
-            recipe.instructions.append(step)
-        }
-        
-        if let nutritionData = importData.nutrition {
-            let nutritionInfo = NutritionInfo(
-                calories: nutritionData.calories,
-                carbohydrates: nutritionData.carbohydrates,
-                protein: nutritionData.protein,
-                fat: nutritionData.fat,
-                fiber: nutritionData.fiber,
-                sodium: nutritionData.sodium,
-                sugar: nutritionData.sugar
-            )
-            recipe.nutrition = nutritionInfo
-        }
-        
-        modelContext.insert(recipe)
-        try modelContext.save()
-    }
 }
 
 enum MenuSection: Hashable, Identifiable {

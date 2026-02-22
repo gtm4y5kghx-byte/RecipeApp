@@ -363,11 +363,6 @@ class RecipeFormViewModel {
     private func saveToContext() -> Bool {
         do {
             try modelContext.save()
-            
-            if importData != nil {
-                try? SharedDataManager.shared.deletePendingImport()
-            }
-            
             return true
         } catch {
             self.error = error

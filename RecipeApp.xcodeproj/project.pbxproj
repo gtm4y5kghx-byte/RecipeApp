@@ -94,9 +94,11 @@
 				Design/Atoms/DSLabel.swift,
 				Design/Molecules/DSLoadingSpinner.swift,
 				Design/Theme.swift,
+				Models/MealPlanEntry.swift,
 				Models/Recipe.swift,
+				Models/ShoppingList.swift,
+				Shared/ModelContainerConfig.swift,
 				Shared/RecipeImportData.swift,
-				Shared/SharedDataManager.swift,
 			);
 			target = 48A6C69D2ECF39F200C19EE6 /* ShareExtension */;
 		};

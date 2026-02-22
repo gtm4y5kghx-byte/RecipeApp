@@ -16,23 +16,8 @@ struct RecipeAppApp: App {
     }
 
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Recipe.self,
-            Ingredient.self,
-            Step.self,
-            ShoppingList.self,
-            ShoppingListItem.self,
-            MealPlanEntry.self
-        ])
-
         let isUITesting = ProcessInfo.processInfo.arguments.contains("UI-TESTING")
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isUITesting)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
+        return createSharedModelContainer(inMemory: isUITesting)
     }()
 
     var body: some Scene {
