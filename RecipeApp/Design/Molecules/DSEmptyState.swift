@@ -52,7 +52,7 @@ struct DSEmptyState: View {
             // Title & Message
             VStack(spacing: Theme.Spacing.xs) {
                 DSLabel(title, style: .title2, color: .primary, alignment: .center)
-                DSLabel(message, style: .body, color: .secondary, alignment: .center)
+                DSLabel(message, style: .callout, color: .secondary, alignment: .center)
             }
             .padding(.horizontal, Theme.Spacing.xl)
 

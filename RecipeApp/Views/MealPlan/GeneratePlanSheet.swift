@@ -104,7 +104,7 @@ struct GeneratePlanSheet: View {
         DSEmptyState(
             icon: "sparkles",
             title: "Ready to Generate",
-            message: "Configure your preferences above and tap Create Plan.",
+            message: "Configure your preferences.",
             accessibilityID: "generate-plan-empty-state"
         )
     }

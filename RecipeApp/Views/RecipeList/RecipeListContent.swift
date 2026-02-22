@@ -44,7 +44,7 @@ struct RecipeListContent: View {
             DSEmptyState(
                 icon: "magnifyingglass",
                 title: "No Results Found",
-                message: String(localized: "We couldn't find any recipes matching '\(searchText)'. Try different keywords."),
+                message: String(localized: "We couldn't find any recipes matching '\(searchText)'."),
                 accessibilityID: "recipe-list-no-results-empty-state"
             )
         } else if let sectionTitle = selectedSectionTitle, let sectionIcon = selectedSectionIcon {
@@ -58,7 +58,7 @@ struct RecipeListContent: View {
             DSEmptyState(
                 icon: "fork.knife",
                 title: "No Recipes Yet",
-                message: "Start building your recipe collection by adding your first recipe.",
+                message: "Start building your recipe collection.",
                 actionTitle: "Add Recipe",
                 action: onAddRecipe,
                 accessibilityID: "recipe-list-empty-state"
