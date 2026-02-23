@@ -5,6 +5,8 @@ struct MealPlanEntryRow: View {
     let onTap: () -> Void
     let onRemove: () -> Void
 
+    @State private var showingDeleteConfirmation = false
+
     var body: some View {
         Button {
             onTap()
@@ -20,12 +22,16 @@ struct MealPlanEntryRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .swipeActions(edge: .trailing) {
+        .contextMenu {
             Button(role: .destructive) {
-                onRemove()
+                showingDeleteConfirmation = true
             } label: {
                 Label("Delete", systemImage: "trash")
             }
+        }
+        .alert("Remove from Calendar?", isPresented: $showingDeleteConfirmation) {
+            Button("Remove", role: .destructive) { onRemove() }
+            Button("Cancel", role: .cancel) { }
         }
         .accessibilityIdentifier("meal-plan-entry-\(entry.id)")
     }

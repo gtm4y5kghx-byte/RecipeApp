@@ -13,24 +13,35 @@ struct MealPlanCalendarContent: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            List {
-                ForEach(viewModel.dateRange, id: \.self) { date in
-                    Section {
-                        let entries = viewModel.entries(for: date)
-                        ForEach(entries) { entry in
-                            MealPlanEntryRow(
-                                entry: entry,
-                                onTap: { onEntryTap?(entry) },
-                                onRemove: { viewModel.removeEntry(entry) }
-                            )
+            ScrollView {
+                LazyVStack(spacing: 0, pinnedViews: .sectionHeaders) {
+                    ForEach(viewModel.dateRange, id: \.self) { date in
+                        Section {
+                            let entries = viewModel.entries(for: date)
+                            ForEach(entries) { entry in
+                                MealPlanEntryRow(
+                                    entry: entry,
+                                    onTap: { onEntryTap?(entry) },
+                                    onRemove: { viewModel.removeEntry(entry) }
+                                )
+                                .padding(.horizontal)
+                                .padding(.vertical, Theme.Spacing.xs)
+                            }
+                        } header: {
+                            VStack(spacing: 0) {
+                                DSDivider(thickness: .thin, color: .subtle)
+                                dayHeader(date: date, isToday: Calendar.current.isDateInToday(date))
+                                    .padding(.horizontal)
+                                    .padding(.vertical, Theme.Spacing.sm)
+                            }
+                            .background(Theme.Colors.background)
                         }
-                    } header: {
-                        dayHeader(date: date, isToday: Calendar.current.isDateInToday(date))
+                        .id(date)
                     }
-                    .id(date)
                 }
             }
-            .listStyle(.plain)
+            .background(Theme.Colors.background)
+            .contentMargins(.bottom, 100)
             .onAppear {
                 proxy.scrollTo(viewModel.today, anchor: .top)
             }
