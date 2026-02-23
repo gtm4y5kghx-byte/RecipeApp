@@ -70,7 +70,8 @@ struct DSRecipeCard: View {
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                        headerRow
+                        DSLabel(title, style: .headline, color: .primary)
+                            .lineLimit(1)
 
                         if let subtitle = subtitle {
                             if showSuggestionBadge {
@@ -92,6 +93,19 @@ struct DSRecipeCard: View {
                 }
 
                 Spacer(minLength: 0)
+
+                if case .favorite(let isFavorite, let onTap) = action {
+                    DSIconButton(
+                        isFavorite ? "heart.fill" : "heart",
+                        size: .medium,
+                        color: isFavorite ? .error : .secondary,
+                        bounceValue: isFavorite,
+                        accessibilityID: "\(accessibilityID)-favorite-button"
+                    ) {
+                        HapticFeedback.light.trigger()
+                        onTap()
+                    }
+                }
             }
 
             if case .save(let onTap) = action {
@@ -101,8 +115,6 @@ struct DSRecipeCard: View {
         }
         .padding(Theme.Spacing.sm)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.Colors.backgroundLight)
-        .cornerRadius(Theme.CornerRadius.md)
         .contentShape(Rectangle())
         .accessibilityIdentifier(accessibilityID)
     }
@@ -119,27 +131,6 @@ struct DSRecipeCard: View {
         }
         .frame(width: 80, height: 80)
         .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
-    }
-
-    private var headerRow: some View {
-        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-            DSLabel(title, style: .headline, color: .primary)
-                .lineLimit(2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            if case .favorite(let isFavorite, let onTap) = action {
-                DSIconButton(
-                    isFavorite ? "heart.fill" : "heart",
-                    size: .medium,
-                    color: isFavorite ? .error : .secondary,
-                    bounceValue: isFavorite,
-                    accessibilityID: "\(accessibilityID)-favorite-button"
-                ) {
-                    HapticFeedback.light.trigger()
-                    onTap()
-                }
-            }
-        }
     }
 
     private func suggestionSubtitle(reason: String) -> some View {
@@ -189,7 +180,7 @@ struct DSRecipeCard: View {
 
 #Preview("Recipe Card - List") {
     ScrollView {
-        VStack(spacing: Theme.Spacing.sm) {
+        LazyVStack(spacing: 0) {
             DSRecipeCard(
                 title: "Spaghetti Carbonara",
                 imageURL: "https://placehold.co/200x200",
@@ -199,6 +190,7 @@ struct DSRecipeCard: View {
                 action: .favorite(isFavorite: false, onTap: {}),
                 accessibilityID: "preview-1"
             )
+            DSDivider(thickness: .thin, color: .subtle, spacing: .none)
 
             DSRecipeCard(
                 title: "Chicken Tikka Masala with Extra Long Title That Wraps",
@@ -209,12 +201,14 @@ struct DSRecipeCard: View {
                 action: .favorite(isFavorite: true, onTap: {}),
                 accessibilityID: "preview-2"
             )
+            DSDivider(thickness: .thin, color: .subtle, spacing: .none)
 
             DSRecipeCard(
                 title: "Simple Pasta",
                 action: .favorite(isFavorite: false, onTap: {}),
                 accessibilityID: "preview-3"
             )
+            DSDivider(thickness: .thin, color: .subtle, spacing: .none)
 
             DSRecipeCard(
                 title: "Beef & Broccoli",
@@ -228,6 +222,53 @@ struct DSRecipeCard: View {
         .padding(.horizontal, Theme.Spacing.md)
     }
     .background(Theme.Colors.background)
+}
+
+#Preview("Dark: Recipe Card - List") {
+    ScrollView {
+        LazyVStack(spacing: 0) {
+            DSRecipeCard(
+                title: "Spaghetti Carbonara",
+                imageURL: "https://placehold.co/200x200",
+                prepTime: 10,
+                cookTime: 20,
+                tags: ["Pasta", "Quick", "Dinner"],
+                action: .favorite(isFavorite: false, onTap: {}),
+                accessibilityID: "preview-1"
+            )
+            DSDivider(thickness: .thin, color: .subtle, spacing: .none)
+
+            DSRecipeCard(
+                title: "Chicken Tikka Masala with Extra Long Title That Wraps",
+                imageURL: "https://placehold.co/200x200",
+                prepTime: 30,
+                cookTime: 45,
+                tags: ["Spicy", "Comfort Food", "Main Course"],
+                action: .favorite(isFavorite: true, onTap: {}),
+                accessibilityID: "preview-2"
+            )
+            DSDivider(thickness: .thin, color: .subtle, spacing: .none)
+
+            DSRecipeCard(
+                title: "Simple Pasta",
+                action: .favorite(isFavorite: false, onTap: {}),
+                accessibilityID: "preview-3"
+            )
+            DSDivider(thickness: .thin, color: .subtle, spacing: .none)
+
+            DSRecipeCard(
+                title: "Beef & Broccoli",
+                imageURL: "https://placehold.co/200x200",
+                cookTime: 25,
+                tags: ["Wok"],
+                action: .favorite(isFavorite: false, onTap: {}),
+                accessibilityID: "preview-4"
+            )
+        }
+        .padding(.horizontal, Theme.Spacing.md)
+    }
+    .background(Theme.Colors.background)
+    .preferredColorScheme(.dark)
 }
 
 #Preview("Recipe Card - Suggestions") {
