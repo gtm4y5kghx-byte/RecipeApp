@@ -116,6 +116,27 @@ struct RecipeListViewModelTests {
         #expect(viewModel.filteredResults.count == 1)
     }
     
+    @Test("Deleting a recipe removes it from active search results")
+    func testDeletedRecipeRemovedFromSearchResults() async throws {
+        let pasta = RecipeTestFixtures.createRecipe(title: "Pasta Carbonara")
+        let pizza = RecipeTestFixtures.createRecipe(title: "Pizza Margherita")
+        let modelContext = RecipeTestFixtures.createInMemoryModelContext()
+        let viewModel = RecipeListViewModel(recipes: [pasta, pizza], modelContext: modelContext)
+        configureForInstantSearch(viewModel)
+
+        viewModel.performSearch(query: "pasta", scope: .title)
+        await Task.yield()
+
+        try #require(viewModel.filteredResults.count == 1)
+        #expect(viewModel.filteredResults[0].title == "Pasta Carbonara")
+
+        // Simulate @Query update after deletion
+        viewModel.updateRecipes([pizza])
+
+        #expect(viewModel.filteredResults.isEmpty)
+        #expect(viewModel.displayedRecipes.isEmpty)
+    }
+
     // MARK: - Displayed Recipes Tests
     
     @Test("Displayed recipes returns all when section is all")

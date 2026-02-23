@@ -5,7 +5,12 @@ import SwiftData
 @MainActor
 @Observable
 class RecipeListViewModel {
-    var filteredResults: [Recipe] = []
+    private var _filteredResults: [Recipe] = []
+    var filteredResults: [Recipe] {
+        guard isSearching else { return [] }
+        let recipeIDs = Set(recipes.map { $0.id })
+        return _filteredResults.filter { recipeIDs.contains($0.id) }
+    }
     var isSearching: Bool = false
     var searchTask: Task<Void, Never>?
     var suggestions: [UnifiedSuggestion] = []
@@ -199,7 +204,7 @@ class RecipeListViewModel {
 
         // Clear search immediately without debounce
         guard !query.isEmpty else {
-            filteredResults = []
+            _filteredResults = []
             isSearching = false
             return
         }
@@ -229,7 +234,7 @@ class RecipeListViewModel {
                 }
             }
             
-            filteredResults = results
+            _filteredResults = results
         }
     }
     
