@@ -17,13 +17,10 @@ struct RecipeGrid: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                ForEach(items) { item in
                     itemView(for: item)
-
-                    if index < items.count - 1 {
-                        DSDivider(thickness: .thin, color: .subtle, spacing: .none)
-                            .padding(.horizontal, Theme.Spacing.md)
-                    }
+                    DSDivider(thickness: .thin, color: .subtle, spacing: .none)
+                        .padding(.horizontal, Theme.Spacing.md)
                 }
             }
             .scrollTargetLayout()
