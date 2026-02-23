@@ -25,7 +25,7 @@ struct MealPlanCalendarContent: View {
                                     onRemove: { viewModel.removeEntry(entry) }
                                 )
                                 .padding(.horizontal)
-                                .padding(.vertical, Theme.Spacing.xs)
+                                .padding(.vertical, Theme.Spacing.sm)
                             }
                         } header: {
                             VStack(spacing: 0) {
@@ -41,7 +41,7 @@ struct MealPlanCalendarContent: View {
                 }
             }
             .background(Theme.Colors.background)
-            .contentMargins(.bottom, 100)
+    
             .onAppear {
                 proxy.scrollTo(viewModel.today, anchor: .top)
             }
