@@ -13,6 +13,7 @@ struct MealPlanView: View {
     @State private var selectedEntry: MealPlanEntry?
     @State private var showingGeneratePlan = false
     @State private var scrollToTodayTrigger = false
+    @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
 
     var body: some View {
         Group {
@@ -79,7 +80,7 @@ struct MealPlanView: View {
     // MARK: - iPad Layout (3-column: Sidebar | Calendar | Detail)
 
     private var iPadLayout: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             RecipesMenuList(
                 appSections: [.recipes, .mealPlan, .shoppingList],
                 selectedAppSection: .mealPlan,
@@ -125,6 +126,7 @@ struct MealPlanView: View {
         } detail: {
             MealPlanDetailColumn(
                 entry: selectedEntry,
+                columnVisibility: $columnVisibility,
                 onRemove: {
                     if let entry = selectedEntry {
                         viewModel?.removeEntry(entry)
@@ -192,6 +194,7 @@ struct MealPlanView: View {
 
 private struct MealPlanDetailColumn: View {
     let entry: MealPlanEntry?
+    var columnVisibility: Binding<NavigationSplitViewVisibility>
     let onRemove: () -> Void
 
     var body: some View {
@@ -199,7 +202,8 @@ private struct MealPlanDetailColumn: View {
            let recipe = entry.recipe {
             RecipeDetailView(
                 recipe: recipe,
-                onRemoveFromContext: onRemove
+                onRemoveFromContext: onRemove,
+                columnVisibility: columnVisibility
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
