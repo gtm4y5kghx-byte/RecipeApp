@@ -97,7 +97,7 @@ struct RecipeGrid: View {
         DSRecipeCard(
             title: generated.title,
             subtitle: reason,
-            showSuggestionBadge: false,
+            showSuggestionBadge: true,
             cuisine: generated.cuisine,
             prepTime: generated.prepTime,
             cookTime: generated.cookTime,

@@ -64,51 +64,62 @@ struct DSRecipeCard: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            ZStack(alignment: .topLeading) {
-                if let imageURL = imageURL {
-                    DSImage(url: imageURL, height: 160)
-                        .cornerRadius(Theme.CornerRadius.md)
-                } else {
-                    DSImagePlaceholder(height: 160)
+        VStack(spacing: Theme.Spacing.sm) {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                thumbnail
+
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                        headerRow
+
+                        if let subtitle = subtitle {
+                            if showSuggestionBadge {
+                                suggestionSubtitle(reason: subtitle)
+                            } else {
+                                DSLabel(subtitle, style: .caption1, color: .secondary)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+
+                    if totalTime != nil {
+                        timeRow
+                    }
+
+                    if !tags.isEmpty {
+                        tagsRow
+                    }
                 }
 
-                if showSuggestionBadge, let reason = subtitle {
-                    suggestionBadge(reason: reason)
-                }
-            }
-
-            headerRow
-
-            if subtitle != nil && !showSuggestionBadge {
-                subtitleSection
-                    .padding(.bottom, Theme.Spacing.xs)
-            }
-
-            if totalTime != nil || servings != nil || cuisine != nil {
-                metadataRow
-            }
-
-            if !tags.isEmpty {
-                tagsRow
+                Spacer(minLength: 0)
             }
 
             if case .save(let onTap) = action {
                 DSButton(title: "Save to Collection", style: .primary, action: onTap)
-                    .padding(.top, Theme.Spacing.sm)
                     .accessibilityIdentifier("\(accessibilityID)-save-button")
             }
         }
-        .padding(Theme.Spacing.md)
+        .padding(Theme.Spacing.sm)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.Colors.backgroundLight)
         .cornerRadius(Theme.CornerRadius.md)
-        .shadow(color: .black.opacity(0.10), radius: 8, x: 0, y: 2)
         .contentShape(Rectangle())
         .accessibilityIdentifier(accessibilityID)
     }
 
     // MARK: - Subviews
+
+    private var thumbnail: some View {
+        Group {
+            if let imageURL = imageURL {
+                DSImage(url: imageURL, height: 80)
+            } else {
+                DSImagePlaceholder(height: 80)
+            }
+        }
+        .frame(width: 80, height: 80)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
+    }
 
     private var headerRow: some View {
         HStack(alignment: .top, spacing: Theme.Spacing.sm) {
@@ -131,31 +142,16 @@ struct DSRecipeCard: View {
         }
     }
 
-    @ViewBuilder
-    private var subtitleSection: some View {
-        if let subtitle = subtitle {
-            DSLabel(subtitle, style: .footnote, color: .secondary)
-                .lineLimit(2)
-        }
-    }
-
-    private func suggestionBadge(reason: String) -> some View {
+    private func suggestionSubtitle(reason: String) -> some View {
         HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: "sparkles")
-                .font(.system(size: 12))
+                .font(.system(size: 10))
                 .foregroundColor(Theme.Colors.accent)
 
             Text(suggestionBadgeText(reason: reason))
                 .font(Theme.Typography.caption1)
                 .lineLimit(1)
         }
-        .padding(.horizontal, Theme.Spacing.sm + 2)
-        .padding(.vertical, Theme.Spacing.xs + 2)
-        .background(Theme.Colors.backgroundLight.opacity(0.95))
-        .cornerRadius(Theme.CornerRadius.full)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .padding(Theme.Spacing.sm)
-        .environment(\.colorScheme, .light)
     }
 
     private func suggestionBadgeText(reason: String) -> AttributedString {
@@ -164,45 +160,26 @@ struct DSRecipeCard: View {
         forYou.inlinePresentationIntent = .stronglyEmphasized
 
         var reasonText = AttributedString(reason)
-        reasonText.foregroundColor = Theme.Colors.textPrimary
+        reasonText.foregroundColor = Theme.Colors.textSecondary
 
         return forYou + reasonText
     }
 
-    private var metadataRow: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            if let time = totalTime {
-                HStack(spacing: Theme.Spacing.xs) {
-                    DSIcon("clock", size: .small, color: .secondary)
-                    DSLabel("\(time) min", style: .caption1, color: .secondary)
-                }
-            }
-
-            if let servings = servings {
-                HStack(spacing: Theme.Spacing.xs) {
-                    DSIcon("person.2", size: .small, color: .secondary)
-                    DSLabel("\(servings)", style: .caption1, color: .secondary)
-                }
-            }
-
-            if let cuisine = cuisine {
-                HStack(spacing: Theme.Spacing.xs) {
-                    DSIcon("fork.knife", size: .small, color: .secondary)
-                    DSLabel(cuisine, style: .caption1, color: .secondary)
-                        .lineLimit(1)
-                }
-            }
+    private var timeRow: some View {
+        HStack(spacing: Theme.Spacing.xs) {
+            DSIcon("clock", size: .small, color: .secondary)
+            DSLabel("\(totalTime!) min", style: .caption1, color: .secondary)
         }
     }
 
     private var tagsRow: some View {
         HStack(spacing: Theme.Spacing.xs) {
-            ForEach(tags.prefix(3), id: \.self) { tag in
+            ForEach(tags.prefix(2), id: \.self) { tag in
                 DSTag(tag, style: .secondary, size: .small)
             }
 
-            if tags.count > 3 {
-                DSLabel("+\(tags.count - 3)", style: .caption2, color: .primary)
+            if tags.count > 2 {
+                DSLabel("+\(tags.count - 2)", style: .caption2, color: .secondary)
             }
         }
     }
@@ -210,206 +187,147 @@ struct DSRecipeCard: View {
 
 // MARK: - Previews
 
-#Preview("Recipe Card - Favorite Action") {
-    VStack(spacing: Theme.Spacing.md) {
-        DSRecipeCard(
-            title: "Spaghetti Carbonara",
-            cuisine: "Italian Mexican Fusion + Korean Fusion + Indian Fusion",
-            prepTime: 10,
-            cookTime: 20,
-            servings: 4,
-            tags: ["Mediterranean Fusion Cuisine", "Mediterranean Fusion Cuisine", "Dinner", "Tag", "Tag2"],
-            action: .favorite(isFavorite: false, onTap: {}),
-            accessibilityID: "preview-card-1"
-        )
+#Preview("Recipe Card - List") {
+    ScrollView {
+        VStack(spacing: Theme.Spacing.sm) {
+            DSRecipeCard(
+                title: "Spaghetti Carbonara",
+                imageURL: "https://placehold.co/200x200",
+                prepTime: 10,
+                cookTime: 20,
+                tags: ["Pasta", "Quick", "Dinner"],
+                action: .favorite(isFavorite: false, onTap: {}),
+                accessibilityID: "preview-1"
+            )
 
-        DSRecipeCard(
-            title: "Chicken Tikka Masala",
-            imageURL: "https://placehold.co/400x300",
-            cuisine: "Indian",
-            prepTime: 30,
-            cookTime: 45,
-            servings: 6,
-            tags: ["Spicy", "Comfort Food", "Main Course"],
-            action: .favorite(isFavorite: true, onTap: {}),
-            accessibilityID: "preview-card-2"
-        )
+            DSRecipeCard(
+                title: "Chicken Tikka Masala with Extra Long Title That Wraps",
+                imageURL: "https://placehold.co/200x200",
+                prepTime: 30,
+                cookTime: 45,
+                tags: ["Spicy", "Comfort Food", "Main Course"],
+                action: .favorite(isFavorite: true, onTap: {}),
+                accessibilityID: "preview-2"
+            )
+
+            DSRecipeCard(
+                title: "Simple Pasta",
+                action: .favorite(isFavorite: false, onTap: {}),
+                accessibilityID: "preview-3"
+            )
+
+            DSRecipeCard(
+                title: "Beef & Broccoli",
+                imageURL: "https://placehold.co/200x200",
+                cookTime: 25,
+                tags: ["Wok"],
+                action: .favorite(isFavorite: false, onTap: {}),
+                accessibilityID: "preview-4"
+            )
+        }
+        .padding(.horizontal, Theme.Spacing.md)
     }
-    .padding()
     .background(Theme.Colors.background)
 }
 
-#Preview("Recipe Card - Save Action (Generated)") {
-    VStack(spacing: Theme.Spacing.md) {
-        DSRecipeCard(
-            title: "Mediterranean Chickpea Bowl",
-            subtitle: "A healthy grain bowl with roasted chickpeas, fresh vegetables, and tahini dressing.",
-            cuisine: "Mediterranean",
-            prepTime: 15,
-            cookTime: 20,
-            servings: 4,
-            tags: ["Healthy", "Vegetarian", "Quick"],
-            action: .save(onTap: {}),
-            accessibilityID: "preview-generated-1"
-        )
-
-        DSRecipeCard(
-            title: "Spicy Korean Beef Tacos",
-            subtitle: "Fusion tacos with gochujang-marinated beef, pickled vegetables, and sriracha mayo.",
-            cuisine: "Korean-Mexican",
-            prepTime: 20,
-            cookTime: 25,
-            servings: 6,
-            tags: ["Spicy", "Fusion"],
-            action: .save(onTap: {}),
-            accessibilityID: "preview-generated-2"
-        )
-    }
-    .padding()
-    .background(Theme.Colors.background)
-}
-
-#Preview("Recipe Card - With Suggestion Badge") {
-    VStack(spacing: Theme.Spacing.md) {
+#Preview("Recipe Card - Suggestions") {
+    VStack(spacing: Theme.Spacing.sm) {
         DSRecipeCard(
             title: "Spaghetti Carbonara",
+            imageURL: "https://placehold.co/200x200",
             subtitle: "You haven't cooked this in a while",
             showSuggestionBadge: true,
-            cuisine: "Italian",
             prepTime: 10,
             cookTime: 20,
-            servings: 4,
-            tags: ["Pasta", "Quick", "Dinner"],
+            tags: ["Pasta", "Quick"],
             action: .favorite(isFavorite: false, onTap: {}),
             accessibilityID: "preview-suggestion-1"
         )
 
         DSRecipeCard(
-            title: "Regular Recipe",
-            cuisine: "American",
-            prepTime: 15,
-            cookTime: 25,
-            servings: 4,
-            tags: ["Easy"],
+            title: "Thai Green Curry",
+            subtitle: "Quick weeknight dinner",
+            showSuggestionBadge: true,
+            cookTime: 30,
+            tags: ["Spicy", "Thai"],
             action: .favorite(isFavorite: false, onTap: {}),
             accessibilityID: "preview-suggestion-2"
         )
     }
-    .padding()
+    .padding(.horizontal, Theme.Spacing.md)
     .background(Theme.Colors.background)
 }
 
-#Preview("Recipe Card - With Image") {
-    VStack(spacing: Theme.Spacing.md) {
+#Preview("Recipe Card - Generated") {
+    VStack(spacing: Theme.Spacing.sm) {
         DSRecipeCard(
             title: "Mediterranean Chickpea Bowl",
-            imageURL: "https://placehold.co/400x300",
             subtitle: "A healthy grain bowl with roasted chickpeas.",
-            cuisine: "Mediterranean",
+            showSuggestionBadge: true,
             prepTime: 15,
             cookTime: 20,
-            servings: 4,
             tags: ["Healthy", "Vegetarian"],
             action: .save(onTap: {}),
-            accessibilityID: "preview-with-image"
+            accessibilityID: "preview-generated-1"
         )
     }
-    .padding()
-    .background(Theme.Colors.background)
-}
-
-#Preview("Recipe Card - Minimal") {
-    VStack(spacing: Theme.Spacing.md) {
-        DSRecipeCard(
-            title: "Simple Pasta",
-            action: .favorite(isFavorite: false, onTap: {}),
-            accessibilityID: "preview-minimal-1"
-        )
-
-        DSRecipeCard(
-            title: "Quick Recipe",
-            action: .save(onTap: {}),
-            accessibilityID: "preview-minimal-2"
-        )
-    }
-    .padding()
+    .padding(.horizontal, Theme.Spacing.md)
     .background(Theme.Colors.background)
 }
 
 #Preview("Recipe Card - Interactive") {
     @Previewable @State var isFavorite = false
 
-    VStack(spacing: Theme.Spacing.lg) {
-        DSLabel("Tap heart to favorite", style: .caption1, color: .secondary)
-            .multilineTextAlignment(.center)
-
-        DSRecipeCard(
-            title: "Spaghetti Carbonara",
-            cuisine: "Italian",
-            prepTime: 10,
-            cookTime: 20,
-            servings: 4,
-            tags: ["Pasta", "Quick", "Dinner"],
-            action: .favorite(isFavorite: isFavorite, onTap: {
-                isFavorite.toggle()
-            }),
-            accessibilityID: "preview-interactive"
-        )
-
-        if isFavorite {
-            HStack(spacing: Theme.Spacing.sm) {
-                DSIcon("checkmark.circle.fill", size: .medium, color: .success)
-                DSLabel("Added to favorites!", style: .body, color: .success)
-            }
-            .padding(Theme.Spacing.md)
-            .background(Theme.Colors.success.opacity(0.1))
-            .cornerRadius(Theme.CornerRadius.md)
-        }
-    }
-    .padding()
+    DSRecipeCard(
+        title: "Spaghetti Carbonara",
+        imageURL: "https://placehold.co/200x200",
+        prepTime: 10,
+        cookTime: 20,
+        tags: ["Pasta", "Quick", "Dinner"],
+        action: .favorite(isFavorite: isFavorite, onTap: {
+            isFavorite.toggle()
+        }),
+        accessibilityID: "preview-interactive"
+    )
+    .padding(.horizontal, Theme.Spacing.md)
     .background(Theme.Colors.background)
 }
 
 #Preview("Dark: Recipe Card") {
     ScrollView {
-        VStack(spacing: Theme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.sm) {
             DSRecipeCard(
                 title: "Chicken Tikka Masala",
-                cuisine: "Indian",
+                imageURL: "https://placehold.co/200x200",
                 prepTime: 15,
                 cookTime: 30,
-                servings: 4,
                 tags: ["Spicy", "Dinner"],
                 action: .favorite(isFavorite: true, onTap: {}),
-                accessibilityID: "dark-preview-1"
+                accessibilityID: "dark-1"
             )
 
             DSRecipeCard(
                 title: "AI Generated Recipe",
                 subtitle: "Made for you based on your preferences",
-                cuisine: "Mediterranean",
                 prepTime: 10,
                 cookTime: 20,
-                servings: 2,
                 tags: ["Healthy", "Quick"],
                 action: .save(onTap: {}),
-                accessibilityID: "dark-preview-2"
+                accessibilityID: "dark-2"
             )
 
             DSRecipeCard(
                 title: "French Lemon Tart",
-                subtitle: "You haven't made your favorite French dessert in a while",
+                subtitle: "You haven't made this in a while",
                 showSuggestionBadge: true,
-                cuisine: "French",
                 prepTime: 30,
                 cookTime: 45,
-                servings: 8,
                 tags: ["Dessert", "Baking"],
                 action: .favorite(isFavorite: false, onTap: {}),
-                accessibilityID: "dark-preview-3"
+                accessibilityID: "dark-3"
             )
         }
-        .padding()
+        .padding(.horizontal, Theme.Spacing.md)
     }
     .background(Theme.Colors.background)
     .preferredColorScheme(.dark)
