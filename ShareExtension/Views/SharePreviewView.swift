@@ -75,22 +75,24 @@ struct SharePreviewView: View {
                         alreadyImportedBanner
                     }
 
-                    DSLabel(recipe.title, style: .title2)
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                        DSLabel(recipe.title, style: .title2)
 
-                    if let description = recipe.description {
-                        DSLabel(description, style: .body, color: .secondary)
-                    }
-
-                    if let author = recipe.author {
-                        HStack(spacing: Theme.Spacing.xs) {
-                            DSIcon("person", size: .small, color: .adaptiveBrand)
-                            DSLabel(author, style: .caption1, color: .secondary)
+                        if let description = recipe.description {
+                            DSLabel(description, style: .body, color: .secondary)
                         }
                     }
 
-                    metadataRow(recipe: recipe)
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                        if let author = recipe.author {
+                            HStack(spacing: Theme.Spacing.xs) {
+                                DSIcon("person", size: .small, color: .adaptiveBrand)
+                                DSLabel(author, style: .caption1, color: .secondary)
+                            }
+                        }
 
-                    DSDivider(thickness: .thin, color: .prominent, spacing: .compact)
+                        DSDivider(thickness: .thin, color: .prominent, spacing: .compact)
+                    }
 
                     summarySection(recipe: recipe)
                 }
@@ -110,38 +112,19 @@ struct SharePreviewView: View {
         }
     }
 
-    // MARK: - Metadata Row
-
-    private func metadataRow(recipe: RecipeImportData) -> some View {
-        HStack {
-            if let prepTime = viewModel.formattedPrepTime {
-                metadataItem(icon: "clock", label: "Prep", text: prepTime)
-                    .frame(maxWidth: .infinity)
-            }
-            if let cookTime = viewModel.formattedCookTime {
-                metadataItem(icon: "flame", label: "Cook", text: cookTime)
-                    .frame(maxWidth: .infinity)
-            }
-            if let servings = recipe.servings {
-                metadataItem(icon: "person.2", label: "Serves", text: "\(servings)")
-                    .frame(maxWidth: .infinity)
-            }
-        }
-    }
-
-    private func metadataItem(icon: String, label: String, text: String) -> some View {
-        VStack(spacing: Theme.Spacing.xs) {
-            DSIcon(icon, size: .small, color: .adaptiveBrand)
-            DSLabel(text, style: .caption1, color: .primary)
-            DSLabel(label, style: .caption2, color: .tertiary)
-        }
-        .frame(minWidth: 60)
-    }
-
     // MARK: - Summary Section
 
     private func summarySection(recipe: RecipeImportData) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            if let prepTime = viewModel.formattedPrepTime {
+                summaryRow(icon: "clock", text: "\(prepTime) prep")
+            }
+            if let cookTime = viewModel.formattedCookTime {
+                summaryRow(icon: "flame", text: "\(cookTime) cook")
+            }
+            if let servings = recipe.servings {
+                summaryRow(icon: "person.2", text: "Serves \(servings)")
+            }
             summaryRow(icon: "list.bullet", text: "\(recipe.ingredients.count) ingredients")
             summaryRow(icon: "text.justify.leading", text: "\(recipe.instructions.count) steps")
             if let cuisine = recipe.cuisine {

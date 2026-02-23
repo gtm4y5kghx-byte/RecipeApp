@@ -176,6 +176,7 @@ struct RecipeListView: View {
                 .navigationBarTitleDisplayMode(.large)
                 .searchable(text: $searchText)
                 .background(Theme.Colors.background)
+                .navigationSplitViewColumnWidth(min: 300, ideal: 380, max: 450)
         } detail: {
             if let recipe = effectiveSelectedRecipe.wrappedValue {
                 RecipeDetailView(recipe: recipe, columnVisibility: $columnVisibility)
