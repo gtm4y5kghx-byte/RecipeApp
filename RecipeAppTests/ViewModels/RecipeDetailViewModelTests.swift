@@ -102,6 +102,21 @@ struct RecipeDetailViewModelTests {
          #expect(remainingRecipes?.isEmpty == true)
      }
     
+    // MARK: - Add to Shopping List
+
+    @Test("addToShoppingList returns true on success")
+    func testAddToShoppingListSuccess() {
+        let context = RecipeTestFixtures.createInMemoryModelContext()
+        let recipe = RecipeTestFixtures.createRecipe(title: "Test Recipe")
+        context.insert(recipe)
+        let viewModel = RecipeDetailViewModel(recipe: recipe, modelContext: context)
+
+        let result = viewModel.addToShoppingList()
+
+        #expect(result == true)
+        #expect(viewModel.error == nil)
+    }
+
     // MARK: Total Time formatting
     
     @Test("Formatted time shows minutes only when under 60")

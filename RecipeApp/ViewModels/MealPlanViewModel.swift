@@ -49,12 +49,15 @@ class MealPlanViewModel {
 
     // MARK: - Actions
 
-    func addEntry(date: Date, mealType: MealType, recipe: Recipe) {
+    @discardableResult
+    func addEntry(date: Date, mealType: MealType, recipe: Recipe) -> Bool {
         do {
             let entry = try service.addEntry(date: date, mealType: mealType, recipe: recipe)
             entries.append(entry)
+            return true
         } catch {
             self.error = .saveFailed
+            return false
         }
     }
 

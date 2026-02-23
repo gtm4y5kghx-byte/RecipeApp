@@ -53,12 +53,14 @@ class RecipeDetailViewModel {
         }
     }
     
-    func addToShoppingList() {
+    func addToShoppingList() -> Bool {
         do {
             let service = ShoppingListService(modelContext: modelContext)
             try service.addIngredientsFromRecipe(recipe)
+            return true
         } catch {
             self.error = error
+            return false
         }
     }
 

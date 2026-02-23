@@ -89,6 +89,19 @@ struct MealPlanViewModelTests {
         #expect(viewModel.entries.first?.mealType == .dinner)
     }
 
+    @Test("addEntry returns true on success")
+    func addEntryReturnsTrue() throws {
+        let context = RecipeTestFixtures.createInMemoryModelContext()
+        let recipe = Recipe(title: "Pasta", sourceType: .manual)
+        context.insert(recipe)
+
+        let viewModel = try createViewModel(context: context)
+        let result = viewModel.addEntry(date: Date(), mealType: .dinner, recipe: recipe)
+
+        #expect(result == true)
+        #expect(viewModel.error == nil)
+    }
+
     @Test("addEntry allows multiple entries for same meal")
     func addEntryMultiple() throws {
         let context = RecipeTestFixtures.createInMemoryModelContext()

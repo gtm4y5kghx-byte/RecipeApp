@@ -13,6 +13,9 @@ struct RecipeDetailView: View {
     @State private var showingRemoveConfirmation = false
     @State private var showingCannotCookAlert = false
     @State private var showingAddToMealPlan = false
+    @State private var showShoppingListToast = false
+    @State private var showShoppingListErrorToast = false
+    @State private var showMealPlanToast = false
     @State private var error: Error?
 
     let recipe: Recipe
@@ -143,7 +146,11 @@ struct RecipeDetailView: View {
                     }
                     .accessibilityIdentifier("recipe-detail-start-cooking-button")
                     Button("Add to Shopping List") {
-                        viewModel?.addToShoppingList()
+                        if viewModel?.addToShoppingList() == true {
+                            showShoppingListToast = true
+                        } else {
+                            showShoppingListErrorToast = true
+                        }
                     }
                     .accessibilityIdentifier("recipe-detail-add-to-shopping-list-button")
                     Button("Add to Meal Plan") {
@@ -172,7 +179,9 @@ struct RecipeDetailView: View {
             CookingModeView(recipe: recipe)
         }
         .fullScreenCover(isPresented: $showingAddToMealPlan) {
-            MealPlanCalendarSheet(recipe: recipe)
+            MealPlanCalendarSheet(recipe: recipe, onRecipeAdded: {
+                showMealPlanToast = true
+            })
         }
         .alert(String(localized: "Delete Recipe?"), isPresented: $showingDeleteConfirmation) {
             Button(String(localized: "Delete"), role: .destructive) {
@@ -195,6 +204,15 @@ struct RecipeDetailView: View {
             Button(String(localized: "OK"), role: .cancel) { }
         } message: {
             Text(String(localized: "This recipe needs ingredients and instructions before you can start cooking."))
+        }
+        .toast(isPresented: $showShoppingListToast) {
+            DSBanner(message: "Added to Shopping List", icon: "checkmark.circle", style: .success)
+        }
+        .toast(isPresented: $showShoppingListErrorToast) {
+            DSBanner(message: "Failed to add to Shopping List", icon: "exclamationmark.triangle", style: .error)
+        }
+        .toast(isPresented: $showMealPlanToast) {
+            DSBanner(message: "Added to Meal Plan", icon: "checkmark.circle", style: .success)
         }
         .onAppear {
             if viewModel == nil {
