@@ -18,14 +18,20 @@ struct MealPlanCalendarContent: View {
                     ForEach(viewModel.dateRange, id: \.self) { date in
                         Section {
                             let entries = viewModel.entries(for: date)
-                            ForEach(entries) { entry in
-                                MealPlanEntryRow(
-                                    entry: entry,
-                                    onTap: { onEntryTap?(entry) },
-                                    onRemove: { viewModel.removeEntry(entry) }
-                                )
-                                .padding(.horizontal)
-                                .padding(.vertical, Theme.Spacing.sm)
+                            ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                                VStack(spacing: 0) {
+                                    MealPlanEntryRow(
+                                        entry: entry,
+                                        onTap: { onEntryTap?(entry) },
+                                        onRemove: { viewModel.removeEntry(entry) }
+                                    )
+                                    .padding(.horizontal)
+                                    .padding(.vertical, Theme.Spacing.sm)
+
+                                    if index < entries.count - 1 {
+                                        DSDivider(thickness: .thin, color: .subtle)
+                                    }
+                                }
                             }
                         } header: {
                             VStack(spacing: 0) {
