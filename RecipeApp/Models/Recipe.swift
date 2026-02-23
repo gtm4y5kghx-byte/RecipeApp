@@ -31,6 +31,9 @@ class Recipe {
     
     @Relationship(deleteRule: .cascade)
     var instructions: [Step]
+
+    @Relationship(deleteRule: .nullify, inverse: \MealPlanEntry.recipe)
+    var mealPlanEntries: [MealPlanEntry]?
     
     init(title: String, sourceType: SourceType) {
         self.id = UUID()

@@ -22,19 +22,19 @@ struct MealPlanViewModelTests {
         #expect(error == nil)
     }
 
-    // MARK: - Load Entries
+    // MARK: - Update Entries
 
-    @Test("loadEntries fetches entries from service")
-    func loadEntries() throws {
+    @Test("updateEntries replaces entries from @Query")
+    func updateEntries() throws {
         let context = RecipeTestFixtures.createInMemoryModelContext()
         let service = MealPlanService(modelContext: context)
 
         let recipe = Recipe(title: "Pasta", sourceType: .manual)
         context.insert(recipe)
-        try service.addEntry(date: Date(), mealType: .dinner, recipe: recipe)
+        let entry = try service.addEntry(date: Date(), mealType: .dinner, recipe: recipe)
 
         let viewModel = try createViewModel(context: context)
-        viewModel.loadEntries()
+        viewModel.updateEntries([entry])
 
         #expect(viewModel.entries.count == 1)
     }
@@ -52,12 +52,12 @@ struct MealPlanViewModelTests {
         let today = Calendar.current.startOfDay(for: Date())
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
 
-        try service.addEntry(date: today, mealType: .breakfast, recipe: recipe)
-        try service.addEntry(date: today, mealType: .dinner, recipe: recipe)
-        try service.addEntry(date: tomorrow, mealType: .lunch, recipe: recipe)
+        let entry1 = try service.addEntry(date: today, mealType: .breakfast, recipe: recipe)
+        let entry2 = try service.addEntry(date: today, mealType: .dinner, recipe: recipe)
+        let entry3 = try service.addEntry(date: tomorrow, mealType: .lunch, recipe: recipe)
 
         let viewModel = try createViewModel(context: context)
-        viewModel.loadEntries()
+        viewModel.updateEntries([entry1, entry2, entry3])
 
         let todayEntries = viewModel.entries(for: today)
         #expect(todayEntries.count == 2)
@@ -69,7 +69,6 @@ struct MealPlanViewModelTests {
     @Test("entries(for:) returns empty array when no entries for date")
     func entriesForDateEmpty() throws {
         let viewModel = try createViewModel()
-        viewModel.loadEntries()
 
         let entries = viewModel.entries(for: Date())
         #expect(entries.isEmpty)

@@ -12,6 +12,7 @@ class MealPlanEntry {
     var id: UUID
     var date: Date
     var mealType: MealType
+    @Relationship(deleteRule: .nullify)
     var recipe: Recipe?
     var dateAdded: Date
 

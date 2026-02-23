@@ -4,7 +4,7 @@ import SwiftData
 struct MealPlanView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.isIPad) private var isIPad
-    @Query private var recipes: [Recipe]
+    @Query(sort: \MealPlanEntry.date) private var entries: [MealPlanEntry]
 
     var selectedTab: Binding<MainView.Tab>?
     var menuState: AppMenuState?
@@ -26,15 +26,17 @@ struct MealPlanView: View {
         .onAppear {
             if viewModel == nil {
                 viewModel = MealPlanViewModel(modelContext: modelContext)
-                viewModel?.loadEntries()
-            } else if MealPlanViewModel.needsReload {
-                viewModel?.loadEntries()
-                MealPlanViewModel.needsReload = false
+                viewModel?.updateEntries(entries)
             }
             autoSelectFirstEntryIfNeeded()
         }
-        .onChange(of: viewModel?.entries) { _, _ in
+        .onChange(of: entries) { _, newValue in
+            viewModel?.updateEntries(newValue)
             autoSelectFirstEntryIfNeeded()
+            // Clear selected entry if its recipe was deleted
+            if let selected = selectedEntry, selected.recipe == nil {
+                selectedEntry = nil
+            }
         }
     }
 
@@ -152,7 +154,7 @@ struct MealPlanView: View {
             actionTitle: "Try Again",
             action: {
                 viewModel.error = nil
-                viewModel.loadEntries()
+                viewModel.updateEntries(entries)
             },
             accessibilityID: "meal-plan-error-state"
         )
@@ -182,9 +184,8 @@ struct MealPlanView: View {
             GeneratePlanSheet()
         }
         .onChange(of: showingGeneratePlan) { _, isShowing in
-            if !isShowing && MealPlanViewModel.needsReload {
-                viewModel.loadEntries()
-                MealPlanViewModel.needsReload = false
+            if !isShowing {
+                viewModel.updateEntries(entries)
             }
         }
     }

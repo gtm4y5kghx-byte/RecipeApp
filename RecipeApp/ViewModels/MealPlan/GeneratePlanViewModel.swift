@@ -158,7 +158,6 @@ class GeneratePlanViewModel {
             )
             addedEntries[result.id] = entry
             addedResultIDs.insert(result.id)
-            MealPlanViewModel.needsReload = true
         } catch {
             self.error = MealPlanError.saveFailed
         }

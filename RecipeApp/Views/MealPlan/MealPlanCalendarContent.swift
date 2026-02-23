@@ -102,7 +102,6 @@ struct MealPlanCalendarContent: View {
     private func handleMealTypeSelected(date: Date, mealType: MealType) {
         if let recipe = recipeToAdd {
             viewModel.addEntry(date: date, mealType: mealType, recipe: recipe)
-            MealPlanViewModel.needsReload = true
             onRecipeAdded?()
         } else {
             selectedDate = date

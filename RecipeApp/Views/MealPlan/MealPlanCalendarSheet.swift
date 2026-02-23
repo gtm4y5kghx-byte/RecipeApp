@@ -4,6 +4,7 @@ import SwiftData
 struct MealPlanCalendarSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Query(sort: \MealPlanEntry.date) private var entries: [MealPlanEntry]
 
     @State private var viewModel: MealPlanViewModel?
     @State private var scrollToTodayTrigger = false
@@ -45,8 +46,11 @@ struct MealPlanCalendarSheet: View {
         .onAppear {
             if viewModel == nil {
                 viewModel = MealPlanViewModel(modelContext: modelContext)
-                viewModel?.loadEntries()
+                viewModel?.updateEntries(entries)
             }
+        }
+        .onChange(of: entries) { _, newValue in
+            viewModel?.updateEntries(newValue)
         }
     }
 }

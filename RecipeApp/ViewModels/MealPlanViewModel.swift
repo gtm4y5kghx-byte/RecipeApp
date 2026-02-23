@@ -6,8 +6,6 @@ import SwiftData
 class MealPlanViewModel {
     private let service: MealPlanService
 
-    static var needsReload = false
-
     var entries: [MealPlanEntry] = []
     var error: MealPlanError?
 
@@ -32,14 +30,10 @@ class MealPlanViewModel {
         self.today = calendar.startOfDay(for: Date())
     }
 
-    // MARK: - Load Entries
+    // MARK: - Update Entries
 
-    func loadEntries() {
-        do {
-            entries = try service.allEntries()
-        } catch {
-            self.error = .loadFailed
-        }
+    func updateEntries(_ newEntries: [MealPlanEntry]) {
+        entries = newEntries
     }
 
     // MARK: - Query
@@ -49,7 +43,7 @@ class MealPlanViewModel {
         let dayEnd = Calendar.current.date(byAdding: .day, value: 1, to: dayStart)!
 
         return entries.filter { entry in
-            entry.date >= dayStart && entry.date < dayEnd
+            entry.date >= dayStart && entry.date < dayEnd && entry.recipe != nil
         }
     }
 
