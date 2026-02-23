@@ -41,7 +41,7 @@ class ClaudeAPIClient {
     func sendMessage(
         prompt: String,
         systemPrompt: String,
-        model: Model = .sonnet,
+        model: Model = .haiku,
         maxTokens: Int = 1024
     ) async throws -> String {
         let request = try buildRequest(
