@@ -41,6 +41,7 @@ struct MealPlanCalendarContent: View {
                                     .padding(.vertical, Theme.Spacing.sm)
                             }
                             .background(Theme.Colors.background)
+                            .accessibilityIdentifier("meal-plan-date-\(Self.dateID(date))")
                         }
                         .id(date)
                     }
@@ -90,14 +91,26 @@ struct MealPlanCalendarContent: View {
                     Button(mealType.rawValue.capitalized) {
                         handleMealTypeSelected(date: date, mealType: mealType)
                     }
+                    .accessibilityIdentifier("meal-plan-\(Self.dateID(date))-\(mealType.rawValue)-button")
                 }
             } label: {
                 DSIcon("plus", size: .small, color: .adaptiveBrand)
             }
+            .accessibilityIdentifier("meal-plan-\(Self.dateID(date))-add-button")
         }
     }
 
     // MARK: - Actions
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
+    private static func dateID(_ date: Date) -> String {
+        dateFormatter.string(from: date)
+    }
 
     private func handleMealTypeSelected(date: Date, mealType: MealType) {
         if let recipe = recipeToAdd {

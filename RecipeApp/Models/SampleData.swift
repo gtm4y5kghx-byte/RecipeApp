@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 
+@MainActor
 struct SampleData {
     static func loadSampleRecipes(into context: ModelContext) {
         let recipes = [
@@ -24,7 +25,8 @@ struct SampleData {
             createSlowCookerRoast(),
             createCapreseSalad(),
             createSpicyRamen(),
-            createLemonTart()
+            createLemonTart(),
+            createUntitledDraft()
         ]
         
         for recipe in recipes {
@@ -34,6 +36,41 @@ struct SampleData {
         try? context.save()
     }
     
+    static func loadSpecificRecipes(_ ids: [String], into context: ModelContext) {
+        let factories: [String: () -> Recipe] = [
+            "apple_pie": createApplePie,
+            "dutch_apple_pie": createDutchApplePie,
+            "chocolate_cake": createChocolateCake,
+            "grilled_cheese": createGrilledCheese,
+            "tacos": createTacos,
+            "pasta": createPasta,
+            "chicken_stir_fry": createChickenStirFry,
+            "tom_soup": createTomSoup,
+            "quick_pickles": createQuickPickles,
+            "beef_burgers": createBeefBurgers,
+            "vegetarian_chili": createVegetarianChili,
+            "pad_thai": createPadThai,
+            "french_onion_soup": createFrenchOnionSoup,
+            "baked_salmon": createBakedSalmon,
+            "chicken_parmesan": createChickenParmesan,
+            "vegan_curry": createVeganCurry,
+            "quick_omelette": createQuickOmelette,
+            "slow_cooker_roast": createSlowCookerRoast,
+            "caprese_salad": createCapreseSalad,
+            "spicy_ramen": createSpicyRamen,
+            "lemon_tart": createLemonTart,
+            "untitled_draft": createUntitledDraft
+        ]
+
+        for id in ids {
+            let trimmed = id.trimmingCharacters(in: .whitespaces)
+            if let factory = factories[trimmed] {
+                context.insert(factory())
+            }
+        }
+        try? context.save()
+    }
+
     static func clearAllData(from context: ModelContext) {
         do {
             try context.delete(model: Recipe.self)
@@ -955,6 +992,14 @@ struct SampleData {
         recipe.imageURL = "https://placehold.co/400x300"
         recipe.nutrition = NutritionInfo(calories: 340, carbohydrates: 42, protein: 5, fat: 16, fiber: 1, sodium: 180, sugar: 28)
         
+        return recipe
+    }
+
+    // Minimal recipe with no ingredients or instructions.
+    // Used by UI tests to verify the "can't start cooking" guard.
+    static func createUntitledDraft() -> Recipe {
+        let recipe = Recipe(title: "Untitled Draft", sourceType: .manual)
+        recipe.notes = "This recipe has no ingredients or instructions yet."
         return recipe
     }
 }

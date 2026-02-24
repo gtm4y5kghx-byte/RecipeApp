@@ -33,6 +33,9 @@
             reference = "container:RecipeApp.xcodeproj/xcshareddata/TestPlans/UnitTests.xctestplan"
             default = "YES">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:UITests.xctestplan">
+         </TestPlanReference>
       </TestPlans>
    </TestAction>
    <LaunchAction

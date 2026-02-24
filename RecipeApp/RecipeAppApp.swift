@@ -12,11 +12,24 @@ struct RecipeAppApp: App {
             UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
         }
 
+        if ProcessInfo.processInfo.arguments.contains("UI_TESTING") {
+            UserDefaults.standard.set(true, forKey: "has_completed_onboarding")
+        }
+
+        let context = sharedModelContainer.mainContext
+        if ProcessInfo.processInfo.arguments.contains("SEED_SAMPLE_DATA") {
+            SampleData.loadSampleRecipes(into: context)
+        }
+        if let seedRecipes = ProcessInfo.processInfo.environment["SEED_RECIPES"] {
+            let ids = seedRecipes.components(separatedBy: ",")
+            SampleData.loadSpecificRecipes(ids, into: context)
+        }
+
         registerBackgroundTask()
     }
 
     var sharedModelContainer: ModelContainer = {
-        let isUITesting = ProcessInfo.processInfo.arguments.contains("UI-TESTING")
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("UI_TESTING")
         return createSharedModelContainer(inMemory: isUITesting)
     }()
 

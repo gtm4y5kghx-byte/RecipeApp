@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "542814AB-6C8E-4A57-91DE-5964CD960631",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:RecipeApp.xcodeproj",
+        "identifier" : "48013D1F2E9E49550021EBF4",
+        "name" : "RecipeAppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
